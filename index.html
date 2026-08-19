@@ -1843,5 +1843,87 @@
       }
     });
   </script>
+  <!-- FIREBASE CLOUD SYNC MAGIC -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  // Tera apna secret Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCsrOKDW7wt7Y9Mvqv0_cRzSEJtQnj1T9k",
+    authDomain: "jee-tracker-31fc9.firebaseapp.com",
+    projectId: "jee-tracker-31fc9",
+    storageBucket: "jee-tracker-31fc9.firebasestorage.app",
+    messagingSenderId: "531917856515",
+    appId: "1:531917856515:web:2f912155cd3b85941e5336"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Background me cloud par save karne ka logic
+  window.syncUserDataToCloud = async function() {
+    if (!userProfile.name) return;
+    const total = trackerData.length;
+    const done = trackerData.filter(d => d.status === 'Completed').length;
+    const highConf = trackerData.filter(d => d.confidence === 'High').length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    const myData = {
+      name: userProfile.name,
+      done: done,
+      pct: pct,
+      highConf: highConf,
+      updated: Date.now()
+    };
+
+    try {
+      await setDoc(doc(db, "squad_progress", userProfile.name), myData);
+      console.log("Live Database Update Ho Gaya! 🚀");
+    } catch(e) {
+      console.error("Firebase error:", e);
+    }
+  };
+
+  // Master Admin Panel me sab dosto ka score dikhane ka logic
+  window.refreshAdminData = async function() {
+    const container = document.getElementById('adminSquadContainer');
+    container.innerHTML = '<div style="color:var(--lime-neon); text-align:center; padding: 20px;">Fetching Live Data from Firebase... ⏳</div>';
+    
+    try {
+      const snapshot = await getDocs(collection(db, "squad_progress"));
+      let squadList = [];
+      snapshot.forEach(doc => squadList.push(doc.data()));
+      
+      // Ranking by completion percentage
+      squadList.sort((a, b) => b.pct - a.pct);
+      container.innerHTML = '';
+      
+      if(squadList.length === 0) {
+         container.innerHTML = '<div style="color:var(--text-muted); text-align:center;">Abhi tak kisi dost ne data sync nahi kiya.</div>';
+         return;
+      }
+
+      squadList.forEach((user, i) => {
+        const row = document.createElement('div');
+        row.className = 'admin-row';
+        const lastActive = new Date(user.updated).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', day: '2-digit', month: 'short' });
+        
+        row.innerHTML = `
+          <div>
+            <div class="admin-user-name">#${i+1} ${user.name}</div>
+            <div class="admin-user-sub">${user.done} / 79 Done • ${user.highConf} High Conf</div>
+            <div style="font-size:0.65rem; color:var(--text-dim); margin-top:4px;">Last seen: ${lastActive}</div>
+          </div>
+          <div class="admin-pct">${user.pct}%</div>
+        `;
+        container.appendChild(row);
+      });
+    } catch(e) {
+      console.error("Admin panel error:", e);
+      container.innerHTML = '<div style="color:#f87171; text-align:center; padding: 10px;">Error aa gaya bhai! Database Rule Test mode mein on kiya hai ya nahi check kar.</div>';
+    }
+  };
+</script>
 </body>
 </html>
