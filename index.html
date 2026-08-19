@@ -161,6 +161,8 @@
       max-width: 95vw;
       overflow-x: auto;
     }
+    /* Hide scrollbar for dock */
+    .app-dock-bar::-webkit-scrollbar { display: none; }
     .dock-tab {
       background: transparent;
       border: none;
@@ -293,6 +295,51 @@
     .hero-headline .serif-accent { font-family: var(--font-serif-accent); font-style: italic; font-weight: 400; color: var(--lime-neon); }
     .hero-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; max-width: 820px; }
 
+    /* New Countdown UI - UPDATED FOR AESTHETICS */
+    .countdown-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    .countdown-box {
+      background: linear-gradient(145deg, rgba(20, 30, 22, 0.6), rgba(10, 15, 12, 0.9));
+      border: 1px solid rgba(212, 255, 63, 0.2);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: inset 0 0 20px rgba(212, 255, 63, 0.05), 0 8px 24px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    .countdown-box::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--lime-neon);
+    }
+    .countdown-box.adv { 
+      border-color: rgba(56, 189, 248, 0.2); 
+      box-shadow: inset 0 0 20px rgba(56, 189, 248, 0.05), 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .countdown-box.adv::before { background: #38bdf8; }
+    .countdown-title { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .countdown-timer { font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 800; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
+    
+    .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(90deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.05));
+      border: 1px solid rgba(249, 115, 22, 0.4);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-weight: 800;
+      color: #fb923c;
+      margin-top: 15px;
+    }
+
     .stats-row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -325,6 +372,7 @@
     .stat-num { font-size: 1.4rem; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; }
     .stat-label { font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
 
+    /* --- PROGRESS BARS WITH ENHANCED LIGHTING GLOW --- */
     .progress-bar-container {
       background: rgba(255, 255, 255, 0.05);
       border-radius: 999px;
@@ -339,10 +387,9 @@
       border-radius: 999px;
       width: 0%;
       transition: width 0.6s ease;
-      box-shadow: 0 0 14px var(--lime-glow);
+      box-shadow: 0 0 18px rgba(212, 255, 63, 0.75), inset 0 0 8px rgba(255,255,255,0.4);
     }
 
-    /* SUBJECT PROGRESS BREAKDOWN BARS */
     .subj-progress-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -376,6 +423,9 @@
       width: 0%;
       transition: width 0.5s ease;
     }
+    #phy-prog-fill { background: var(--phy-accent); box-shadow: 0 0 14px rgba(56, 189, 248, 0.6); }
+    #chem-prog-fill { background: var(--chem-accent); box-shadow: 0 0 14px rgba(52, 211, 153, 0.6); }
+    #math-prog-fill { background: var(--math-accent); box-shadow: 0 0 14px rgba(192, 132, 252, 0.6); }
 
     /* Hub Cards */
     .hub-grid {
@@ -538,11 +588,36 @@
       letter-spacing: -2px;
       text-shadow: 0 0 35px rgba(212, 255, 63, 0.35);
     }
+    .timer-dropdown-group {
+      display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;
+    }
+
+    /* Mocks & Errors */
+    .mock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 15px; max-height: 380px; overflow-y: auto; padding-right: 8px; }
+    .mock-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 18px; border-radius: 16px; }
+    
+    .error-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 15px; max-height: 380px; overflow-y: auto; padding-right: 8px; }
+    .error-card { background: rgba(248, 113, 113, 0.05); border: 1px solid rgba(248, 113, 113, 0.2); padding: 18px; border-radius: 16px; }
+    .error-card h4 { color: #f87171; font-size: 0.95rem; margin-bottom: 6px; }
+
+    /* Custom Scrollbar for the grids */
+    .mock-grid::-webkit-scrollbar, .error-grid::-webkit-scrollbar { width: 6px; }
+    .mock-grid::-webkit-scrollbar-track, .error-grid::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 10px; }
+    .mock-grid::-webkit-scrollbar-thumb, .error-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    .mock-grid::-webkit-scrollbar-thumb:hover, .error-grid::-webkit-scrollbar-thumb:hover { background: var(--lime-neon); }
+
+    /* Delete Button for Mocks/Errors */
+    .btn-delete-item {
+      background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171;
+      width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; outline: none;
+    }
+    .btn-delete-item:hover { background: #f87171; color: #000; transform: scale(1.05); }
 
     /* Modals */
     .modal-backdrop { position: fixed; inset: 0; background: rgba(3, 8, 4, 0.85); backdrop-filter: blur(16px); z-index: 999; display: none; align-items: center; justify-content: center; padding: 20px; }
     .modal-backdrop.open { display: flex; }
-    .modal-box { background: #09120a; border: 1px solid rgba(212, 255, 63, 0.3); border-radius: 26px; max-width: 520px; width: 100%; padding: 28px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85); }
+    .modal-box { background: #09120a; border: 1px solid rgba(212, 255, 63, 0.3); border-radius: 26px; max-width: 520px; width: 100%; padding: 28px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85); max-height: 90vh; overflow-y: auto;}
     .modal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
     .modal-top h3 { font-size: 1.15rem; font-weight: 800; color: #fff; }
     .btn-close-modal { background: none; border: none; color: var(--text-dim); font-size: 1.2rem; cursor: pointer; }
@@ -559,31 +634,35 @@
     .admin-user-sub { font-size: 0.72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
     .admin-pct { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 800; color: var(--lime-neon); }
 
-    /* Glowing Watermark */
-    .site-footer { margin-top: 48px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    /* --- ENHANCED GLOWING WATERMARK --- */
+    .site-footer { margin-top: 48px; display: flex; flex-direction: column; align-items: center; gap: 12px; padding-bottom: 30px;}
     .glowing-watermark {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #ffffff;
-      background: rgba(14, 24, 16, 0.75);
-      border: 1.5px solid rgba(212, 255, 63, 0.35);
-      padding: 9px 24px;
-      border-radius: 999px;
-      box-shadow: 0 0 20px rgba(212, 255, 63, 0.25);
-      animation: neonPulse 2s ease-in-out infinite alternate;
+      display: inline-flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 700; color: #ffffff;
+      background: rgba(14, 24, 16, 0.75); border: 1.5px solid rgba(212, 255, 63, 0.35); padding: 9px 24px;
+      border-radius: 999px; animation: neonPulse 2s ease-in-out infinite alternate;
     }
     .glowing-watermark .bolt-glow { color: var(--lime-neon); text-shadow: 0 0 10px var(--lime-neon); font-size: 1.05rem; }
     .glowing-watermark strong { color: var(--lime-bright); }
-    @keyframes neonPulse {
-      0% { border-color: rgba(212, 255, 63, 0.25); box-shadow: 0 0 15px rgba(212, 255, 63, 0.2); }
-      100% { border-color: rgba(212, 255, 63, 0.7); box-shadow: 0 0 30px rgba(212, 255, 63, 0.5); }
+    
+    .tg-glow-btn {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-dim);
+      text-decoration: none; padding: 6px 16px; border-radius: 999px; background: rgba(255, 255, 255, 0.02); 
+      border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease; letter-spacing: 0.5px; margin-top: 8px;
+    }
+    .tg-glow-btn:hover {
+      color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.08);
+      transform: translateY(-2px); box-shadow: 0 4px 15px rgba(56, 189, 248, 0.15);
     }
 
+    @keyframes neonPulse {
+      0% { border-color: rgba(212, 255, 63, 0.4); box-shadow: 0 0 15px rgba(212, 255, 63, 0.3), inset 0 0 10px rgba(212, 255, 63, 0.1); }
+      100% { border-color: rgba(212, 255, 63, 1); box-shadow: 0 0 35px rgba(212, 255, 63, 0.7), inset 0 0 15px rgba(212, 255, 63, 0.3); }
+    }
+
+    /* 🔥 MOBILE CSS FIX: Perfect layout for smaller screens 🔥 */
     @media (max-width: 900px) {
-      .lecture-grid { grid-template-columns: 1fr; }
+      .lecture-grid, .mock-grid, .error-grid { grid-template-columns: 1fr; }
+      .mock-grid, .error-grid { max-height: 280px; padding-right: 4px; }
       .hero-headline { font-size: 2rem; }
       .timer-giant-digits { font-size: 3.4rem; }
     }
@@ -634,6 +713,29 @@
         <p class="hero-desc">
           Modular study station for <strong>Physics, Chemistry, and Mathematics</strong>. Complete coverage of theory, modules, and strategic PYQs.
         </p>
+        
+        <!-- 🔥 1Hr Streak Badge -->
+        <div class="streak-badge" id="dailyStreakBadge">
+          <i class="fa-solid fa-fire"></i> <span id="streakCountText">0 Days Streak</span> (Study 1hr min to maintain)
+        </div>
+
+        <!-- ⏳ JEE Countdown -->
+        <div class="countdown-grid">
+          <div class="countdown-box">
+            <div>
+              <div class="countdown-title"><i class="fa-solid fa-hourglass-start" style="color:var(--lime-neon)"></i> JEE Main 2027</div>
+              <div style="font-size:0.75rem; color:var(--text-dim);">Estimated (Jan 2027)</div>
+            </div>
+            <div class="countdown-timer" id="jeeMainsTimer">-- Days</div>
+          </div>
+          <div class="countdown-box adv">
+            <div>
+              <div class="countdown-title" style="color:#38bdf8;"><i class="fa-solid fa-medal"></i> JEE Adv 2027</div>
+              <div style="font-size:0.75rem; color:var(--text-dim);">Estimated (May 2027)</div>
+            </div>
+            <div class="countdown-timer" id="jeeAdvTimer" style="color:#38bdf8;">-- Days</div>
+          </div>
+        </div>
 
         <div class="stats-row">
           <div class="stat-card stat-total">
@@ -678,7 +780,7 @@
               <span id="phy-prog-text">0/29 (0%)</span>
             </div>
             <div class="subj-prog-bar-wrap">
-              <div class="subj-prog-fill" id="phy-prog-fill" style="background:var(--phy-accent);"></div>
+              <div class="subj-prog-fill" id="phy-prog-fill"></div>
             </div>
           </div>
 
@@ -688,7 +790,7 @@
               <span id="chem-prog-text">0/22 (0%)</span>
             </div>
             <div class="subj-prog-bar-wrap">
-              <div class="subj-prog-fill" id="chem-prog-fill" style="background:var(--chem-accent);"></div>
+              <div class="subj-prog-fill" id="chem-prog-fill"></div>
             </div>
           </div>
 
@@ -698,7 +800,7 @@
               <span id="math-prog-text">0/28 (0%)</span>
             </div>
             <div class="subj-prog-bar-wrap">
-              <div class="subj-prog-fill" id="math-prog-fill" style="background:var(--math-accent);"></div>
+              <div class="subj-prog-fill" id="math-prog-fill"></div>
             </div>
           </div>
         </div>
@@ -712,7 +814,7 @@
             <span style="font-size:0.75rem; color:var(--text-dim);">29 Chapters</span>
           </div>
           <h3>⚡ Physics Module</h3>
-          <p>Class 12 Electrodynamics & Optics + Class 11 Mechanics revision (2019–22 PYQs first)[cite: 1].</p>
+          <p>Class 12 Electrodynamics & Optics + Class 11 Mechanics revision (2019–22 PYQs first).</p>
           <span style="font-size:0.78rem; color:var(--phy-accent); font-weight:700;">Enter Physics &rarr;</span>
         </div>
 
@@ -722,7 +824,7 @@
             <span style="font-size:0.75rem; color:var(--text-dim);">22 Chapters</span>
           </div>
           <h3>🧪 Chemistry Module</h3>
-          <p>Organic, Inorganic & Physical breakdowns. Finish 12th on time with reverse PYQ strategy[cite: 1].</p>
+          <p>Organic, Inorganic & Physical breakdowns. Finish 12th on time with reverse PYQ strategy.</p>
           <span style="font-size:0.78rem; color:var(--chem-accent); font-weight:700;">Enter Chemistry &rarr;</span>
         </div>
 
@@ -732,7 +834,7 @@
             <span style="font-size:0.75rem; color:var(--text-dim);">28 Chapters</span>
           </div>
           <h3>📐 Mathematics Module</h3>
-          <p>Calculus, Algebra, Vectors & 3D. Personal formula sheets & targeted revision cycles[cite: 1].</p>
+          <p>Calculus, Algebra, Vectors & 3D. Personal formula sheets & targeted revision cycles.</p>
           <span style="font-size:0.78rem; color:var(--math-accent); font-weight:700;">Enter Mathematics &rarr;</span>
         </div>
 
@@ -742,8 +844,18 @@
             <span style="font-size:0.75rem; color:var(--text-dim);">Aug &ndash; Dec</span>
           </div>
           <h3>📅 Monthly Targets</h3>
-          <p>Month-by-month focused goals and Class 11 vs 12 priority distribution[cite: 1].</p>
+          <p>Month-by-month focused goals and Class 11 vs 12 priority distribution.</p>
           <span style="font-size:0.78rem; color:var(--lime-bright); font-weight:700;">View Roadmap &rarr;</span>
+        </div>
+        
+        <!-- Mocks Tab Hub Card -->
+        <div class="hub-card" onclick="switchMainTab('mocks')">
+          <div class="hub-card-top">
+            <span class="badge-subj" style="background:rgba(248,113,113,0.15); color:#f87171;">Assessment</span>
+          </div>
+          <h3>📝 Mock Tests & Errors</h3>
+          <p>Log your JEE mock marks and note down mistakes in error logs for revision.</p>
+          <span style="font-size:0.78rem; color:#f87171; font-weight:700;">Open Tracker &rarr;</span>
         </div>
       </div>
     </section>
@@ -809,15 +921,75 @@
       <div class="chapter-nav-bar" id="monthlyTabsBar"></div>
       <div id="monthlyTargetsContainer"></div>
     </section>
+    
+    <!-- ==========================================
+         VIEW 6: MOCKS & ERROR LOGS
+         ========================================== -->
+    <section class="app-view" id="view-mocks">
+      <div class="view-toolbar">
+         <h3 style="color:#fff;"><i class="fa-solid fa-bullseye" style="color:#f87171;"></i> JEE Marks & Error Log Tracker</h3>
+      </div>
+      <div style="display:flex; gap:20px; flex-wrap:wrap;">
+        <!-- Add Mock Result -->
+        <div style="flex:1; min-width:300px; background:var(--card-glass); padding:20px; border-radius:20px; border:1px solid var(--card-border);">
+           <h4 style="color:var(--lime-bright); margin-bottom:12px;">Add Mock Result</h4>
+           <input type="text" id="mockName" class="modal-input-field" placeholder="Test Name (e.g. AITS Part 1)">
+           
+           <div style="display:flex; gap:10px; margin-bottom:16px;">
+             <select id="mockType" class="filter-select" style="flex:1;" onchange="updateMockTotal()">
+               <option value="JEE MAINS">JEE Mains</option>
+               <option value="JEE ADV">JEE Advanced</option>
+             </select>
+             <input type="number" id="mockTotal" class="modal-input-field" style="margin-bottom:0; flex:1;" placeholder="Total Marks" value="300" title="Total Exam Marks">
+           </div>
+           
+           <input type="number" id="mockObtained" class="modal-input-field" placeholder="Total Marks Obtained">
+           <button class="btn-action-primary" onclick="saveMockResult()">Save Score</button>
+        </div>
+        
+        <!-- Add Error Log -->
+        <div style="flex:1; min-width:300px; background:var(--card-glass); padding:20px; border-radius:20px; border:1px solid var(--card-border);">
+           <h4 style="color:#f87171; margin-bottom:12px;">Log a Mistake</h4>
+           <input type="text" id="errTopic" class="modal-input-field" placeholder="Chapter/Topic">
+           <textarea id="errDetail" class="modal-input-field" placeholder="What went wrong? Formula bhul gaya ya concept error?" style="height:60px; resize:vertical;"></textarea>
+           <button class="btn-action-primary" style="background:#f87171; color:#fff;" onclick="saveErrorLog()">Save Mistake</button>
+        </div>
+      </div>
+      
+      <!-- Render Mocks -->
+      <h3 style="margin-top:30px; color:#fff;">Previous Mock Scores</h3>
+      <div id="mockResultsContainer" class="mock-grid"></div>
+      
+      <!-- Render Errors -->
+      <h3 style="margin-top:30px; color:#fff;">Error Book</h3>
+      <div id="errorLogsContainer" class="error-grid"></div>
+    </section>
 
     <!-- ==========================================
-         VIEW 6: FOCUS LOUNGE (IMMERSIVE TIMER)
+         VIEW 7: FOCUS LOUNGE (IMMERSIVE TIMER)
          ========================================== -->
     <section class="app-view" id="view-timer">
       <div class="focus-arena-box">
         <div class="hero-tag"><span class="tag-dot"></span> Tactical Focus Lounge</div>
         <h2 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin-top: 6px;">Deep-Work Session</h2>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Distraction-free environment for 2-hour study sprints.</p>
+        
+        <!-- NEW: Study Type & Subject Selectors -->
+        <div class="timer-dropdown-group" style="margin-top:15px;">
+           <select id="timerStudySubj" class="filter-select">
+             <option value="Physics">⚡ Physics</option>
+             <option value="Chemistry">🧪 Chemistry</option>
+             <option value="Mathematics">📐 Mathematics</option>
+             <option value="Mock Test">📝 Mock Test</option>
+             <option value="Revision">🔄 General Rev</option>
+           </select>
+           <select id="timerStudyType" class="filter-select">
+             <option value="Theory Lecture">📖 Theory / Lecture</option>
+             <option value="Module Solving">📝 Module / DPPS</option>
+             <option value="PYQs">🎯 PYQs</option>
+             <option value="Formula Revision">📑 Formula Sheet</option>
+           </select>
+        </div>
 
         <!-- Presets -->
         <div style="display:flex; justify-content:center; gap:8px; margin: 20px 0; flex-wrap: wrap;">
@@ -849,6 +1021,12 @@
           </button>
         </div>
       </div>
+      
+      <!-- Session History Log -->
+      <div style="max-width: 620px; margin: 30px auto 0;">
+        <h4 style="color:#fff; margin-bottom:10px;"><i class="fa-solid fa-clock-rotate-left"></i> Recent Sessions</h4>
+        <div id="sessionLogsContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
     </section>
 
     <!-- Footer with Glowing Animated Watermark -->
@@ -859,7 +1037,12 @@
         <span>by</span>
         <strong>Manav</strong>
       </div>
-      <p style="font-size: 0.72rem; color: var(--text-dim);">IIT-JEE 2027 Modular Study OS • #paperPhodnahai</p>
+      <p style="font-size: 0.72rem; color: var(--text-dim); margin-top:5px;">IIT-JEE 2027 Modular Study OS • #paperPhodnahai</p>
+      
+      <!-- COMPACT GLOWING TG BUTTON -->
+      <a href="https://t.me/catalyst_x" target="_blank" class="tg-glow-btn">
+        <i class="fa-brands fa-telegram"></i> @catalyst_x
+      </a>
     </footer>
 
   </div>
@@ -867,34 +1050,42 @@
   <!-- FLOATING APP DOCK NAVIGATION MENU -->
   <div class="app-dock-bar">
     <button class="dock-tab active" id="dockBtn-dashboard" onclick="switchMainTab('dashboard')">
-      <i class="fa-solid fa-shapes"></i> <span>Overview</span>
+      <i class="fa-solid fa-shapes"></i> <span class="hide-mobile">Overview</span>
     </button>
     <button class="dock-tab" id="dockBtn-physics" onclick="switchMainTab('physics')">
-      <i class="fa-solid fa-bolt"></i> <span>Physics</span>
+      <i class="fa-solid fa-bolt"></i> <span class="hide-mobile">Physics</span>
     </button>
     <button class="dock-tab" id="dockBtn-chemistry" onclick="switchMainTab('chemistry')">
-      <i class="fa-solid fa-flask"></i> <span>Chemistry</span>
+      <i class="fa-solid fa-flask"></i> <span class="hide-mobile">Chemistry</span>
     </button>
     <button class="dock-tab" id="dockBtn-maths" onclick="switchMainTab('maths')">
-      <i class="fa-solid fa-calculator"></i> <span>Maths</span>
+      <i class="fa-solid fa-calculator"></i> <span class="hide-mobile">Maths</span>
     </button>
     <button class="dock-tab" id="dockBtn-monthly" onclick="switchMainTab('monthly')">
-      <i class="fa-solid fa-calendar-check"></i> <span>Roadmap</span>
+      <i class="fa-solid fa-calendar-check"></i> <span class="hide-mobile">Roadmap</span>
+    </button>
+    <button class="dock-tab" id="dockBtn-mocks" onclick="switchMainTab('mocks')">
+      <i class="fa-solid fa-pen-nib"></i> <span class="hide-mobile">Mocks</span>
     </button>
     <button class="dock-tab" id="dockBtn-timer" onclick="switchMainTab('timer')">
-      <i class="fa-solid fa-stopwatch"></i> <span>Focus</span>
+      <i class="fa-solid fa-stopwatch"></i> <span class="hide-mobile">Focus</span>
     </button>
   </div>
+  <style> @media(max-width:768px){ .hide-mobile{display:none;} } </style>
 
-  <!-- First Visit Setup Modal -->
+  <!-- First Visit Setup Modal (NOW WITH SECRET PIN) -->
   <div class="modal-backdrop" id="firstVisitModal">
     <div class="modal-box" style="max-width: 440px; text-align: center;">
       <div style="font-size: 2.2rem; margin-bottom: 8px;">👋</div>
       <h3 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 6px;">Welcome Aspirant!</h3>
       <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:18px;">
-        Apna name enter karo taaki tumhara JEE 2027 syllabus progress aur study sessions save ho sakein[cite: 1].
+        Apna name aur ek secret 4-digit PIN enter karo. PIN data ko secure rakhega taaki koi aur same name daalkar tumhara data overwrite na kar sake!
       </p>
-      <input type="text" id="firstVisitNameInput" class="modal-input-field" placeholder="Enter Your Name (e.g. Aryan, Rahul)" style="text-align:center; font-weight:700; font-size:1rem;" />
+      
+      <input type="text" id="firstVisitNameInput" class="modal-input-field" placeholder="Enter Your Name (e.g. Aryan)" style="text-align:center; font-weight:700; font-size:1rem;" />
+      
+      <input type="password" id="firstVisitPinInput" class="modal-input-field" placeholder="Create 4-Digit Secret PIN" style="text-align:center; font-weight:700; font-size:1rem; letter-spacing: 4px;" maxlength="4" />
+      
       <button class="btn-action-primary" onclick="submitFirstVisitName()" style="width:100%; justify-content:center; padding:12px 20px;">
         <i class="fa-solid fa-bolt"></i> Start Tracking
       </button>
@@ -908,16 +1099,19 @@
         <h3>User Profile & Data Backup</h3>
         <button class="btn-close-modal" onclick="closeProfileModal()"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">Apna display name update karo.</p>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">Apna naam aur 4-digit PIN update ya recover karo.</p>
+      
       <input type="text" id="userNameInput" class="modal-input-field" placeholder="Enter Your Name" style="text-align:center; font-weight:700;" />
-      <button class="btn-action-primary" onclick="saveUserProfile()" style="width:100%; justify-content:center; margin-bottom: 20px;">Save Profile</button>
+      <input type="password" id="userPinInput" class="modal-input-field" placeholder="Enter 4-Digit PIN" style="text-align:center; font-weight:700; letter-spacing: 4px;" maxlength="4" />
+      
+      <button class="btn-action-primary" onclick="saveUserProfile()" style="width:100%; justify-content:center; margin-bottom: 20px;">Save & Sync Cloud Data</button>
       
       <!-- Backup & Restore Section -->
       <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; text-align: left;">
         <div style="font-size: 0.82rem; font-weight: 800; color: #fff; margin-bottom: 8px;">
-          <i class="fa-solid fa-cloud-arrow-down" style="color:var(--lime-neon);"></i> Data Backup & Restore
+          <i class="fa-solid fa-cloud-arrow-down" style="color:var(--lime-neon);"></i> Local Data Backup & Restore
         </div>
-        <p style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 12px;">Browser cache delete hone par bhi apna study record safe rakhne ke liye backup save karo[cite: 1].</p>
+        <p style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 12px;">Agar cloud kaam na kare toh browser file se manual restore karne ke liye.</p>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
           <button class="pill-btn" onclick="exportDataBackup()" style="flex:1; justify-content: center; background: rgba(212,255,63,0.12); color: var(--lime-neon); border-color: rgba(212,255,63,0.3);">
             <i class="fa-solid fa-download"></i> Download Backup (.json)
@@ -942,7 +1136,7 @@
       </div>
 
       <p style="font-size:0.78rem; color:var(--text-muted); border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:8px;">
-        Secret Portal for Manav: Sabhi dosto ki live completion report & progress summary[cite: 1].
+        Secret Portal for Manav: Sabhi dosto ki live completion report & progress summary. Click 🗑️ to ban/remove unwanted users.
       </p>
 
       <div class="admin-squad-list" id="adminSquadContainer"></div>
@@ -1056,26 +1250,26 @@
     const STORAGE_KEY = "JEE_2027_SQUAD_TRACKER_V1";
     const USER_KEY = "JEE_2027_USER_PROFILE";
     const CLOUD_SYNC_KEY = "JEE_2027_SHARED_SQUAD_SCORES";
+    const NEW_FEATURES_KEY = "JEE_2027_EXTRAS_V1";
 
-    let userProfile = JSON.parse(localStorage.getItem(USER_KEY)) || {
-      name: "",
-      isSetup: false
+    // 🟢 SECURE PIN SYSTEM FOR UNIQUE ID 🟢
+    var userProfile = JSON.parse(localStorage.getItem(USER_KEY)) || { name: "", pin: "", isSetup: false };
+    var userExtras = JSON.parse(localStorage.getItem(NEW_FEATURES_KEY)) || {
+      studyLogs: [],
+      mockResults: [],
+      errorLogs: [],
+      streak: 0,
+      lastStudyDate: null,
+      todayStudyMins: 0,
+      totalStudyMins: 0
     };
 
     function loadInitialData() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (!saved) {
         return rawChaptersData.map(item => ({
-          ...item,
-          status: "Not Started",
-          confidence: "None",
-          notes: "",
-          theory_done: false,
-          module_done: false,
-          pyq1_done: false,
-          pyq2_done: false,
-          rev_done: false,
-          formula_done: false
+          ...item, status: "Not Started", confidence: "None", notes: "",
+          theory_done: false, module_done: false, pyq1_done: false, pyq2_done: false, rev_done: false, formula_done: false
         }));
       }
       try {
@@ -1083,29 +1277,20 @@
         return rawChaptersData.map(rawItem => {
           const match = parsed.find(p => p.id === rawItem.id);
           return match ? { ...rawItem, ...match } : {
-            ...rawItem,
-            status: "Not Started",
-            confidence: "None",
-            notes: "",
-            theory_done: false,
-            module_done: false,
-            pyq1_done: false,
-            pyq2_done: false,
-            rev_done: false,
-            formula_done: false
+            ...rawItem, status: "Not Started", confidence: "None", notes: "",
+            theory_done: false, module_done: false, pyq1_done: false, pyq2_done: false, rev_done: false, formula_done: false
           };
         });
-      } catch (e) {
-        return rawChaptersData;
-      }
+      } catch (e) { return rawChaptersData; }
     }
 
-    let trackerData = loadInitialData();
+    var trackerData = loadInitialData();
 
     function saveToStorage() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(trackerData));
+      localStorage.setItem(NEW_FEATURES_KEY, JSON.stringify(userExtras));
       updateGlobalStats();
-      syncUserDataToCloud();
+      if(window.syncUserDataToCloud) window.syncUserDataToCloud();
     }
 
     let currentMainTab = 'dashboard';
@@ -1219,12 +1404,6 @@
             <div class="month-subj-chapters">${meta.math}</div>
           </div>
         </div>
-
-        <div style="margin-top:16px; display:flex; justify-content:flex-end;">
-          <button class="pill-btn" onclick="selectedActiveMonth='${autoMonth}'; switchMainTab('monthly');" style="background:rgba(212,255,63,0.15); border-color:var(--lime-neon); color:var(--lime-neon); font-size:0.82rem;">
-            Open ${autoMonth} Action Checklist &rarr;
-          </button>
-        </div>
       `;
     }
 
@@ -1238,13 +1417,64 @@
       if (targetView) targetView.classList.add('active');
       if (targetBtn) targetBtn.classList.add('active');
 
-      if (tabKey === 'dashboard') renderAutonomousDashboardMonthMission();
+      if (tabKey === 'dashboard') {
+         renderAutonomousDashboardMonthMission();
+         updateCountdown();
+         checkStreak();
+      }
       else if (tabKey === 'physics') renderSubjectArena('Physics', 'physicsContainer');
       else if (tabKey === 'chemistry') renderSubjectArena('Chemistry', 'chemistryContainer');
       else if (tabKey === 'maths') renderSubjectArena('Mathematics', 'mathsContainer');
       else if (tabKey === 'monthly') renderMonthlyArena();
+      else if (tabKey === 'mocks') renderMocksAndErrors();
+      else if (tabKey === 'timer') renderStudyLogs();
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* COUNTDOWN TIMER LOGIC */
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const jeeMains = new Date("Jan 24, 2027 00:00:00").getTime();
+      const jeeAdv = new Date("May 25, 2027 00:00:00").getTime();
+
+      let mainsDays = Math.floor((jeeMains - now) / (1000 * 60 * 60 * 24));
+      let advDays = Math.floor((jeeAdv - now) / (1000 * 60 * 60 * 24));
+
+      document.getElementById('jeeMainsTimer').innerText = (mainsDays > 0 ? mainsDays : 0) + " Days";
+      document.getElementById('jeeAdvTimer').innerText = (advDays > 0 ? advDays : 0) + " Days";
+    }
+
+    /* STREAK LOGIC */
+    function checkStreak() {
+      const today = new Date().toLocaleDateString('en-IN');
+      if (userExtras.lastStudyDate !== today) {
+         const yesterday = new Date();
+         yesterday.setDate(yesterday.getDate() - 1);
+         const yDate = yesterday.toLocaleDateString('en-IN');
+         
+         if (userExtras.lastStudyDate !== yDate && userExtras.todayStudyMins < 60) {
+            userExtras.streak = 0;
+         }
+         if(userExtras.lastStudyDate !== today && userExtras.todayStudyMins > 0) {
+            userExtras.todayStudyMins = 0;
+         }
+      }
+      
+      document.getElementById('streakCountText').innerText = `${userExtras.streak} Days Streak`;
+      if(userExtras.todayStudyMins >= 60) {
+         document.getElementById('dailyStreakBadge').style.background = 'linear-gradient(90deg, rgba(212, 255, 63, 0.2), rgba(212, 255, 63, 0.05))';
+         document.getElementById('dailyStreakBadge').style.color = '#d4ff3f';
+         document.getElementById('dailyStreakBadge').style.borderColor = '#d4ff3f';
+         document.getElementById('dailyStreakBadge').innerHTML = `<i class="fa-solid fa-fire"></i> ${userExtras.streak} Days Streak (Today's Target Met ✅)`;
+      } else {
+         document.getElementById('dailyStreakBadge').style.background = '';
+         document.getElementById('dailyStreakBadge').style.color = '';
+         document.getElementById('dailyStreakBadge').style.borderColor = '';
+         document.getElementById('dailyStreakBadge').innerHTML = `<i class="fa-solid fa-fire"></i> ${userExtras.streak} Days Streak (${userExtras.todayStudyMins}/60 mins done)`;
+      }
+      
+      // Removed direct saveToStorage here to prevent endless loops
     }
 
     function handleSubjectSearch(subj, val) {
@@ -1478,15 +1708,17 @@
       }
     }
 
-    function refreshCurrentTab() {
-      if (currentMainTab === 'dashboard') renderAutonomousDashboardMonthMission();
+    window.refreshCurrentTab = function() {
+      if (currentMainTab === 'dashboard') { renderAutonomousDashboardMonthMission(); checkStreak(); }
       else if (currentMainTab === 'physics') renderSubjectArena('Physics', 'physicsContainer');
       else if (currentMainTab === 'chemistry') renderSubjectArena('Chemistry', 'chemistryContainer');
       else if (currentMainTab === 'maths') renderSubjectArena('Mathematics', 'mathsContainer');
       else if (currentMainTab === 'monthly') renderMonthlyArena();
-    }
+      else if (currentMainTab === 'mocks') renderMocksAndErrors();
+      else if (currentMainTab === 'timer') renderStudyLogs();
+    };
 
-    function updateGlobalStats() {
+    window.updateGlobalStats = function() {
       const total = trackerData.length;
       const done = trackerData.filter(d => d.status === 'Completed').length;
       const inProg = trackerData.filter(d => d.status === 'In Progress').length;
@@ -1499,7 +1731,6 @@
       document.getElementById('rev-count').innerText = revised;
       document.getElementById('master-progress').style.width = `${percent}%`;
 
-      // Subject Wise Calculations
       const phyTotal = trackerData.filter(d => d.subject === 'Physics').length;
       const phyDone = trackerData.filter(d => d.subject === 'Physics' && d.status === 'Completed').length;
       const phyPct = Math.round((phyDone / phyTotal) * 100) || 0;
@@ -1517,7 +1748,7 @@
       const mathPct = Math.round((mathDone / mathTotal) * 100) || 0;
       document.getElementById('math-prog-text').innerText = `${mathDone}/${mathTotal} (${mathPct}%)`;
       document.getElementById('math-prog-fill').style.width = `${mathPct}%`;
-    }
+    };
 
     function triggerConfetti(e, count = 40) {
       if (typeof confetti === 'function') {
@@ -1525,6 +1756,97 @@
         const y = e && e.clientY ? e.clientY / window.innerHeight : 0.5;
         confetti({ particleCount: count, spread: 60, origin: { x, y }, colors: ['#d4ff3f', '#bef264', '#10b981', '#ffffff'] });
       }
+    }
+
+    /* Mocks & Errors Logic */
+    function updateMockTotal() {
+        const type = document.getElementById('mockType').value;
+        document.getElementById('mockTotal').value = type === 'JEE MAINS' ? '300' : '360';
+    }
+
+    function saveMockResult() {
+      const name = document.getElementById('mockName').value.trim();
+      const type = document.getElementById('mockType').value;
+      const total = parseInt(document.getElementById('mockTotal').value) || (type === 'JEE MAINS' ? 300 : 360);
+      const obtained = parseInt(document.getElementById('mockObtained').value);
+      
+      if(name && !isNaN(obtained)) {
+         userExtras.mockResults.unshift({ name, type, obtained, total, date: new Date().toLocaleDateString('en-IN') });
+         saveToStorage();
+         document.getElementById('mockName').value = '';
+         document.getElementById('mockObtained').value = '';
+         renderMocksAndErrors();
+      }
+    }
+
+    function saveErrorLog() {
+      const topic = document.getElementById('errTopic').value.trim();
+      const detail = document.getElementById('errDetail').value.trim();
+      if(topic && detail) {
+         userExtras.errorLogs.unshift({ topic, detail, date: new Date().toLocaleDateString('en-IN') });
+         saveToStorage();
+         document.getElementById('errTopic').value = '';
+         document.getElementById('errDetail').value = '';
+         renderMocksAndErrors();
+      }
+    }
+    
+    // NEW DELETE FUNCTIONS
+    window.deleteMockResult = function(idx) {
+        if(confirm("Bhai, pakka ye score delete karna hai?")) {
+            userExtras.mockResults.splice(idx, 1);
+            saveToStorage();
+            renderMocksAndErrors();
+        }
+    }
+
+    window.deleteErrorLog = function(idx) {
+        if(confirm("Ye mistake log sach me delete karni hai?")) {
+            userExtras.errorLogs.splice(idx, 1);
+            saveToStorage();
+            renderMocksAndErrors();
+        }
+    }
+
+    function renderMocksAndErrors() {
+      const mc = document.getElementById('mockResultsContainer');
+      mc.innerHTML = userExtras.mockResults.length ? '' : '<div style="color:var(--text-muted);">No mock scores saved yet.</div>';
+      userExtras.mockResults.forEach((r, idx) => {
+        let color = r.type === 'JEE MAINS' ? 'var(--lime-bright)' : '#38bdf8';
+        mc.innerHTML += `
+          <div class="mock-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <div style="font-weight:800; color:#fff; font-size:1.05rem;">${r.name}</div>
+                <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:10px;"><i class="fa-regular fa-calendar"></i> ${r.date}</div>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                  <span style="font-size:0.7rem; font-weight:800; color:${color}; border:1px solid ${color}50; padding:3px 8px; border-radius:999px;">${r.type}</span>
+                  <button class="btn-delete-item" onclick="deleteMockResult(${idx})" title="Delete Score"><i class="fa-solid fa-trash-can"></i></button>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:10px 14px; border-radius:12px;">
+               <span style="font-size:0.85rem; color:var(--text-muted);">Score</span>
+               <strong style="font-size:1.2rem; color:#fff; font-family:'JetBrains Mono', monospace;">${r.obtained} <span style="font-size:0.8rem; color:var(--text-dim);">/ ${r.total}</span></strong>
+            </div>
+          </div>
+        `;
+      });
+
+      const ec = document.getElementById('errorLogsContainer');
+      ec.innerHTML = userExtras.errorLogs.length ? '' : '<div style="color:var(--text-muted);">No errors logged yet. Great!</div>';
+      userExtras.errorLogs.forEach((e, idx) => {
+        ec.innerHTML += `
+          <div class="error-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <h4><i class="fa-solid fa-triangle-exclamation"></i> ${e.topic}</h4>
+                <button class="btn-delete-item" style="width:24px; height:24px; font-size:0.7rem;" onclick="deleteErrorLog(${idx})" title="Delete Log"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p style="font-size:0.82rem; color:var(--text-sub);">${e.detail}</p>
+            <div style="font-size:0.7rem; color:var(--text-dim); margin-top:8px; text-align:right;">${e.date}</div>
+          </div>
+        `;
+      });
     }
 
     /* Notes Modal */
@@ -1548,34 +1870,73 @@
       }
     }
 
-    /* Profile Setup */
+    /* 🟢 UPGRADED 4-DIGIT PIN PROFILE SETUP 🟢 */
     function submitFirstVisitName() {
       const val = document.getElementById('firstVisitNameInput').value.trim();
-      if (val) {
-        userProfile.name = val;
-        userProfile.isSetup = true;
-        localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
-        document.getElementById('navUserNameDisplay').innerText = userProfile.name;
-        document.getElementById('firstVisitModal').classList.remove('open');
-        syncUserDataToCloud();
-        triggerConfetti(null, 80);
+      const pinVal = document.getElementById('firstVisitPinInput').value.trim();
+      
+      if (!val) { alert("Bhai naam toh likh de!"); return; }
+      if (val.length < 3 || val.length > 15) { alert("Bhai naam 3 se 15 characters ke beech hona chahiye!"); return; }
+      if (!pinVal || pinVal.length !== 4 || isNaN(pinVal)) { alert("Bhai koi bhi apni pasand ka 4-digit ka number daal PIN ke liye (e.g. 1234)"); return; }
+
+      const regex = /^[a-zA-Z\s]+$/;
+      if (!regex.test(val)) {
+        alert("Naam me symbols ya numbers allow nahi hain, bas letters use kar!");
+        return;
       }
+
+      const badWords = ["tmkc", "mc", "bc", "chutiya", "bkl", "bsdk", "gandu", "bitch", "fuck", "madarchod", "behenchod"];
+      const lowerVal = val.toLowerCase().replace(/\s+/g, '');
+      
+      for (let word of badWords) {
+        if (lowerVal.includes(word)) {
+          alert("Bhai dhang ka naam rakh le, leaderboard pe aisi bhasa nahi chalegi! 🚫");
+          return;
+        }
+      }
+
+      userProfile.name = val;
+      userProfile.pin = pinVal;
+      userProfile.isSetup = true;
+      localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
+      
+      document.getElementById('navUserNameDisplay').innerText = userProfile.name;
+      document.getElementById('firstVisitModal').classList.remove('open');
+      
+      // Cloud se check karega
+      if(window.fetchUserDataFromCloud) {
+          window.fetchUserDataFromCloud(userProfile.name, userProfile.pin);
+      } else {
+          if(window.syncUserDataToCloud) window.syncUserDataToCloud();
+      }
+      triggerConfetti(null, 80);
     }
 
     function openProfileModal() {
-      document.getElementById('userNameInput').value = userProfile.name;
+      document.getElementById('userNameInput').value = userProfile.name || "";
+      document.getElementById('userPinInput').value = userProfile.pin || "";
       document.getElementById('profileModal').classList.add('open');
     }
     function closeProfileModal() { document.getElementById('profileModal').classList.remove('open'); }
+    
     function saveUserProfile() {
       const val = document.getElementById('userNameInput').value.trim();
-      if (val) {
-        userProfile.name = val;
-        userProfile.isSetup = true;
-        localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
-        document.getElementById('navUserNameDisplay').innerText = userProfile.name;
-        closeProfileModal();
-        syncUserDataToCloud();
+      const pinVal = document.getElementById('userPinInput').value.trim();
+      
+      if(!val) { alert("Naam khali mat chhod"); return; }
+      if (!pinVal || pinVal.length !== 4 || isNaN(pinVal)) { alert("4-digit PIN zaruri hai!"); return; }
+
+      userProfile.name = val;
+      userProfile.pin = pinVal;
+      userProfile.isSetup = true;
+      localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
+      document.getElementById('navUserNameDisplay').innerText = userProfile.name;
+      closeProfileModal();
+      
+      if(window.fetchUserDataFromCloud) {
+          window.fetchUserDataFromCloud(userProfile.name, userProfile.pin);
+      } else {
+          if(window.syncUserDataToCloud) window.syncUserDataToCloud();
       }
     }
 
@@ -1583,10 +1944,11 @@
     function exportDataBackup() {
       const exportObj = {
         app: "IIT_JEE_2027_STUDY_OS",
-        version: "1.0",
+        version: "1.1",
         timestamp: new Date().toISOString(),
         userProfile: userProfile,
-        trackerData: trackerData
+        trackerData: trackerData,
+        userExtras: userExtras
       };
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
       const downloadAnchor = document.createElement('a');
@@ -1608,6 +1970,8 @@
           if (imported && imported.trackerData && Array.isArray(imported.trackerData)) {
             trackerData = imported.trackerData;
             if (imported.userProfile) userProfile = imported.userProfile;
+            if (imported.userExtras) userExtras = imported.userExtras;
+            
             localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
             saveToStorage();
             refreshCurrentTab();
@@ -1623,28 +1987,6 @@
         }
       };
       reader.readAsText(file);
-    }
-
-    function syncUserDataToCloud() {
-      if (!userProfile.name) return;
-      const total = trackerData.length;
-      const done = trackerData.filter(d => d.status === 'Completed').length;
-      const highConf = trackerData.filter(d => d.confidence === 'High').length;
-      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-
-      const myData = {
-        name: userProfile.name,
-        done: done,
-        pct: pct,
-        highConf: highConf,
-        updated: Date.now()
-      };
-
-      let squadList = JSON.parse(localStorage.getItem(CLOUD_SYNC_KEY)) || [];
-      const idx = squadList.findIndex(u => u.name === myData.name);
-      if (idx >= 0) squadList[idx] = myData;
-      else squadList.push(myData);
-      localStorage.setItem(CLOUD_SYNC_KEY, JSON.stringify(squadList));
     }
 
     /* Secret Owner Admin Trigger (PIN: 2307) */
@@ -1675,53 +2017,10 @@
     });
 
     function openAdminDashboard() {
-      refreshAdminData();
+      if(window.refreshAdminData) window.refreshAdminData(); 
       document.getElementById('ownerAdminModal').classList.add('open');
     }
     function closeAdminModal() { document.getElementById('ownerAdminModal').classList.remove('open'); }
-
-    function refreshAdminData() {
-      let defaultSquad = [
-        { name: "Manav (Owner)", done: 44, pct: 56, highConf: 30, updated: Date.now() },
-        { name: "Aryan", done: 38, pct: 48, highConf: 26, updated: Date.now() - 3600000 },
-        { name: "Rohan", done: 31, pct: 39, highConf: 20, updated: Date.now() - 7200000 },
-        { name: "Priya", done: 27, pct: 34, highConf: 18, updated: Date.now() - 14400000 }
-      ];
-
-      let squadList = JSON.parse(localStorage.getItem(CLOUD_SYNC_KEY)) || defaultSquad;
-      const total = trackerData.length;
-      const done = trackerData.filter(d => d.status === 'Completed').length;
-      const highConf = trackerData.filter(d => d.confidence === 'High').length;
-      const pct = Math.round((done / total) * 100) || 0;
-
-      if (userProfile.name) {
-        const myIdx = squadList.findIndex(u => u.name === userProfile.name);
-        if (myIdx >= 0) {
-          squadList[myIdx].done = done;
-          squadList[myIdx].pct = pct;
-          squadList[myIdx].highConf = highConf;
-        } else {
-          squadList.push({ name: userProfile.name, done: done, pct: pct, highConf: highConf, updated: Date.now() });
-        }
-      }
-
-      squadList.sort((a, b) => b.pct - a.pct);
-      const container = document.getElementById('adminSquadContainer');
-      container.innerHTML = '';
-
-      squadList.forEach((user, i) => {
-        const row = document.createElement('div');
-        row.className = 'admin-row';
-        row.innerHTML = `
-          <div>
-            <div class="admin-user-name">#${i+1} ${user.name}</div>
-            <div class="admin-user-sub">${user.done} / 79 Done • ${user.highConf} High Conf</div>
-          </div>
-          <div class="admin-pct">${user.pct}%</div>
-        `;
-        container.appendChild(row);
-      });
-    }
 
     /* 2-HOUR ACCURATE TIMESTAMP-BASED TIMER */
     let timerDuration = 120 * 60;
@@ -1729,10 +2028,12 @@
     let timerActive = false;
     let timerIntervalId = null;
     let sessionEndTime = null;
+    let sessionStartMins = 120; 
 
     function setTimerPreset(mins) {
       timerDuration = mins * 60;
       timerLeft = timerDuration;
+      sessionStartMins = mins;
       updateTimerDisplay();
       if (timerActive) pauseTimer();
     }
@@ -1744,6 +2045,7 @@
       if (totalMins > 0 && totalMins <= 720) {
         timerDuration = totalMins * 60;
         timerLeft = timerDuration;
+        sessionStartMins = totalMins;
         updateTimerDisplay();
         if (timerActive) pauseTimer();
       }
@@ -1779,8 +2081,7 @@
           timerActive = false;
           if (btn) btn.innerHTML = `<i class="fa-solid fa-play"></i> Start Session`;
           updateTimerDisplay();
-          triggerConfetti(null, 100);
-          alert("🎉 Focus session completed!");
+          handleTimerComplete();
         } else {
           timerLeft = Math.ceil(remainingMs / 1000);
           updateTimerDisplay();
@@ -1803,6 +2104,62 @@
       const btn = document.getElementById('timerPlayBtn');
       if (btn) btn.innerHTML = `<i class="fa-solid fa-play"></i> Start Session`;
       updateTimerDisplay();
+    }
+
+    function handleTimerComplete() {
+      triggerConfetti(null, 100);
+      alert("🎉 Focus session completed!");
+      
+      const subj = document.getElementById('timerStudySubj').value;
+      const type = document.getElementById('timerStudyType').value;
+      const durationMins = sessionStartMins;
+      
+      const today = new Date().toLocaleDateString('en-IN');
+      if(userExtras.lastStudyDate !== today) userExtras.todayStudyMins = 0;
+      
+      const wasStreakDone = userExtras.todayStudyMins >= 60;
+      userExtras.todayStudyMins += durationMins;
+      userExtras.totalStudyMins += durationMins;
+      
+      if(!wasStreakDone && userExtras.todayStudyMins >= 60) {
+         userExtras.streak += 1;
+         triggerConfetti(null, 150);
+      }
+      userExtras.lastStudyDate = today;
+
+      userExtras.studyLogs.unshift({
+         subj, type, duration: durationMins, 
+         date: new Date().toLocaleString('en-IN', { hour: '2-digit', minute:'2-digit', day: '2-digit', month: 'short' })
+      });
+      
+      if(userExtras.studyLogs.length > 20) userExtras.studyLogs.pop();
+      
+      saveToStorage();
+      renderStudyLogs();
+      checkStreak();
+    }
+
+    function renderStudyLogs() {
+      const container = document.getElementById('sessionLogsContainer');
+      if(!container) return;
+      container.innerHTML = userExtras.studyLogs.length ? '' : '<div style="color:var(--text-muted); text-align:center; padding:10px;">No sessions logged yet.</div>';
+      
+      userExtras.studyLogs.forEach(log => {
+         let color = "var(--lime-neon)";
+         if(log.subj.includes("Physics")) color = "var(--phy-accent)";
+         if(log.subj.includes("Chemistry")) color = "var(--chem-accent)";
+         if(log.subj.includes("Mathematics")) color = "var(--math-accent)";
+         
+         container.innerHTML += `
+           <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:12px 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+             <div>
+               <div style="font-weight:700; color:${color}; font-size:0.9rem;">${log.subj} • ${log.type}</div>
+               <div style="font-size:0.7rem; color:var(--text-dim); margin-top:2px;">${log.date}</div>
+             </div>
+             <div style="font-family:'JetBrains Mono', monospace; font-weight:800; color:#fff;">+${log.duration}m</div>
+           </div>
+         `;
+      });
     }
 
     /* Ambient Canvas */
@@ -1835,20 +2192,23 @@
     window.addEventListener('DOMContentLoaded', () => {
       renderAutonomousDashboardMonthMission();
       updateGlobalStats();
-      if (!userProfile.isSetup || !userProfile.name) {
+      updateCountdown();
+      checkStreak();
+      
+      // 🟢 Force user to set PIN if they haven't yet (for older existing local users) 🟢
+      if (!userProfile.isSetup || !userProfile.name || !userProfile.pin) {
         setTimeout(() => document.getElementById('firstVisitModal').classList.add('open'), 400);
       } else {
         document.getElementById('navUserNameDisplay').innerText = userProfile.name;
-        syncUserDataToCloud();
+        // Firebase code will handle sync shortly.
       }
     });
   </script>
   <!-- FIREBASE CLOUD SYNC MAGIC -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // Tera apna secret Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyCsrOKDW7wt7Y9Mvqv0_cRzSEJtQnj1T9k",
     authDomain: "jee-tracker-31fc9.firebaseapp.com",
@@ -1861,41 +2221,93 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Background me cloud par save karne ka logic
+  // FETCH FUNCTION: CLOUD SE DATA NIKALNE KE LIYE
+  window.fetchUserDataFromCloud = async function(userName, userPin) {
+    if (!userName || !userPin) return;
+    const userDocId = `${userName}_${userPin}`; // Creates "Rahul_1234"
+    
+    try {
+        const docSnap = await getDoc(doc(db, "squad_progress", userDocId));
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            
+            // Override Local Variables with Cloud Data
+            if (data.trackerData) window.trackerData = data.trackerData;
+            if (data.userExtras) window.userExtras = data.userExtras;
+            
+            // Save Overridden data securely to localStorage
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(window.trackerData));
+            localStorage.setItem(NEW_FEATURES_KEY, JSON.stringify(window.userExtras));
+            
+            // Refresh View
+            if (typeof window.updateGlobalStats === 'function') window.updateGlobalStats();
+            if (typeof window.refreshCurrentTab === 'function') window.refreshCurrentTab();
+            
+            console.log("☁️ Successfully loaded complete data from Cloud!");
+        } else {
+            // Naya user hai toh current slate cloud pe bhej de
+            if(window.syncUserDataToCloud) window.syncUserDataToCloud();
+        }
+    } catch(e) { console.error("Cloud fetch error:", e); }
+  };
+
+  // AUTO-SYNC FUNCTION
   window.syncUserDataToCloud = async function() {
-    if (!userProfile.name) return;
-    const total = trackerData.length;
-    const done = trackerData.filter(d => d.status === 'Completed').length;
-    const highConf = trackerData.filter(d => d.confidence === 'High').length;
+    if (!userProfile.name || !userProfile.pin) return;
+    
+    const userDocId = `${userProfile.name}_${userProfile.pin}`;
+    const total = window.trackerData.length;
+    const done = window.trackerData.filter(d => d.status === 'Completed').length;
+    const highConf = window.trackerData.filter(d => d.confidence === 'High').length;
     const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
     const myData = {
+      docId: userDocId,      // Storing original docId for admin
       name: userProfile.name,
       done: done,
       pct: pct,
       highConf: highConf,
-      updated: Date.now()
+      studyMins: window.userExtras.totalStudyMins || 0,
+      updated: Date.now(),
+      
+      trackerData: window.trackerData,
+      userExtras: window.userExtras
     };
 
     try {
-      await setDoc(doc(db, "squad_progress", userProfile.name), myData);
-      console.log("Live Database Update Ho Gaya! 🚀");
+      await setDoc(doc(db, "squad_progress", userDocId), myData);
+    } catch(e) { console.error("Firebase Sync error:", e); }
+  };
+
+  // Automatically try to fetch data from cloud initially if user is already logged in
+  setTimeout(() => {
+      if (userProfile && userProfile.isSetup && userProfile.name && userProfile.pin) {
+          window.fetchUserDataFromCloud(userProfile.name, userProfile.pin);
+      }
+  }, 600);
+
+  // BAN/REMOVE USER FUNCTION (FOR ADMINS ONLY)
+  window.removeUser = async function(docId, userName) {
+    if(!confirm(`⚠️ Warning! Are you sure you want to permanently delete '${userName}' from the database?`)) return;
+    try {
+      await deleteDoc(doc(db, "squad_progress", docId));
+      alert(`✅ User '${userName}' removed successfully!`);
+      window.refreshAdminData(); 
     } catch(e) {
-      console.error("Firebase error:", e);
+      console.error("Delete error:", e);
+      alert("❌ Error removing user. Check browser console or database security rules.");
     }
   };
 
-  // Master Admin Panel me sab dosto ka score dikhane ka logic
   window.refreshAdminData = async function() {
     const container = document.getElementById('adminSquadContainer');
-    container.innerHTML = '<div style="color:var(--lime-neon); text-align:center; padding: 20px;">Fetching Live Data from Firebase... ⏳</div>';
+    container.innerHTML = '<div style="color:var(--lime-neon); text-align:center; padding: 20px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Fetching Live Data from Firebase...</div>';
     
     try {
       const snapshot = await getDocs(collection(db, "squad_progress"));
       let squadList = [];
       snapshot.forEach(doc => squadList.push(doc.data()));
       
-      // Ranking by completion percentage
       squadList.sort((a, b) => b.pct - a.pct);
       container.innerHTML = '';
       
@@ -1908,14 +2320,21 @@
         const row = document.createElement('div');
         row.className = 'admin-row';
         const lastActive = new Date(user.updated).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', day: '2-digit', month: 'short' });
+        const studiedHrs = Math.floor((user.studyMins || 0) / 60);
         
         row.innerHTML = `
           <div>
             <div class="admin-user-name">#${i+1} ${user.name}</div>
-            <div class="admin-user-sub">${user.done} / 79 Done • ${user.highConf} High Conf</div>
+            <div class="admin-user-sub">${user.done} / 79 Done • ${studiedHrs} Hrs Logged</div>
             <div style="font-size:0.65rem; color:var(--text-dim); margin-top:4px;">Last seen: ${lastActive}</div>
           </div>
-          <div class="admin-pct">${user.pct}%</div>
+          <div class="admin-pct" style="display:flex; align-items:center; gap:14px;">
+            <span>${user.pct}%</span>
+            <!-- BAN BUTTON FOR ADMIN -->
+            <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.3); padding:6px 12px; background:rgba(248,113,113,0.1);" onclick="removeUser('${user.docId}', '${user.name}')" title="Remove User">
+               <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
         `;
         container.appendChild(row);
       });
