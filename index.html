@@ -787,7 +787,10 @@
         <button class="pill-btn timer-nav-btn" onclick="switchMainTab('timer')">
           <i class="fa-solid fa-stopwatch"></i> <span id="navTimerStatus">Focus Lounge</span>
         </button>
-        <span class="pill-btn" style="color:var(--lime-neon);"><i class="fa-solid fa-bolt"></i> #paperPhodnahai</span>
+        <!-- 🔥 LIVE XP PILL -->
+        <span class="pill-btn" style="color:var(--lime-bright); border-color:rgba(212,255,63,0.3); background:rgba(212,255,63,0.08);">
+          <i class="fa-solid fa-bolt" style="color:var(--lime-neon);"></i> <span id="navXpDisplay">0 XP</span>
+        </span>
       </div>
     </header>
 
@@ -916,7 +919,7 @@
             <span style="font-size:0.75rem; color:var(--text-dim);">29 Chapters</span>
           </div>
           <h3>⚡ Physics Module</h3>
-          <p>Class 12 Electrodynamics & Optics + Class 11 Mechanics revision (2019–22 PYQs first)[cite: 1].</p>
+          <p>Class 12 Electrodynamics & Optics + Class 11 Mechanics revision (2019–22 PYQs first).</p>
           <span style="font-size:0.78rem; color:var(--phy-accent); font-weight:700;">Enter Physics &rarr;</span>
         </div>
 
@@ -926,7 +929,7 @@
             <span style="font-size:0.75rem; color:var(--text-dim);">22 Chapters</span>
           </div>
           <h3>🧪 Chemistry Module</h3>
-          <p>Organic, Inorganic & Physical breakdowns. Finish 12th on time with reverse PYQ strategy[cite: 1].</p>
+          <p>Organic, Inorganic & Physical breakdowns. Finish 12th on time with reverse PYQ strategy.</p>
           <span style="font-size:0.78rem; color:var(--chem-accent); font-weight:700;">Enter Chemistry &rarr;</span>
         </div>
 
@@ -936,7 +939,7 @@
             <span style="font-size:0.75rem; color:var(--text-dim);">28 Chapters</span>
           </div>
           <h3>📐 Mathematics Module</h3>
-          <p>Calculus, Algebra, Vectors & 3D. Personal formula sheets & targeted revision cycles[cite: 1].</p>
+          <p>Calculus, Algebra, Vectors & 3D. Personal formula sheets & targeted revision cycles.</p>
           <span style="font-size:0.78rem; color:var(--math-accent); font-weight:700;">Enter Mathematics &rarr;</span>
         </div>
 
@@ -946,7 +949,7 @@
             <span style="font-size:0.75rem; color:var(--text-dim);">Aug &ndash; Dec</span>
           </div>
           <h3>📅 Monthly Targets</h3>
-          <p>Month-by-month focused goals and Class 11 vs 12 priority distribution[cite: 1].</p>
+          <p>Month-by-month focused goals and Class 11 vs 12 priority distribution.</p>
           <span style="font-size:0.78rem; color:var(--lime-bright); font-weight:700;">View Roadmap &rarr;</span>
         </div>
         
@@ -955,7 +958,7 @@
             <span class="badge-subj" style="background:rgba(248,113,113,0.15); color:#f87171;">Assessment</span>
           </div>
           <h3>📝 Mock Tests & Errors</h3>
-          <p>Log your JEE mock marks and note down mistakes in error logs for revision[cite: 1].</p>
+          <p>Log your JEE mock marks and note down mistakes in error logs for revision.</p>
           <span style="font-size:0.78rem; color:#f87171; font-weight:700;">Open Tracker &rarr;</span>
         </div>
       </div>
@@ -969,13 +972,13 @@
         <div style="font-size:3.5rem; margin-bottom:12px;">🏆</div>
         <h2 style="font-size:1.6rem; font-weight:800; color:#fff; margin-bottom:8px;">Join Squad Leaderboard?</h2>
         <p style="font-size:0.88rem; color:var(--text-sub); line-height:1.6; margin-bottom:18px;">
-          Leaderboard par participate karke aap dosto ke saath syllabus completion % aur monthly study hours me compete kar sakte hain.
+          Leaderboard par participate karke aap dosto ke saath syllabus completion %, XP aur monthly study hours me compete kar sakte hain.
         </p>
 
         <div style="background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); border-radius:14px; padding:12px 16px; margin-bottom:24px; text-align:left;">
           <div style="color:#f87171; font-weight:800; font-size:0.82rem; margin-bottom:4px;"><i class="fa-solid fa-triangle-exclamation"></i> STRICT PLATFORM RULE:</div>
           <div style="font-size:0.78rem; color:#fca5a5; line-height:1.5;">
-            Agar aapne ek baar Leaderboard <strong>JOIN</strong> kar liya, toh aap baad me <strong>LEAVE</strong> nahi kar sakte. Aapka score aur focus time humesha squad me visible rahega. Leaderboard sirf participating students ko hi dikhega.
+            Agar aapne ek baar Leaderboard <strong>JOIN</strong> kar liya, toh aap baad me <strong>LEAVE</strong> nahi kar sakte. Aapka score, XP aur focus time humesha squad me visible rahega. Leaderboard sirf participating students ko hi dikhega.
           </div>
         </div>
 
@@ -997,7 +1000,7 @@
               <i class="fa-solid fa-trophy" style="color:var(--lime-neon);"></i> Squad Live Leaderboard
             </h2>
             <p style="font-size:0.85rem; color:var(--text-sub); margin-top:4px;">
-              Live progress & monthly focus hours of all participating aspirants.
+              Live progress, XP points & monthly focus hours of all participating aspirants.
             </p>
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
@@ -1323,9 +1326,8 @@
 
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:8px; margin-bottom:12px;">
         <p style="font-size:0.78rem; color:var(--text-muted); margin:0;">
-          Active squad members completion report:
+          All registered aspirants (Sign-ups & Leaderboard):
         </p>
-        <!-- ⚠️ WIPE ALL BUTTON TO CLEAR THE ENTIRE LEADERBOARD -->
         <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.1); font-size:0.72rem; padding:4px 12px;" onclick="wipeEntireLeaderboard()">
           <i class="fa-solid fa-trash-can"></i> Wipe / Reset All Ldb
         </button>
@@ -1454,9 +1456,11 @@
       lastStudyDate: null,
       todayStudyMins: 0,
       totalStudyMins: 0,
-      monthlyStudyMins: {}
+      monthlyStudyMins: {},
+      totalXp: 0 // 🔥 INITIAL XP
     };
     if (!userExtras.monthlyStudyMins) userExtras.monthlyStudyMins = {};
+    if (userExtras.totalXp === undefined) userExtras.totalXp = 0;
 
     function loadInitialData() {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -1651,7 +1655,7 @@
       }
 
       if (choice === true) {
-        const confirmed = confirm("⚠️ FINAL WARNING:\n\nAgar aapne ek baar Squad Leaderboard JOIN kar liya, toh aap dubara LEAVE nahi kar payenge!\n\nAapka rank, avatar, score aur monthly study hours public rahenge.\n\nKya aap pakka Join karna chahte hain?");
+        const confirmed = confirm("⚠️ FINAL WARNING:\n\nAgar aapne ek baar Squad Leaderboard JOIN kar liya, toh aap dubara LEAVE nahi kar payenge!\n\nAapka rank, avatar, XP aur monthly study hours public rahenge.\n\nKya aap pakka Join karna chahte hain?");
         if (!confirmed) return;
       }
 
@@ -1971,16 +1975,31 @@
       return card;
     }
 
+    // 🔥 TASK CHECKPOINT XP ENGINE (+15 XP PER TASK, +50 BONUS FOR FINISHING FULL CHAPTER)
     function toggleCheckpoint(id, field, event) {
       const item = trackerData.find(d => d.id === id);
       if (item) {
         item[field] = !item[field];
-        if (item[field]) triggerConfetti(event, 30);
+        
+        // XP Calculation
+        if (item[field]) {
+          userExtras.totalXp = (userExtras.totalXp || 0) + 15;
+          triggerConfetti(event, 30);
+        } else {
+          userExtras.totalXp = Math.max(0, (userExtras.totalXp || 0) - 15);
+        }
+
+        const wasCompleted = item.status === "Completed";
         if (item.theory_done && item.module_done && item.pyq1_done && item.pyq2_done && item.rev_done && item.formula_done) {
           item.status = "Completed";
+          if (!wasCompleted) {
+            userExtras.totalXp = (userExtras.totalXp || 0) + 50; // Bonus for completion
+            triggerConfetti(event, 60);
+          }
         } else if (item.theory_done || item.module_done || item.pyq1_done) {
           if (item.status === "Not Started") item.status = "In Progress";
         }
+        
         saveToStorage();
         refreshCurrentTab();
       }
@@ -1989,9 +2008,11 @@
     function updateChapterStatus(id, newStatus, event) {
       const item = trackerData.find(d => d.id === id);
       if (item) {
+        const wasDone = item.status === 'Completed';
         item.status = newStatus;
         if (newStatus === 'Completed') {
           item.theory_done = item.module_done = item.pyq1_done = item.pyq2_done = item.rev_done = item.formula_done = true;
+          if (!wasDone) userExtras.totalXp = (userExtras.totalXp || 0) + 90; // All tasks + bonus
           triggerConfetti(event, 60);
         }
         saveToStorage();
@@ -2032,6 +2053,10 @@
       document.getElementById('rev-count').innerText = revised;
       document.getElementById('master-progress').style.width = `${percent}%`;
 
+      // Update XP in Navbar
+      const xpElem = document.getElementById('navXpDisplay');
+      if (xpElem) xpElem.innerText = `${userExtras.totalXp || 0} XP`;
+
       const phyTotal = trackerData.filter(d => d.subject === 'Physics').length;
       const phyDone = trackerData.filter(d => d.subject === 'Physics' && d.status === 'Completed').length;
       const phyPct = Math.round((phyDone / phyTotal) * 100) || 0;
@@ -2064,6 +2089,7 @@
         document.getElementById('mockTotal').value = type === 'JEE MAINS' ? '300' : '360';
     }
 
+    // STRICTLY NO XP ON MOCK TESTS
     function saveMockResult() {
       const name = document.getElementById('mockName').value.trim();
       const type = document.getElementById('mockType').value;
@@ -2323,6 +2349,7 @@
             if (imported.userProfile) userProfile = imported.userProfile;
             if (imported.userExtras) userExtras = imported.userExtras;
             if (!userExtras.monthlyStudyMins) userExtras.monthlyStudyMins = {};
+            if (userExtras.totalXp === undefined) userExtras.totalXp = 0;
             
             localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
             saveToStorage();
@@ -2457,6 +2484,7 @@
       updateTimerDisplay();
     }
 
+    // FOCUS TIMER XP REWARD (+1 XP PER STUDY MINUTE)
     function handleTimerComplete() {
       triggerConfetti(null, 100);
       alert("🎉 Focus session completed!");
@@ -2471,6 +2499,9 @@
       if (!userExtras.monthlyStudyMins) userExtras.monthlyStudyMins = {};
       userExtras.monthlyStudyMins[currentMonthKey] = (userExtras.monthlyStudyMins[currentMonthKey] || 0) + durationMins;
 
+      // XP reward for focusing
+      userExtras.totalXp = (userExtras.totalXp || 0) + durationMins;
+
       if(userExtras.lastStudyDate !== today) userExtras.todayStudyMins = 0;
       
       const wasStreakDone = userExtras.todayStudyMins >= 60;
@@ -2479,6 +2510,7 @@
       
       if(!wasStreakDone && userExtras.todayStudyMins >= 60) {
          userExtras.streak += 1;
+         userExtras.totalXp = (userExtras.totalXp || 0) + 30; // Streak bonus XP
          triggerConfetti(null, 150);
       }
       userExtras.lastStudyDate = today;
@@ -2642,6 +2674,7 @@
               if (data.userExtras) {
                 window.userExtras = data.userExtras;
                 if (!window.userExtras.monthlyStudyMins) window.userExtras.monthlyStudyMins = {};
+                if (window.userExtras.totalXp === undefined) window.userExtras.totalXp = data.xp || 0;
               }
               
               localStorage.setItem("JEE_2027_SQUAD_TRACKER_V1", JSON.stringify(window.trackerData));
@@ -2659,19 +2692,12 @@
       } catch(e) { console.error("Cloud fetch error:", e); }
     };
 
-    // AUTO-SYNC FUNCTION WITH PHOTOURL
+    // AUTO-SYNC FUNCTION (INCLUDES TOTAL XP & KEEPS ALL REGISTERED USERS)
     window.syncUserDataToCloud = async function() {
       if (!userProfile.name || !userProfile.pin) return;
       
       const userDocId = `${userProfile.name}_${userProfile.pin}`;
       if (await checkIsUserBanned(userDocId)) return;
-
-      if (userProfile.participateLdb !== true) {
-        try {
-          await deleteDoc(doc(db, "squad_progress", userDocId));
-        } catch(e) {}
-        return;
-      }
 
       const total = window.trackerData.length;
       const done = window.trackerData.filter(d => d.status === 'Completed').length;
@@ -2688,10 +2714,11 @@
         done: done,
         pct: pct,
         highConf: highConf,
+        xp: window.userExtras.totalXp || 0,
         studyMins: window.userExtras.totalStudyMins || 0,
         monthStudyMins: currentMonthMins,
         currentMonthKey: currentMonthKey,
-        participateLdb: true,
+        participateLdb: userProfile.participateLdb === true,
         updated: Date.now(),
         
         trackerData: window.trackerData,
@@ -2750,7 +2777,7 @@
       }
     };
 
-    // 🏆 PUBLIC LEADERBOARD RENDER FUNCTION (INCLUDES AVATARS)
+    // 🏆 PUBLIC LEADERBOARD RENDER FUNCTION (SHOWS ONLY THOSE WHO JOINED LDB)
     window.fetchAndRenderPublicLeaderboard = async function() {
       const container = document.getElementById('publicLeaderboardContainer');
       if (!container) return;
@@ -2761,7 +2788,7 @@
         let squadList = [];
         snapshot.forEach(d => {
           const data = d.data();
-          if (data.participateLdb !== false) {
+          if (data.participateLdb === true) {
             squadList.push({
               ...data,
               docId: d.id
@@ -2769,9 +2796,10 @@
           }
         });
 
+        // Primary sort: Completion %, Secondary sort: XP
         squadList.sort((a, b) => {
           if (b.pct !== a.pct) return b.pct - a.pct;
-          return (b.studyMins || 0) - (a.studyMins || 0);
+          return (b.xp || 0) - (a.xp || 0);
         });
 
         container.innerHTML = '';
@@ -2792,6 +2820,7 @@
           row.className = `ldb-row-card ${rankClass}`;
 
           const totalHrs = Math.floor((u.studyMins || 0) / 60);
+          const userXp = u.xp || (u.userExtras && u.userExtras.totalXp) || 0;
           
           let monthHrs = "0.0";
           if (u.userExtras && u.userExtras.monthlyStudyMins && u.userExtras.monthlyStudyMins[currentMonthKey]) {
@@ -2816,9 +2845,9 @@
                   ${isMe ? '<span style="font-size:0.65rem; background:var(--lime-neon); color:#000; padding:2px 8px; border-radius:999px; font-weight:800;">YOU</span>' : ''}
                 </div>
                 <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:flex; gap:12px; flex-wrap:wrap;">
-                  <span><i class="fa-solid fa-check-double" style="color:var(--lime-bright)"></i> ${u.done}/79 Chs</span>
+                  <span><i class="fa-solid fa-bolt" style="color:var(--lime-bright)"></i> ${userXp} XP</span>
+                  <span><i class="fa-solid fa-check-double" style="color:#34d399"></i> ${u.done}/79 Chs</span>
                   <span><i class="fa-solid fa-calendar-days" style="color:#38bdf8"></i> ${monthHrs}h (${currentMonthKey})</span>
-                  <span><i class="fa-solid fa-clock" style="color:var(--text-dim)"></i> ${totalHrs}h Total</span>
                 </div>
               </div>
             </div>
@@ -2854,7 +2883,7 @@
         return;
       }
 
-      if(!confirm(`⚠️ WARNING: Bhai pakka '${userName}' ko PERMANENT BAN lagana hai?\n\nYe user database se delete ho jayega aur iski screen par HARD LOCK lag jayega!`)) return;
+      if(!confirm(`⚠️ WARNING: Bhai pakka '${userName}' ko PERMANENT BAN lagana hai?\n\nYe user database aur Leaderboard se delete ho jayega aur iski screen par HARD LOCK lag jayega!`)) return;
       try {
         await setDoc(doc(db, "banned_users", docId), {
           bannedDocId: docId,
@@ -2865,7 +2894,7 @@
         await deleteDoc(doc(db, "squad_progress", docId));
         try { await deleteDoc(doc(db, "reported_users", `${docId}_reported`)); } catch(e){}
         
-        alert(`🚫 User '${userName}' ko database se uda diya aur permanently BAN kar diya!`);
+        alert(`🚫 User '${userName}' ko database aur Leaderboard se uda diya aur permanently BAN kar diya!`);
         await window.refreshAdminData();
         if (window.fetchAndRenderPublicLeaderboard) window.fetchAndRenderPublicLeaderboard();
       } catch(e) {
@@ -2920,7 +2949,7 @@
       } catch(e) {}
     };
 
-    // ADMIN DATA REFRESH (FETCHES SQUAD + LIVE REPORTS + BANNED USERS)
+    // ADMIN DATA REFRESH (FETCHES ALL SIGNED-UP USERS + LIVE REPORTS + BANNED USERS)
     window.refreshAdminData = async function() {
       const container = document.getElementById('adminSquadContainer');
       const repContainer = document.getElementById('adminReportedListContainer');
@@ -2975,29 +3004,30 @@
           });
         }
 
+        // Fetch ALL registered signups from squad_progress
         const snapshot = await getDocs(collection(db, "squad_progress"));
-        let squadList = [];
+        let allSignedUpUsers = [];
         snapshot.forEach(d => {
-          squadList.push({
+          allSignedUpUsers.push({
             ...d.data(),
             docId: d.id
           });
         });
         
-        squadList.sort((a, b) => b.pct - a.pct);
+        allSignedUpUsers.sort((a, b) => (b.pct || 0) - (a.pct || 0));
         container.innerHTML = '';
         
-        if(squadList.length === 0) {
-           container.innerHTML = '<div style="color:var(--text-muted); text-align:center;">Abhi tak kisi dost ne data sync nahi kiya.</div>';
+        if(allSignedUpUsers.length === 0) {
+           container.innerHTML = '<div style="color:var(--text-muted); text-align:center;">Abhi tak kisi aspirant ne signup/sync nahi kiya.</div>';
            return;
         }
 
         const currentMonthKey = new Date().toLocaleString('en-IN', { month: 'short', year: 'numeric' });
 
-        squadList.forEach((user, i) => {
+        allSignedUpUsers.forEach((user, i) => {
           const row = document.createElement('div');
           row.className = 'admin-row';
-          const lastActive = new Date(user.updated).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', day: '2-digit', month: 'short' });
+          const lastActive = new Date(user.updated || Date.now()).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', day: '2-digit', month: 'short' });
           const studiedHrs = Math.floor((user.studyMins || 0) / 60);
 
           let monthHrs = "0.0";
@@ -3011,17 +3041,21 @@
             ? `<img src="${user.photoUrl}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid var(--lime-neon);" />` 
             : `<div style="width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:0.75rem;"><i class="fa-solid fa-user"></i></div>`;
           
+          const ldbBadge = user.participateLdb 
+            ? '<span style="font-size:0.65rem; background:rgba(212,255,63,0.15); color:var(--lime-bright); padding:2px 6px; border-radius:999px; border:1px solid rgba(212,255,63,0.3); font-weight:800;">🏆 In LDB</span>'
+            : '<span style="font-size:0.65rem; background:rgba(255,255,255,0.06); color:var(--text-dim); padding:2px 6px; border-radius:999px; font-weight:700;">🔒 Signed Up (Private)</span>';
+
           row.innerHTML = `
             <div style="display:flex; align-items:center; gap:12px;">
               ${adminAvatarHtml}
               <div>
-                <div class="admin-user-name">#${i+1} ${user.name}</div>
-                <div class="admin-user-sub">${user.done} / 79 Done • ${monthHrs}h (${currentMonthKey}) • ${studiedHrs}h Total</div>
+                <div class="admin-user-name">#${i+1} ${user.name} ${ldbBadge} <span style="font-size:0.75rem; color:var(--lime-bright);">(${user.xp || 0} XP)</span></div>
+                <div class="admin-user-sub">${user.done || 0} / 79 Done • ${monthHrs}h (${currentMonthKey}) • ${studiedHrs}h Total</div>
                 <div style="font-size:0.65rem; color:var(--text-dim); margin-top:4px;">Last seen: ${lastActive}</div>
               </div>
             </div>
             <div class="admin-pct" style="display:flex; align-items:center; gap:14px;">
-              <span>${user.pct}%</span>
+              <span>${user.pct || 0}%</span>
               <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.3); padding:6px 12px; background:rgba(248,113,113,0.1);" onclick="removeUser('${user.docId}', '${user.name}')" title="Permanently Ban User">
                  <i class="fa-solid fa-ban"></i> Ban
               </button>
