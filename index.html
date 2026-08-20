@@ -784,6 +784,12 @@
           <span id="navAvatarSpan"><i class="fa-solid fa-user"></i></span>
           <span id="navUserNameDisplay">Profile & Data</span>
         </button>
+        
+        <!-- 🔥 TOP NAVBAR FIRE STREAK PILL -->
+        <span class="pill-btn" style="color:#fb923c; border-color:rgba(249,115,22,0.4); background:rgba(249,115,22,0.1);">
+          <i class="fa-solid fa-fire" style="color:#fb923c;"></i> <span id="navStreakDisplay">0d</span>
+        </span>
+
         <button class="pill-btn timer-nav-btn" onclick="switchMainTab('timer')">
           <i class="fa-solid fa-stopwatch"></i> <span id="navTimerStatus">Focus Lounge</span>
         </button>
@@ -909,7 +915,7 @@
             <span style="font-size:0.75rem; color:var(--text-dim);">Live Sync</span>
           </div>
           <h3>🏆 Squad Leaderboard</h3>
-          <p>Check live rank of all aspirants, syllabus completed %, and monthly study sprints.</p>
+          <p>Check live rank of all aspirants, syllabus completion %, and monthly study sprints.</p>
           <span style="font-size:0.78rem; color:var(--lime-bright); font-weight:700;">Open Leaderboard &rarr;</span>
         </div>
 
@@ -1697,6 +1703,9 @@
          }
       }
       
+      const navStreak = document.getElementById('navStreakDisplay');
+      if (navStreak) navStreak.innerText = `${userExtras.streak || 0}d`;
+
       document.getElementById('streakCountText').innerText = `${userExtras.streak} Days Streak`;
       if(userExtras.todayStudyMins >= 60) {
          document.getElementById('dailyStreakBadge').style.background = 'linear-gradient(90deg, rgba(212, 255, 63, 0.2), rgba(212, 255, 63, 0.05))';
@@ -2056,6 +2065,9 @@
       // Update XP in Navbar
       const xpElem = document.getElementById('navXpDisplay');
       if (xpElem) xpElem.innerText = `${userExtras.totalXp || 0} XP`;
+
+      const navStreak = document.getElementById('navStreakDisplay');
+      if (navStreak) navStreak.innerText = `${userExtras.streak || 0}d`;
 
       const phyTotal = trackerData.filter(d => d.subject === 'Physics').length;
       const phyDone = trackerData.filter(d => d.subject === 'Physics' && d.status === 'Completed').length;
@@ -2675,6 +2687,7 @@
                 window.userExtras = data.userExtras;
                 if (!window.userExtras.monthlyStudyMins) window.userExtras.monthlyStudyMins = {};
                 if (window.userExtras.totalXp === undefined) window.userExtras.totalXp = data.xp || 0;
+                if (window.userExtras.streak === undefined) window.userExtras.streak = data.streak || 0;
               }
               
               localStorage.setItem("JEE_2027_SQUAD_TRACKER_V1", JSON.stringify(window.trackerData));
@@ -2692,7 +2705,7 @@
       } catch(e) { console.error("Cloud fetch error:", e); }
     };
 
-    // AUTO-SYNC FUNCTION (INCLUDES TOTAL XP & KEEPS ALL REGISTERED USERS)
+    // AUTO-SYNC FUNCTION (INCLUDES TOTAL XP, STREAK & ALL DATA)
     window.syncUserDataToCloud = async function() {
       if (!userProfile.name || !userProfile.pin) return;
       
@@ -2715,6 +2728,7 @@
         pct: pct,
         highConf: highConf,
         xp: window.userExtras.totalXp || 0,
+        streak: window.userExtras.streak || 0, // 🔥 SYNC STREAK TO CLOUD
         studyMins: window.userExtras.totalStudyMins || 0,
         monthStudyMins: currentMonthMins,
         currentMonthKey: currentMonthKey,
@@ -2777,7 +2791,7 @@
       }
     };
 
-    // 🏆 PUBLIC LEADERBOARD RENDER FUNCTION (SHOWS ONLY THOSE WHO JOINED LDB)
+    // 🏆 PUBLIC LEADERBOARD RENDER FUNCTION (SHOWS STREAK + XP + CHS + MONTHLY HRS)
     window.fetchAndRenderPublicLeaderboard = async function() {
       const container = document.getElementById('publicLeaderboardContainer');
       if (!container) return;
@@ -2821,6 +2835,7 @@
 
           const totalHrs = Math.floor((u.studyMins || 0) / 60);
           const userXp = u.xp || (u.userExtras && u.userExtras.totalXp) || 0;
+          const userStreak = u.streak !== undefined ? u.streak : ((u.userExtras && u.userExtras.streak !== undefined) ? u.userExtras.streak : 0);
           
           let monthHrs = "0.0";
           if (u.userExtras && u.userExtras.monthlyStudyMins && u.userExtras.monthlyStudyMins[currentMonthKey]) {
@@ -2845,6 +2860,7 @@
                   ${isMe ? '<span style="font-size:0.65rem; background:var(--lime-neon); color:#000; padding:2px 8px; border-radius:999px; font-weight:800;">YOU</span>' : ''}
                 </div>
                 <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:flex; gap:12px; flex-wrap:wrap;">
+                  <span><i class="fa-solid fa-fire" style="color:#fb923c"></i> ${userStreak}d Streak</span>
                   <span><i class="fa-solid fa-bolt" style="color:var(--lime-bright)"></i> ${userXp} XP</span>
                   <span><i class="fa-solid fa-check-double" style="color:#34d399"></i> ${u.done}/79 Chs</span>
                   <span><i class="fa-solid fa-calendar-days" style="color:#38bdf8"></i> ${monthHrs}h (${currentMonthKey})</span>
@@ -3029,6 +3045,7 @@
           row.className = 'admin-row';
           const lastActive = new Date(user.updated || Date.now()).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', day: '2-digit', month: 'short' });
           const studiedHrs = Math.floor((user.studyMins || 0) / 60);
+          const userStreak = user.streak !== undefined ? user.streak : ((user.userExtras && user.userExtras.streak !== undefined) ? user.userExtras.streak : 0);
 
           let monthHrs = "0.0";
           if (user.userExtras && user.userExtras.monthlyStudyMins && user.userExtras.monthlyStudyMins[currentMonthKey]) {
@@ -3049,7 +3066,7 @@
             <div style="display:flex; align-items:center; gap:12px;">
               ${adminAvatarHtml}
               <div>
-                <div class="admin-user-name">#${i+1} ${user.name} ${ldbBadge} <span style="font-size:0.75rem; color:var(--lime-bright);">(${user.xp || 0} XP)</span></div>
+                <div class="admin-user-name">#${i+1} ${user.name} ${ldbBadge} <span style="font-size:0.75rem; color:#fb923c;">🔥 ${userStreak}d</span> <span style="font-size:0.75rem; color:var(--lime-bright);">(${user.xp || 0} XP)</span></div>
                 <div class="admin-user-sub">${user.done || 0} / 79 Done • ${monthHrs}h (${currentMonthKey}) • ${studiedHrs}h Total</div>
                 <div style="font-size:0.65rem; color:var(--text-dim); margin-top:4px;">Last seen: ${lastActive}</div>
               </div>
