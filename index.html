@@ -1294,9 +1294,36 @@
     </div>
   </div>
 
+  <!-- ⚠️ FAKE / RANDOM NAME WARNING MODAL -->
+  <div class="modal-backdrop" id="nameWarningModal" style="z-index: 10000;">
+    <div class="modal-box" style="max-width: 480px; text-align: center; border: 2px solid #f87171; box-shadow: 0 0 45px rgba(248, 113, 113, 0.45);">
+      <div style="font-size: 3.2rem; margin-bottom: 10px; filter: drop-shadow(0 0 15px rgba(248, 113, 113, 0.6));">⚠️</div>
+      <h3 style="color: #f87171; font-size: 1.3rem; font-weight: 800; margin-bottom: 12px;">Profile Action Required</h3>
+      
+      <div style="background: rgba(248, 113, 113, 0.12); border: 1.5px solid rgba(248, 113, 113, 0.35); border-radius: 16px; padding: 14px 18px; margin-bottom: 16px;">
+        <p style="font-size: 1.05rem; font-weight: 800; color: #fff; line-height: 1.5; margin: 0;">
+          ⚠️ apna real name use kro :) wrna ban hoge in next 24 hrs
+        </p>
+      </div>
+
+      <p style="font-size: 0.84rem; color: var(--text-sub); margin-bottom: 22px; line-height: 1.55;">
+        Humne notice kiya hai ki aapka registered username guidelines match nahi kar raha. Leaderboard aur Squad me fair competition ke liye apna <strong>real full name</strong> update karein.
+      </p>
+
+      <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+        <button class="btn-action-primary" onclick="handleWarningUpdateName()" style="background: #f87171; color: #fff; padding: 12px 24px; font-size: 0.9rem;">
+          <i class="fa-solid fa-user-pen"></i> Update Real Name Now
+        </button>
+        <button class="pill-btn" onclick="closeWarningModal()" style="border-color: rgba(255,255,255,0.2); padding: 12px 18px;">
+          I Understand
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- PRIVATE OWNER MASTER DASHBOARD MODAL (PIN: 2307) -->
   <div class="modal-backdrop" id="ownerAdminModal">
-    <div class="modal-box" style="max-width: 640px;">
+    <div class="modal-box" style="max-width: 680px;">
       <div class="modal-top">
         <h3 style="display:flex; align-items:center; gap:8px;">
           <i class="fa-solid fa-shield-halved" style="color:var(--lime-neon)"></i> Owner Master Analytics
@@ -1463,7 +1490,7 @@
       todayStudyMins: 0,
       totalStudyMins: 0,
       monthlyStudyMins: {},
-      totalXp: 0 // 🔥 INITIAL XP
+      totalXp: 0
     };
     if (!userExtras.monthlyStudyMins) userExtras.monthlyStudyMins = {};
     if (userExtras.totalXp === undefined) userExtras.totalXp = 0;
@@ -2002,7 +2029,7 @@
         if (item.theory_done && item.module_done && item.pyq1_done && item.pyq2_done && item.rev_done && item.formula_done) {
           item.status = "Completed";
           if (!wasCompleted) {
-            userExtras.totalXp = (userExtras.totalXp || 0) + 50; // Bonus for completion
+            userExtras.totalXp = (userExtras.totalXp || 0) + 50;
             triggerConfetti(event, 60);
           }
         } else if (item.theory_done || item.module_done || item.pyq1_done) {
@@ -2021,7 +2048,7 @@
         item.status = newStatus;
         if (newStatus === 'Completed') {
           item.theory_done = item.module_done = item.pyq1_done = item.pyq2_done = item.rev_done = item.formula_done = true;
-          if (!wasDone) userExtras.totalXp = (userExtras.totalXp || 0) + 90; // All tasks + bonus
+          if (!wasDone) userExtras.totalXp = (userExtras.totalXp || 0) + 90;
           triggerConfetti(event, 60);
         }
         saveToStorage();
@@ -2062,7 +2089,6 @@
       document.getElementById('rev-count').innerText = revised;
       document.getElementById('master-progress').style.width = `${percent}%`;
 
-      // Update XP in Navbar
       const xpElem = document.getElementById('navXpDisplay');
       if (xpElem) xpElem.innerText = `${userExtras.totalXp || 0} XP`;
 
@@ -2101,7 +2127,6 @@
         document.getElementById('mockTotal').value = type === 'JEE MAINS' ? '300' : '360';
     }
 
-    // STRICTLY NO XP ON MOCK TESTS
     function saveMockResult() {
       const name = document.getElementById('mockName').value.trim();
       const type = document.getElementById('mockType').value;
@@ -2228,6 +2253,40 @@
 
       return badWords.some(bw => clean.includes(bw));
     }
+
+    // 🔍 AUTOMATIC FAKE/SUSPICIOUS NAME CHECKER
+    window.isSuspiciousFakeName = function(name) {
+      if (!name) return false;
+      const n = name.trim().toLowerCase();
+      
+      const suspiciousList = [
+        "test", "tester", "admin", "fake", "unknown", "nobody", "anonymous", "anon", "xyz", "abc", 
+        "asdf", "qwerty", "hacker", "sigma", "gigachad", "noob", "pro", "bot", "user", "guest", "null", "undefined",
+        "papa", "tera baap", "god", "don", "system"
+      ];
+      if (suspiciousList.includes(n)) return true;
+
+      // Checking identical repeated characters (e.g. "aaaaa", "xxxx")
+      if (/^(.)\1{2,}$/.test(n)) return true;
+
+      return false;
+    };
+
+    // ⚠️ WARNING MODAL CONTROLS
+    window.openWarningModal = function() {
+      const modal = document.getElementById('nameWarningModal');
+      if (modal) modal.classList.add('open');
+    };
+
+    window.closeWarningModal = function() {
+      const modal = document.getElementById('nameWarningModal');
+      if (modal) modal.classList.remove('open');
+    };
+
+    window.handleWarningUpdateName = function() {
+      closeWarningModal();
+      openProfileModal();
+    };
 
     function submitFirstVisitName() {
       if (localStorage.getItem(BAN_STORAGE_KEY) === "true") {
@@ -2496,7 +2555,6 @@
       updateTimerDisplay();
     }
 
-    // FOCUS TIMER XP REWARD (+1 XP PER STUDY MINUTE)
     function handleTimerComplete() {
       triggerConfetti(null, 100);
       alert("🎉 Focus session completed!");
@@ -2511,7 +2569,6 @@
       if (!userExtras.monthlyStudyMins) userExtras.monthlyStudyMins = {};
       userExtras.monthlyStudyMins[currentMonthKey] = (userExtras.monthlyStudyMins[currentMonthKey] || 0) + durationMins;
 
-      // XP reward for focusing
       userExtras.totalXp = (userExtras.totalXp || 0) + durationMins;
 
       if(userExtras.lastStudyDate !== today) userExtras.todayStudyMins = 0;
@@ -2522,7 +2579,7 @@
       
       if(!wasStreakDone && userExtras.todayStudyMins >= 60) {
          userExtras.streak += 1;
-         userExtras.totalXp = (userExtras.totalXp || 0) + 30; // Streak bonus XP
+         userExtras.totalXp = (userExtras.totalXp || 0) + 30;
          triggerConfetti(null, 150);
       }
       userExtras.lastStudyDate = today;
@@ -2603,7 +2660,7 @@
     });
   </script>
 
-  <!-- FIREBASE CLOUD SYNC, LEADERBOARD, REPORTING, BAN & UNBAN ENGINE -->
+  <!-- FIREBASE CLOUD SYNC, LEADERBOARD, REPORTING, BAN, UNBAN & WARNING ENGINE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -2669,12 +2726,44 @@
       return false;
     }
 
+    // ⚠️ LIVE WARNING CHECK (FIRESTORE DATABASE + AUTOMATIC DETECTION)
+    async function checkIsUserWarned(docId, userName) {
+      if (!docId && userProfile.name && userProfile.pin) {
+        docId = `${userProfile.name}_${userProfile.pin}`;
+      }
+      if (!userName) userName = userProfile.name || "";
+
+      let shouldShowWarning = false;
+
+      // 1. Check if flagged by Admin in Firestore database
+      if (docId) {
+        try {
+          const warnSnap = await getDoc(doc(db, "warned_users", docId));
+          if (warnSnap.exists()) {
+            shouldShowWarning = true;
+          }
+        } catch (e) {
+          console.warn("Warning check error:", e);
+        }
+      }
+
+      // 2. Check if name matches automatic fake/suspicious list
+      if (window.isSuspiciousFakeName && window.isSuspiciousFakeName(userName)) {
+        shouldShowWarning = true;
+      }
+
+      if (shouldShowWarning && window.openWarningModal) {
+        window.openWarningModal();
+      }
+    }
+
     // FETCH FUNCTION
     window.fetchUserDataFromCloud = async function(userName, userPin) {
       if (!userName || !userPin) return;
       const userDocId = `${userName}_${userPin}`;
 
       if (await checkIsUserBanned(userDocId)) return;
+      await checkIsUserWarned(userDocId, userName);
       
       try {
           const docSnap = await getDoc(doc(db, "squad_progress", userDocId));
@@ -2728,7 +2817,7 @@
         pct: pct,
         highConf: highConf,
         xp: window.userExtras.totalXp || 0,
-        streak: window.userExtras.streak || 0, // 🔥 SYNC STREAK TO CLOUD
+        streak: window.userExtras.streak || 0,
         studyMins: window.userExtras.totalStudyMins || 0,
         monthStudyMins: currentMonthMins,
         currentMonthKey: currentMonthKey,
@@ -2746,7 +2835,8 @@
 
     // Initial check on load
     setTimeout(async () => {
-      const isBanned = await checkIsUserBanned(userProfile.name ? `${userProfile.name}_${userProfile.pin}` : null);
+      const docId = userProfile.name ? `${userProfile.name}_${userProfile.pin}` : null;
+      const isBanned = await checkIsUserBanned(docId);
       if (!isBanned && userProfile && userProfile.isSetup && userProfile.name && userProfile.pin) {
         window.fetchUserDataFromCloud(userProfile.name, userProfile.pin);
       }
@@ -2759,7 +2849,7 @@
         return;
       }
 
-      const reason = prompt(`🚨 Report Aspirant '${reportedName}':\n\nKya problem hai? (e.g. Abusive username, suspicious marks, fake data)`);
+      const reason = prompt(`🚨 Report Aspirant '${reportedName}':\n\nKya problem hai? (e.g. Fake name, offensive username, suspicious data)`);
       if (!reason) return;
 
       try {
@@ -2791,7 +2881,43 @@
       }
     };
 
-    // 🏆 PUBLIC LEADERBOARD RENDER FUNCTION (SHOWS STREAK + XP + CHS + MONTHLY HRS)
+    // ⚠️ WARN USER FUNCTION (ADMIN MASTER)
+    window.warnUser = async function(docId, userName) {
+      if (!docId || docId === 'undefined') {
+        alert("❌ Error: Document ID missing for this user.");
+        return;
+      }
+
+      if(!confirm(`⚠️ Bhai '${userName}' ko Warning bhejni hai?\n\nUske screen par: "apna real name use kro :) wrna ban hoge in next 24 hrs" ka popup show hoga.`)) return;
+      try {
+        await setDoc(doc(db, "warned_users", docId), {
+          docId: docId,
+          name: userName || "Unknown",
+          warnedAt: Date.now()
+        });
+
+        alert(`⚠️ '${userName}' ko 24-hr Real Name Warning bhej di gayi hai!`);
+        await window.refreshAdminData();
+      } catch(e) {
+        console.error("Warning set error:", e);
+        alert("❌ Error sending warning: " + e.message);
+      }
+    };
+
+    // 🔄 UNWARN USER FUNCTION (ADMIN MASTER)
+    window.unwarnUser = async function(docId, userName) {
+      if(!confirm(`Bhai '${userName}' ki warning remove karni hai?`)) return;
+      try {
+        await deleteDoc(doc(db, "warned_users", docId));
+        alert(`✅ '${userName}' ki warning remove kar di gayi hai.`);
+        await window.refreshAdminData();
+      } catch(e) {
+        console.error("Unwarn error:", e);
+        alert("❌ Error removing warning: " + e.message);
+      }
+    };
+
+    // 🏆 PUBLIC LEADERBOARD RENDER FUNCTION
     window.fetchAndRenderPublicLeaderboard = async function() {
       const container = document.getElementById('publicLeaderboardContainer');
       if (!container) return;
@@ -2810,7 +2936,6 @@
           }
         });
 
-        // Primary sort: Completion %, Secondary sort: XP
         squadList.sort((a, b) => {
           if (b.pct !== a.pct) return b.pct - a.pct;
           return (b.xp || 0) - (a.xp || 0);
@@ -2833,7 +2958,6 @@
           
           row.className = `ldb-row-card ${rankClass}`;
 
-          const totalHrs = Math.floor((u.studyMins || 0) / 60);
           const userXp = u.xp || (u.userExtras && u.userExtras.totalXp) || 0;
           const userStreak = u.streak !== undefined ? u.streak : ((u.userExtras && u.userExtras.streak !== undefined) ? u.userExtras.streak : 0);
           
@@ -2877,7 +3001,7 @@
               </div>
               
               ${!isMe ? `
-                <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.3); padding:6px 10px; background:rgba(248,113,113,0.06);" onclick="reportUser('${u.docId}', '${u.name}')" title="Report Inappropriate Name">
+                <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.3); padding:6px 10px; background:rgba(248,113,113,0.06);" onclick="reportUser('${u.docId}', '${u.name}')" title="Report Fake Name">
                   <i class="fa-solid fa-flag"></i>
                 </button>
               ` : ''}
@@ -2909,6 +3033,7 @@
 
         await deleteDoc(doc(db, "squad_progress", docId));
         try { await deleteDoc(doc(db, "reported_users", `${docId}_reported`)); } catch(e){}
+        try { await deleteDoc(doc(db, "warned_users", docId)); } catch(e){}
         
         alert(`🚫 User '${userName}' ko database aur Leaderboard se uda diya aur permanently BAN kar diya!`);
         await window.refreshAdminData();
@@ -2965,7 +3090,7 @@
       } catch(e) {}
     };
 
-    // ADMIN DATA REFRESH (FETCHES ALL SIGNED-UP USERS + LIVE REPORTS + BANNED USERS)
+    // ADMIN DATA REFRESH (FETCHES ALL SIGNED-UP USERS + LIVE REPORTS + BANNED USERS + WARNED USERS)
     window.refreshAdminData = async function() {
       const container = document.getElementById('adminSquadContainer');
       const repContainer = document.getElementById('adminReportedListContainer');
@@ -2974,6 +3099,14 @@
       container.innerHTML = '<div style="color:var(--lime-neon); text-align:center; padding: 20px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Fetching Live Data from Firebase...</div>';
       
       try {
+        // Fetch warned users map
+        const warnSnapshot = await getDocs(collection(db, "warned_users"));
+        let warnedMap = {};
+        warnSnapshot.forEach(wDoc => {
+          warnedMap[wDoc.id] = true;
+        });
+
+        // 1. Reports
         const repSnapshot = await getDocs(collection(db, "reported_users"));
         repContainer.innerHTML = '';
         if (repSnapshot.empty) {
@@ -2990,6 +3123,7 @@
                   <div style="font-size:0.7rem; color:var(--text-muted);">Reason: "${latestReason}"</div>
                 </div>
                 <div style="display:flex; gap:6px;">
+                  <button class="pill-btn" style="color:#fbbf24; border-color:rgba(251,191,36,0.4); padding:4px 8px; font-size:0.7rem;" onclick="warnUser('${r.targetDocId}', '${r.targetName}')">⚠️ Warn</button>
                   <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.4); padding:4px 8px; font-size:0.7rem;" onclick="removeUser('${r.targetDocId}', '${r.targetName}')">🚫 Ban</button>
                   <button class="pill-btn" style="padding:4px 8px; font-size:0.7rem;" onclick="dismissReport('${rDoc.id}')">Dismiss</button>
                 </div>
@@ -2998,6 +3132,7 @@
           });
         }
 
+        // 2. Banned
         const banSnapshot = await getDocs(collection(db, "banned_users"));
         banContainer.innerHTML = '';
         if (banSnapshot.empty) {
@@ -3020,7 +3155,7 @@
           });
         }
 
-        // Fetch ALL registered signups from squad_progress
+        // 3. All Signups
         const snapshot = await getDocs(collection(db, "squad_progress"));
         let allSignedUpUsers = [];
         snapshot.forEach(d => {
@@ -3062,18 +3197,32 @@
             ? '<span style="font-size:0.65rem; background:rgba(212,255,63,0.15); color:var(--lime-bright); padding:2px 6px; border-radius:999px; border:1px solid rgba(212,255,63,0.3); font-weight:800;">🏆 In LDB</span>'
             : '<span style="font-size:0.65rem; background:rgba(255,255,255,0.06); color:var(--text-dim); padding:2px 6px; border-radius:999px; font-weight:700;">🔒 Signed Up (Private)</span>';
 
+          const isWarned = warnedMap[user.docId] === true;
+          const warnStatusHtml = isWarned 
+            ? '<span style="font-size:0.65rem; background:rgba(248,113,113,0.15); color:#f87171; padding:2px 6px; border-radius:999px; font-weight:800; border:1px solid rgba(248,113,113,0.3);">⚠️ WARNED</span>'
+            : '';
+
           row.innerHTML = `
             <div style="display:flex; align-items:center; gap:12px;">
               ${adminAvatarHtml}
               <div>
-                <div class="admin-user-name">#${i+1} ${user.name} ${ldbBadge} <span style="font-size:0.75rem; color:#fb923c;">🔥 ${userStreak}d</span> <span style="font-size:0.75rem; color:var(--lime-bright);">(${user.xp || 0} XP)</span></div>
+                <div class="admin-user-name">#${i+1} ${user.name} ${ldbBadge} ${warnStatusHtml} <span style="font-size:0.75rem; color:#fb923c;">🔥 ${userStreak}d</span> <span style="font-size:0.75rem; color:var(--lime-bright);">(${user.xp || 0} XP)</span></div>
                 <div class="admin-user-sub">${user.done || 0} / 79 Done • ${monthHrs}h (${currentMonthKey}) • ${studiedHrs}h Total</div>
                 <div style="font-size:0.65rem; color:var(--text-dim); margin-top:4px;">Last seen: ${lastActive}</div>
               </div>
             </div>
-            <div class="admin-pct" style="display:flex; align-items:center; gap:14px;">
+            <div class="admin-pct" style="display:flex; align-items:center; gap:10px;">
               <span>${user.pct || 0}%</span>
-              <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.3); padding:6px 12px; background:rgba(248,113,113,0.1);" onclick="removeUser('${user.docId}', '${user.name}')" title="Permanently Ban User">
+              ${isWarned ? `
+                <button class="pill-btn" style="color:var(--lime-bright); border-color:rgba(212,255,63,0.3); padding:6px 10px; background:rgba(212,255,63,0.08); font-size:0.75rem;" onclick="unwarnUser('${user.docId}', '${user.name}')" title="Remove Warning">
+                  <i class="fa-solid fa-check"></i> Unwarn
+                </button>
+              ` : `
+                <button class="pill-btn" style="color:#fbbf24; border-color:rgba(251,191,36,0.4); padding:6px 10px; background:rgba(251,191,36,0.1); font-size:0.75rem;" onclick="warnUser('${user.docId}', '${user.name}')" title="Send Fake Name Warning">
+                  <i class="fa-solid fa-triangle-exclamation"></i> Warn
+                </button>
+              `}
+              <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.3); padding:6px 10px; background:rgba(248,113,113,0.1); font-size:0.75rem;" onclick="removeUser('${user.docId}', '${user.name}')" title="Permanently Ban User">
                  <i class="fa-solid fa-ban"></i> Ban
               </button>
             </div>
