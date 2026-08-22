@@ -677,7 +677,7 @@
     .ldb-row-card.rank-2 .ldb-rank-badge { background: #c0c0c0; color: #000; font-weight: 900; }
     .ldb-row-card.rank-3 .ldb-rank-badge { background: #cd7f32; color: #000; font-weight: 900; }
 
-    /* Modals & Avatar Upload Picker */
+    /* Modals & Google Login UI */
     .modal-backdrop { position: fixed; inset: 0; background: rgba(3, 8, 4, 0.85); backdrop-filter: blur(16px); z-index: 999; display: none; align-items: center; justify-content: center; padding: 20px; }
     .modal-backdrop.open { display: flex; }
     .modal-box { background: #09120a; border: 1px solid rgba(212, 255, 63, 0.3); border-radius: 26px; max-width: 520px; width: 100%; padding: 28px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85); max-height: 90vh; overflow-y: auto;}
@@ -690,36 +690,27 @@
 
     .btn-action-primary { background: var(--lime-neon); color: #040805; font-weight: 800; border: none; padding: 10px 22px; border-radius: 999px; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
 
-    .avatar-upload-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-    .avatar-circle-preview {
-      width: 76px;
-      height: 76px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px dashed rgba(212, 255, 63, 0.5);
-      display: flex;
+    .btn-google-auth {
+      background: #ffffff;
+      color: #1f2937;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 24px;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      gap: 12px;
       cursor: pointer;
-      position: relative;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
       transition: all 0.2s ease;
     }
-    .avatar-circle-preview:hover {
-      border-color: var(--lime-neon);
-      transform: scale(1.05);
-      box-shadow: 0 0 20px rgba(212, 255, 63, 0.3);
-    }
-    .avatar-circle-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .btn-google-auth:hover {
+      background: #f3f4f6;
+      transform: scale(1.02);
+      box-shadow: 0 6px 25px rgba(255, 255, 255, 0.3);
     }
 
     /* Admin View */
@@ -1221,30 +1212,32 @@
   </div>
   <style> @media(max-width:768px){ .hide-mobile{display:none;} } </style>
 
-  <!-- First Visit Setup Modal -->
-  <div class="modal-backdrop" id="firstVisitModal">
-    <div class="modal-box" style="max-width: 440px; text-align: center;">
-      <div style="font-size: 2.2rem; margin-bottom: 8px;">👋</div>
-      <h3 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 6px;">Welcome Aspirant!</h3>
-      <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:18px;">
-        Apna name, secret 4-digit PIN aur Profile Picture (DP) set karo.
+  <!-- 🔒 MANDATORY GOOGLE SIGN-IN MODAL WALL -->
+  <div class="modal-backdrop" id="googleAuthModal" style="z-index: 99999; backdrop-filter: blur(25px);">
+    <div class="modal-box" style="max-width: 440px; text-align: center; border: 1.5px solid var(--lime-neon);">
+      <div class="brand-icon-wrap" style="width: 52px; height: 52px; margin: 0 auto 16px; font-size: 1.5rem;">
+        <i class="fa-solid fa-atom"></i>
+      </div>
+      <h3 style="font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: 6px;">IIT JEE 2027 Master OS</h3>
+      <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:22px; line-height: 1.5;">
+        Apna real study progress, XP, aur Leaderboard rank sync karne ke liye Google Account se continue karein.
       </p>
       
-      <div class="avatar-upload-wrap">
-        <div class="avatar-circle-preview" onclick="document.getElementById('firstVisitPhotoInput').click()" title="Click to upload Profile Picture">
-          <img id="firstVisitPhotoPreview" src="" style="display:none;" />
-          <i id="firstVisitPhotoIcon" class="fa-solid fa-camera" style="font-size: 1.4rem; color: var(--lime-neon);"></i>
-        </div>
-        <span style="font-size:0.7rem; color:var(--text-muted);">Optional Profile Picture (Click Circle)</span>
-        <input type="file" id="firstVisitPhotoInput" accept="image/*" style="display:none;" onchange="processAvatarUpload(event, 'firstVisit')" />
-      </div>
-
-      <input type="text" id="firstVisitNameInput" class="modal-input-field" placeholder="Enter Your Name (e.g. Aryan)" style="text-align:center; font-weight:700; font-size:1rem;" />
-      <input type="password" id="firstVisitPinInput" class="modal-input-field" placeholder="Create 4-Digit Secret PIN" style="text-align:center; font-weight:700; font-size:1rem; letter-spacing: 4px;" maxlength="4" />
-      
-      <button class="btn-action-primary" onclick="submitFirstVisitName()" style="width:100%; justify-content:center; padding:12px 20px;">
-        <i class="fa-solid fa-bolt"></i> Start Tracking
+      <button class="btn-google-auth" onclick="handleGoogleSignIn()">
+        <svg width="20" height="20" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <span>Continue with Google</span>
       </button>
+
+      <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08);">
+        <button class="pill-btn" onclick="openManualLinkPrompt()" style="font-size:0.75rem; border-color: rgba(255,255,255,0.15);">
+          <i class="fa-solid fa-link"></i> Link Old Account (Name + PIN)
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1255,26 +1248,32 @@
         <h3>User Profile & Data Backup</h3>
         <button class="btn-close-modal" onclick="closeProfileModal()"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">Apna naam, 4-digit PIN, DP aur Leaderboard status manage karo.</p>
       
       <div class="avatar-upload-wrap">
-        <div class="avatar-circle-preview" onclick="document.getElementById('profilePhotoInput').click()" title="Click to change Profile Picture">
+        <div class="avatar-circle-preview" style="cursor:default;">
           <img id="profilePhotoPreview" src="" style="display:none;" />
-          <i id="profilePhotoIcon" class="fa-solid fa-camera" style="font-size: 1.4rem; color: var(--lime-neon);"></i>
+          <i id="profilePhotoIcon" class="fa-solid fa-user" style="font-size: 1.6rem; color: var(--lime-neon);"></i>
         </div>
-        <span style="font-size:0.7rem; color:var(--text-muted);">Change Profile Picture (Auto-Compressed)</span>
-        <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;" onchange="processAvatarUpload(event, 'profile')" />
+        <div style="font-weight: 800; font-size: 1.1rem; color: #fff; margin-top: 4px;" id="profileRealNameDisplay">--</div>
+        <div style="font-size: 0.76rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" id="profileEmailDisplay">--</div>
+        <span style="font-size:0.68rem; color:var(--lime-bright); background:rgba(212,255,63,0.1); padding:2px 10px; border-radius:999px; font-weight:700;">
+          <i class="fa-solid fa-circle-check"></i> Google Verified Account
+        </span>
       </div>
 
-      <input type="text" id="userNameInput" class="modal-input-field" placeholder="Enter Your Name" style="text-align:center; font-weight:700;" />
-      <input type="password" id="userPinInput" class="modal-input-field" placeholder="Enter 4-Digit PIN" style="text-align:center; font-weight:700; letter-spacing: 4px;" maxlength="4" />
-      
       <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:12px; border-radius:14px; margin-bottom:18px; text-align:left;">
         <label style="font-size:0.82rem; font-weight:800; color:#fff; display:block; margin-bottom:4px;">🏆 Leaderboard Participation:</label>
         <div id="profileLdbStatusText" style="font-size:0.8rem; font-weight:700; color:var(--lime-bright);"></div>
       </div>
 
-      <button class="btn-action-primary" onclick="saveUserProfile()" style="width:100%; justify-content:center; margin-bottom: 20px;">Save Profile & Sync</button>
+      <div style="display:flex; gap:10px; margin-bottom: 20px;">
+        <button class="btn-action-primary" onclick="openManualLinkPrompt()" style="flex:1; justify-content:center; font-size:0.8rem;">
+          <i class="fa-solid fa-link"></i> Link Old Data
+        </button>
+        <button class="pill-btn" onclick="handleGoogleSignOut()" style="color:#f87171; border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.1); justify-content:center;">
+          <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+        </button>
+      </div>
       
       <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; text-align: left;">
         <div style="font-size: 0.82rem; font-weight: 800; color: #fff; margin-bottom: 8px;">
@@ -1290,33 +1289,6 @@
             <input type="file" accept=".json" onchange="importDataBackup(event)" style="display: none;" />
           </label>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ⚠️ FAKE / RANDOM NAME WARNING MODAL -->
-  <div class="modal-backdrop" id="nameWarningModal" style="z-index: 10000;">
-    <div class="modal-box" style="max-width: 480px; text-align: center; border: 2px solid #f87171; box-shadow: 0 0 45px rgba(248, 113, 113, 0.45);">
-      <div style="font-size: 3.2rem; margin-bottom: 10px; filter: drop-shadow(0 0 15px rgba(248, 113, 113, 0.6));">⚠️</div>
-      <h3 style="color: #f87171; font-size: 1.3rem; font-weight: 800; margin-bottom: 12px;">Profile Action Required</h3>
-      
-      <div style="background: rgba(248, 113, 113, 0.12); border: 1.5px solid rgba(248, 113, 113, 0.35); border-radius: 16px; padding: 14px 18px; margin-bottom: 16px;">
-        <p style="font-size: 1.05rem; font-weight: 800; color: #fff; line-height: 1.5; margin: 0;">
-          ⚠️ apna real name use kro :) wrna ban hoge in next 24 hrs
-        </p>
-      </div>
-
-      <p style="font-size: 0.84rem; color: var(--text-sub); margin-bottom: 22px; line-height: 1.55;">
-        Humne notice kiya hai ki aapka registered username guidelines match nahi kar raha. Leaderboard aur Squad me fair competition ke liye apna <strong>real full name</strong> update karein.
-      </p>
-
-      <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-        <button class="btn-action-primary" onclick="handleWarningUpdateName()" style="background: #f87171; color: #fff; padding: 12px 24px; font-size: 0.9rem;">
-          <i class="fa-solid fa-user-pen"></i> Update Real Name Now
-        </button>
-        <button class="pill-btn" onclick="closeWarningModal()" style="border-color: rgba(255,255,255,0.2); padding: 12px 18px;">
-          I Understand
-        </button>
       </div>
     </div>
   </div>
@@ -1337,7 +1309,7 @@
           <i class="fa-solid fa-triangle-exclamation"></i> 🚨 Flagged / Reported Aspirants
         </h4>
         <p style="font-size:0.75rem; color:var(--text-sub); margin-bottom:10px;">
-          Dosto ne jin abusive names ya fake profiles ko report kiya hai wo yahan live dikhte hain:
+          Dosto ne jin suspicious profiles ko report kiya hai wo yahan live dikhte hain:
         </p>
         <div id="adminReportedListContainer" style="display:flex; flex-direction:column; gap:8px; max-height:140px; overflow-y:auto;">
           <div style="color:var(--text-dim); font-size:0.78rem;">No active reports. Clean environment! ✅</div>
@@ -1350,7 +1322,7 @@
           <i class="fa-solid fa-ban" style="color:#f87171;"></i> 🚫 Banned Users Management
         </h4>
         <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">
-          Jo users block ho chuke hain unhe review karein ya Unban karein:
+          Jo Google accounts block ho chuke hain unhe review karein ya Unban karein:
         </p>
         <div id="adminBannedListContainer" style="display:flex; flex-direction:column; gap:8px; max-height:140px; overflow-y:auto;">
           <div style="color:var(--text-dim); font-size:0.78rem;">No banned users found.</div>
@@ -1359,7 +1331,7 @@
 
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:8px; margin-bottom:12px;">
         <p style="font-size:0.78rem; color:var(--text-muted); margin:0;">
-          All registered aspirants (Sign-ups & Leaderboard):
+          All Google-authenticated aspirants:
         </p>
         <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.1); font-size:0.72rem; padding:4px 12px;" onclick="wipeEntireLeaderboard()">
           <i class="fa-solid fa-trash-can"></i> Wipe / Reset All Ldb
@@ -1479,7 +1451,7 @@
     const NEW_FEATURES_KEY = "JEE_2027_EXTRAS_V1";
     const BAN_STORAGE_KEY = "JEE_2027_DEVICE_BANNED";
 
-    var userProfile = JSON.parse(localStorage.getItem(USER_KEY)) || { name: "", pin: "", isSetup: false, participateLdb: null, photoUrl: "" };
+    var userProfile = JSON.parse(localStorage.getItem(USER_KEY)) || { uid: "", email: "", name: "", isSetup: false, participateLdb: null, photoUrl: "" };
 
     var userExtras = JSON.parse(localStorage.getItem(NEW_FEATURES_KEY)) || {
       studyLogs: [],
@@ -1672,12 +1644,12 @@
       const activeContent = document.getElementById('ldbActiveContent');
 
       if (userProfile.participateLdb === true) {
-        promptBox.style.display = 'none';
-        activeContent.style.display = 'block';
+        if (promptBox) promptBox.style.display = 'none';
+        if (activeContent) activeContent.style.display = 'block';
         if (window.fetchAndRenderPublicLeaderboard) window.fetchAndRenderPublicLeaderboard();
       } else {
-        activeContent.style.display = 'none';
-        promptBox.style.display = 'block';
+        if (activeContent) activeContent.style.display = 'none';
+        if (promptBox) promptBox.style.display = 'block';
       }
     }
 
@@ -1711,8 +1683,10 @@
       let mainsDays = Math.floor((jeeMains - now) / (1000 * 60 * 60 * 24));
       let advDays = Math.floor((jeeAdv - now) / (1000 * 60 * 60 * 24));
 
-      document.getElementById('jeeMainsTimer').innerText = (mainsDays > 0 ? mainsDays : 0) + " Days";
-      document.getElementById('jeeAdvTimer').innerText = (advDays > 0 ? advDays : 0) + " Days";
+      const mainsElem = document.getElementById('jeeMainsTimer');
+      if (mainsElem) mainsElem.innerText = (mainsDays > 0 ? mainsDays : 0) + " Days";
+      const advElem = document.getElementById('jeeAdvTimer');
+      if (advElem) advElem.innerText = (advDays > 0 ? advDays : 0) + " Days";
     }
 
     function checkStreak() {
@@ -1733,17 +1707,19 @@
       const navStreak = document.getElementById('navStreakDisplay');
       if (navStreak) navStreak.innerText = `${userExtras.streak || 0}d`;
 
-      document.getElementById('streakCountText').innerText = `${userExtras.streak} Days Streak`;
-      if(userExtras.todayStudyMins >= 60) {
-         document.getElementById('dailyStreakBadge').style.background = 'linear-gradient(90deg, rgba(212, 255, 63, 0.2), rgba(212, 255, 63, 0.05))';
-         document.getElementById('dailyStreakBadge').style.color = '#d4ff3f';
-         document.getElementById('dailyStreakBadge').style.borderColor = '#d4ff3f';
-         document.getElementById('dailyStreakBadge').innerHTML = `<i class="fa-solid fa-fire"></i> ${userExtras.streak} Days Streak (Today's Target Met ✅)`;
-      } else {
-         document.getElementById('dailyStreakBadge').style.background = '';
-         document.getElementById('dailyStreakBadge').style.color = '';
-         document.getElementById('dailyStreakBadge').style.borderColor = '';
-         document.getElementById('dailyStreakBadge').innerHTML = `<i class="fa-solid fa-fire"></i> ${userExtras.streak} Days Streak (${userExtras.todayStudyMins}/60 mins done)`;
+      const badge = document.getElementById('dailyStreakBadge');
+      if (badge) {
+        if (userExtras.todayStudyMins >= 60) {
+          badge.style.background = 'linear-gradient(90deg, rgba(212, 255, 63, 0.2), rgba(212, 255, 63, 0.05))';
+          badge.style.color = '#d4ff3f';
+          badge.style.borderColor = '#d4ff3f';
+          badge.innerHTML = `<i class="fa-solid fa-fire"></i> <span id="streakCountText">${userExtras.streak} Days Streak</span> (Today's Target Met ✅)`;
+        } else {
+          badge.style.background = '';
+          badge.style.color = '';
+          badge.style.borderColor = '';
+          badge.innerHTML = `<i class="fa-solid fa-fire"></i> <span id="streakCountText">${userExtras.streak} Days Streak</span> (${userExtras.todayStudyMins}/60 mins done)`;
+        }
       }
 
       const currentMonthKey = new Date().toLocaleString('en-IN', { month: 'short', year: 'numeric' });
@@ -1765,58 +1741,6 @@
       }
     }
 
-    window.processAvatarUpload = function(event, context) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      if (!file.type.startsWith('image/')) {
-        alert("Please image file select karein!");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          const maxDim = 120;
-          let w = img.width;
-          let h = img.height;
-
-          if (w > h) {
-            if (w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
-          } else {
-            if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
-          }
-
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
-          userProfile.photoUrl = compressedBase64;
-
-          if (context === 'firstVisit') {
-            const prev = document.getElementById('firstVisitPhotoPreview');
-            const icon = document.getElementById('firstVisitPhotoIcon');
-            prev.src = compressedBase64;
-            prev.style.display = 'block';
-            if (icon) icon.style.display = 'none';
-          } else {
-            const prev = document.getElementById('profilePhotoPreview');
-            const icon = document.getElementById('profilePhotoIcon');
-            prev.src = compressedBase64;
-            prev.style.display = 'block';
-            if (icon) icon.style.display = 'none';
-          }
-          updateNavAvatarDisplay();
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    };
-
     function handleSubjectSearch(subj, val) {
       subjectFilters[subj].search = val.trim().toLowerCase();
       const containerId = subj === 'Physics' ? 'physicsContainer' : subj === 'Chemistry' ? 'chemistryContainer' : 'mathsContainer';
@@ -1831,6 +1755,7 @@
 
     function renderSubjectArena(subj, containerId) {
       const container = document.getElementById(containerId);
+      if (!container) return;
       container.innerHTML = '';
 
       const filter = subjectFilters[subj];
@@ -1883,6 +1808,7 @@
 
     function renderMonthlyArena() {
       const tabsBar = document.getElementById('monthlyTabsBar');
+      if (!tabsBar) return;
       tabsBar.innerHTML = '';
       const months = ["August", "September", "October", "November", "December"];
 
@@ -1898,6 +1824,7 @@
       });
 
       const container = document.getElementById('monthlyTargetsContainer');
+      if (!container) return;
       container.innerHTML = '';
 
       const monthMeta = monthTargetMeta[selectedActiveMonth];
@@ -2083,11 +2010,16 @@
       const revised = trackerData.filter(d => d.rev_done).length;
       const percent = Math.round((done / total) * 100) || 0;
 
-      document.getElementById('total-count').innerText = total;
-      document.getElementById('done-count').innerText = done;
-      document.getElementById('prog-count').innerText = inProg;
-      document.getElementById('rev-count').innerText = revised;
-      document.getElementById('master-progress').style.width = `${percent}%`;
+      const totalElem = document.getElementById('total-count');
+      if (totalElem) totalElem.innerText = total;
+      const doneElem = document.getElementById('done-count');
+      if (doneElem) doneElem.innerText = done;
+      const progElem = document.getElementById('prog-count');
+      if (progElem) progElem.innerText = inProg;
+      const revElem = document.getElementById('rev-count');
+      if (revElem) revElem.innerText = revised;
+      const masterProg = document.getElementById('master-progress');
+      if (masterProg) masterProg.style.width = `${percent}%`;
 
       const xpElem = document.getElementById('navXpDisplay');
       if (xpElem) xpElem.innerText = `${userExtras.totalXp || 0} XP`;
@@ -2098,20 +2030,26 @@
       const phyTotal = trackerData.filter(d => d.subject === 'Physics').length;
       const phyDone = trackerData.filter(d => d.subject === 'Physics' && d.status === 'Completed').length;
       const phyPct = Math.round((phyDone / phyTotal) * 100) || 0;
-      document.getElementById('phy-prog-text').innerText = `${phyDone}/${phyTotal} (${phyPct}%)`;
-      document.getElementById('phy-prog-fill').style.width = `${phyPct}%`;
+      const phyText = document.getElementById('phy-prog-text');
+      if (phyText) phyText.innerText = `${phyDone}/${phyTotal} (${phyPct}%)`;
+      const phyFill = document.getElementById('phy-prog-fill');
+      if (phyFill) phyFill.style.width = `${phyPct}%`;
 
       const chemTotal = trackerData.filter(d => d.subject === 'Chemistry').length;
       const chemDone = trackerData.filter(d => d.subject === 'Chemistry' && d.status === 'Completed').length;
       const chemPct = Math.round((chemDone / chemTotal) * 100) || 0;
-      document.getElementById('chem-prog-text').innerText = `${chemDone}/${chemTotal} (${chemPct}%)`;
-      document.getElementById('chem-prog-fill').style.width = `${chemPct}%`;
+      const chemText = document.getElementById('chem-prog-text');
+      if (chemText) chemText.innerText = `${chemDone}/${chemTotal} (${chemPct}%)`;
+      const chemFill = document.getElementById('chem-prog-fill');
+      if (chemFill) chemFill.style.width = `${chemPct}%`;
 
       const mathTotal = trackerData.filter(d => d.subject === 'Mathematics').length;
       const mathDone = trackerData.filter(d => d.subject === 'Mathematics' && d.status === 'Completed').length;
       const mathPct = Math.round((mathDone / mathTotal) * 100) || 0;
-      document.getElementById('math-prog-text').innerText = `${mathDone}/${mathTotal} (${mathPct}%)`;
-      document.getElementById('math-prog-fill').style.width = `${mathPct}%`;
+      const mathText = document.getElementById('math-prog-text');
+      if (mathText) mathText.innerText = `${mathDone}/${mathTotal} (${mathPct}%)`;
+      const mathFill = document.getElementById('math-prog-fill');
+      if (mathFill) mathFill.style.width = `${mathPct}%`;
     };
 
     function triggerConfetti(e, count = 40) {
@@ -2172,6 +2110,7 @@
 
     function renderMocksAndErrors() {
       const mc = document.getElementById('mockResultsContainer');
+      if (!mc) return;
       mc.innerHTML = userExtras.mockResults.length ? '' : '<div style="color:var(--text-muted);">No mock scores saved yet.</div>';
       userExtras.mockResults.forEach((r, idx) => {
         let color = r.type === 'JEE MAINS' ? 'var(--lime-bright)' : '#38bdf8';
@@ -2196,6 +2135,7 @@
       });
 
       const ec = document.getElementById('errorLogsContainer');
+      if (!ec) return;
       ec.innerHTML = userExtras.errorLogs.length ? '' : '<div style="color:var(--text-muted);">No errors logged yet. Great!</div>';
       userExtras.errorLogs.forEach((e, idx) => {
         ec.innerHTML += `
@@ -2231,168 +2171,39 @@
       }
     }
 
-    function checkIsProfane(val) {
-      if (!val) return false;
-      let clean = val.toLowerCase()
-        .replace(/0/g, 'o')
-        .replace(/1/g, 'i')
-        .replace(/3/g, 'e')
-        .replace(/4/g, 'a')
-        .replace(/5/g, 's')
-        .replace(/7/g, 't')
-        .replace(/8/g, 'b')
-        .replace(/@/g, 'a')
-        .replace(/\$/g, 's')
-        .replace(/[^a-z]/g, '');
-
-      const badWords = [
-        "tmkc", "mc", "bc", "bkl", "bsdk", "bhosd", "bhosadi", "chutiya", "chootiya", "choot", "gandu", "gaand",
-        "lund", "lauda", "lavda", "loda", "lodha", "mkb", "bitch", "fuck", "madarchod", 
-        "behenchod", "randi", "kamine", "harami", "tatta", "mutthal", "jhant", "suar", "sex", "porn", "boobs", "dick", "pussy"
-      ];
-
-      return badWords.some(bw => clean.includes(bw));
-    }
-
-    // 🔍 AUTOMATIC FAKE/SUSPICIOUS NAME CHECKER
-    window.isSuspiciousFakeName = function(name) {
-      if (!name) return false;
-      const n = name.trim().toLowerCase();
-      
-      const suspiciousList = [
-        "test", "tester", "admin", "fake", "unknown", "nobody", "anonymous", "anon", "xyz", "abc", 
-        "asdf", "qwerty", "hacker", "sigma", "gigachad", "noob", "pro", "bot", "user", "guest", "null", "undefined",
-        "papa", "tera baap", "god", "don", "system"
-      ];
-      if (suspiciousList.includes(n)) return true;
-
-      // Checking identical repeated characters (e.g. "aaaaa", "xxxx")
-      if (/^(.)\1{2,}$/.test(n)) return true;
-
-      return false;
-    };
-
-    // ⚠️ WARNING MODAL CONTROLS
-    window.openWarningModal = function() {
-      const modal = document.getElementById('nameWarningModal');
-      if (modal) modal.classList.add('open');
-    };
-
-    window.closeWarningModal = function() {
-      const modal = document.getElementById('nameWarningModal');
-      if (modal) modal.classList.remove('open');
-    };
-
-    window.handleWarningUpdateName = function() {
-      closeWarningModal();
-      openProfileModal();
-    };
-
-    function submitFirstVisitName() {
-      if (localStorage.getItem(BAN_STORAGE_KEY) === "true") {
-        alert("🚫 Access Denied: You have been blocked from registering on this platform.");
-        return;
-      }
-
-      const val = document.getElementById('firstVisitNameInput').value.trim();
-      const pinVal = document.getElementById('firstVisitPinInput').value.trim();
-      
-      if (!val) { alert("Bhai naam toh likh de!"); return; }
-      if (val.length < 3 || val.length > 15) { alert("Bhai naam 3 se 15 characters ke beech hona chahiye!"); return; }
-      if (!pinVal || pinVal.length !== 4 || isNaN(pinVal)) { alert("Bhai koi bhi apni pasand ka 4-digit ka number daal PIN ke liye (e.g. 1234)"); return; }
-
-      const regex = /^[a-zA-Z\s]+$/;
-      if (!regex.test(val)) {
-        alert("Naam me symbols ya numbers allow nahi hain, bas letters use kar!");
-        return;
-      }
-
-      if (checkIsProfane(val)) {
-        alert("Bhai dhang ka naam rakh le, leaderboard pe aisi bhasa nahi chalegi! 🚫");
-        return;
-      }
-
-      userProfile.name = val;
-      userProfile.pin = pinVal;
-      userProfile.isSetup = true;
-      localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
-      
-      document.getElementById('navUserNameDisplay').innerText = userProfile.name;
-      updateNavAvatarDisplay();
-      document.getElementById('firstVisitModal').classList.remove('open');
-      
-      if(window.fetchUserDataFromCloud) {
-          window.fetchUserDataFromCloud(userProfile.name, userProfile.pin);
-      } else {
-          if(window.syncUserDataToCloud) window.syncUserDataToCloud();
-      }
-      triggerConfetti(null, 80);
-    }
-
     function openProfileModal() {
-      document.getElementById('userNameInput').value = userProfile.name || "";
-      document.getElementById('userPinInput').value = userProfile.pin || "";
+      const nameDisp = document.getElementById('profileRealNameDisplay');
+      if (nameDisp) nameDisp.innerText = userProfile.name || "Aspirant";
+      const emailDisp = document.getElementById('profileEmailDisplay');
+      if (emailDisp) emailDisp.innerText = userProfile.email || "Google Account";
       
       const prev = document.getElementById('profilePhotoPreview');
       const icon = document.getElementById('profilePhotoIcon');
       if (userProfile.photoUrl) {
-        prev.src = userProfile.photoUrl;
-        prev.style.display = 'block';
+        if (prev) { prev.src = userProfile.photoUrl; prev.style.display = 'block'; }
         if (icon) icon.style.display = 'none';
       } else {
-        prev.style.display = 'none';
+        if (prev) prev.style.display = 'none';
         if (icon) icon.style.display = 'block';
       }
 
       const statusElem = document.getElementById('profileLdbStatusText');
-      if (userProfile.participateLdb === true) {
-        statusElem.innerHTML = '<span style="color:var(--lime-bright);"><i class="fa-solid fa-lock"></i> Active Participant (Permanent)</span>';
-      } else {
-        statusElem.innerHTML = '<span style="color:var(--text-muted);"><i class="fa-solid fa-lock-open"></i> Private (Open Leaderboard tab to join)</span>';
+      if (statusElem) {
+        if (userProfile.participateLdb === true) {
+          statusElem.innerHTML = '<span style="color:var(--lime-bright);"><i class="fa-solid fa-lock"></i> Active Participant (Permanent)</span>';
+        } else {
+          statusElem.innerHTML = '<span style="color:var(--text-muted);"><i class="fa-solid fa-lock-open"></i> Private (Open Leaderboard tab to join)</span>';
+        }
       }
 
       document.getElementById('profileModal').classList.add('open');
     }
     function closeProfileModal() { document.getElementById('profileModal').classList.remove('open'); }
-    
-    function saveUserProfile() {
-      if (localStorage.getItem(BAN_STORAGE_KEY) === "true") {
-        alert("🚫 Access Denied: You have been blocked.");
-        return;
-      }
-
-      const val = document.getElementById('userNameInput').value.trim();
-      const pinVal = document.getElementById('userPinInput').value.trim();
-      
-      if(!val) { alert("Naam khali mat chhod"); return; }
-      if (!pinVal || pinVal.length !== 4 || isNaN(pinVal)) { alert("4-digit PIN zaruri hai!"); return; }
-
-      if (checkIsProfane(val)) {
-        alert("Bhai dhang ka naam rakh le, leaderboard pe aisi bhasa nahi chalegi! 🚫");
-        return;
-      }
-
-      userProfile.name = val;
-      userProfile.pin = pinVal;
-      userProfile.isSetup = true;
-      localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
-      document.getElementById('navUserNameDisplay').innerText = userProfile.name;
-      updateNavAvatarDisplay();
-      closeProfileModal();
-      
-      if (currentMainTab === 'leaderboard') renderLeaderboardTabState();
-      
-      if(window.fetchUserDataFromCloud) {
-          window.fetchUserDataFromCloud(userProfile.name, userProfile.pin);
-      } else {
-          if(window.syncUserDataToCloud) window.syncUserDataToCloud();
-      }
-    }
 
     function exportDataBackup() {
       const exportObj = {
         app: "IIT_JEE_2027_STUDY_OS",
-        version: "1.3",
+        version: "2.0",
         timestamp: new Date().toISOString(),
         userProfile: userProfile,
         trackerData: trackerData,
@@ -2417,16 +2228,12 @@
           const imported = JSON.parse(e.target.result);
           if (imported && imported.trackerData && Array.isArray(imported.trackerData)) {
             trackerData = imported.trackerData;
-            if (imported.userProfile) userProfile = imported.userProfile;
             if (imported.userExtras) userExtras = imported.userExtras;
             if (!userExtras.monthlyStudyMins) userExtras.monthlyStudyMins = {};
             if (userExtras.totalXp === undefined) userExtras.totalXp = 0;
             
-            localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
             saveToStorage();
             refreshCurrentTab();
-            if (userProfile.name) document.getElementById('navUserNameDisplay').innerText = userProfile.name;
-            updateNavAvatarDisplay();
             closeProfileModal();
             triggerConfetti(null, 80);
             alert("✅ Progress Backup successfully restored!");
@@ -2650,20 +2457,14 @@
       updateGlobalStats();
       updateCountdown();
       checkStreak();
-      
-      if (!userProfile.isSetup || !userProfile.name || !userProfile.pin) {
-        setTimeout(() => document.getElementById('firstVisitModal').classList.add('open'), 400);
-      } else {
-        document.getElementById('navUserNameDisplay').innerText = userProfile.name;
-        updateNavAvatarDisplay();
-      }
     });
   </script>
 
-  <!-- FIREBASE CLOUD SYNC, LEADERBOARD, REPORTING, BAN, UNBAN & WARNING ENGINE -->
+  <!-- FIREBASE CLOUD SYNC, AUTHENTICATION, LEADERBOARD & OWNER PANEL ENGINE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCsrOKDW7wt7Y9Mvqv0_cRzSEJtQnj1T9k",
@@ -2676,8 +2477,10 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
 
-    // 🚫 HARD LOCKOUT UI OVERRIDE FUNCTION
+    // 🚫 HARD LOCKOUT UI
     function triggerHardLockout() {
       localStorage.setItem("JEE_2027_DEVICE_BANNED", "true");
       document.body.innerHTML = `
@@ -2685,122 +2488,142 @@
           <div style="font-size: 4.5rem; margin-bottom: 16px; filter: drop-shadow(0 0 25px rgba(248, 113, 113, 0.5));">🚫</div>
           <h1 style="color: #f87171; font-size: 2.1rem; margin-bottom: 12px; font-weight: 900; letter-spacing: -0.5px;">ACCESS PERMANENTLY BLOCKED</h1>
           <p style="color: #9ca3af; max-width: 480px; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;">
-            Aapko inappropriate username ya platform rules violate karne ki wajah se <strong>Permanently Ban</strong> kar diya gaya hai. Ab aap is device se access nahi kar sakte.
+            Aapka Google account platform rules violate karne ki wajah se <strong>Permanently Ban</strong> kar diya gaya hai.
           </p>
-          <div style="padding: 6px 16px; border-radius: 999px; background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); font-size: 0.75rem; color: #fca5a5; font-family: 'JetBrains Mono', monospace;">
-            HARDWARE_TOKEN_ID: PERMANENTLY_BLOCKED
-          </div>
         </div>
       `;
       const canvas = document.getElementById('chemCanvas');
       if (canvas) canvas.remove();
     }
 
-    // 🔒 SMART BAN & UNBAN CHECK WITH FIRESTORE TRUTH
-    async function checkIsUserBanned(docId) {
-      if (!docId && userProfile.name && userProfile.pin) {
-        docId = `${userProfile.name}_${userProfile.pin}`;
-      }
-
-      if (docId) {
-        try {
-          const banSnap = await getDoc(doc(db, "banned_users", docId));
-          if (banSnap.exists()) {
-            triggerHardLockout();
-            return true;
-          } else {
-            if (localStorage.getItem("JEE_2027_DEVICE_BANNED") === "true") {
-              localStorage.removeItem("JEE_2027_DEVICE_BANNED");
-              location.reload();
-            }
-          }
-        } catch(e) {
-          console.warn("Ban check error:", e);
+    async function checkIsUserBanned(uid) {
+      if (!uid) return false;
+      try {
+        const banSnap = await getDoc(doc(db, "banned_users", uid));
+        if (banSnap.exists()) {
+          triggerHardLockout();
+          return true;
         }
-      }
-
-      if (localStorage.getItem("JEE_2027_DEVICE_BANNED") === "true") {
-        triggerHardLockout();
-        return true;
+      } catch(e) {
+        console.warn("Ban check error:", e);
       }
       return false;
     }
 
-    // ⚠️ LIVE WARNING CHECK (FIRESTORE DATABASE + AUTOMATIC DETECTION)
-    async function checkIsUserWarned(docId, userName) {
-      if (!docId && userProfile.name && userProfile.pin) {
-        docId = `${userProfile.name}_${userProfile.pin}`;
+    // 🔐 AUTH STATE OBSERVER (MANDATORY GOOGLE LOGIN)
+    onAuthStateChanged(auth, async (user) => {
+      const authModal = document.getElementById('googleAuthModal');
+      
+      if (user) {
+        const isBanned = await checkIsUserBanned(user.uid);
+        if (isBanned) return;
+
+        userProfile.uid = user.uid;
+        userProfile.email = user.email;
+        userProfile.name = user.displayName || "Aspirant";
+        userProfile.photoUrl = user.photoURL || "";
+        userProfile.isSetup = true;
+        localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
+
+        const navDisp = document.getElementById('navUserNameDisplay');
+        if (navDisp) navDisp.innerText = userProfile.name;
+        updateNavAvatarDisplay();
+        if (authModal) authModal.classList.remove('open');
+
+        // Fetch cloud data for this Google user
+        await fetchUserDataFromCloud(user.uid);
+      } else {
+        userProfile.isSetup = false;
+        if (authModal) authModal.classList.add('open');
       }
-      if (!userName) userName = userProfile.name || "";
+    });
 
-      let shouldShowWarning = false;
-
-      // 1. Check if flagged by Admin in Firestore database
-      if (docId) {
-        try {
-          const warnSnap = await getDoc(doc(db, "warned_users", docId));
-          if (warnSnap.exists()) {
-            shouldShowWarning = true;
-          }
-        } catch (e) {
-          console.warn("Warning check error:", e);
+    // 🚀 SIGN IN WITH GOOGLE ACTION
+    window.handleGoogleSignIn = async function() {
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        triggerConfetti(null, 80);
+      } catch (error) {
+        console.error("Google Sign-In Error:", error);
+        if (error.code === 'auth/unauthorized-domain') {
+          alert("Domain error: Ye file abhi local browser (file://) me khuli hai. Isse Vercel (padhlecutie.vercel.app) par deploy karein ya localhost par chalayein!");
+        } else {
+          alert("Google Sign-in failed: " + error.message);
         }
       }
-
-      // 2. Check if name matches automatic fake/suspicious list
-      if (window.isSuspiciousFakeName && window.isSuspiciousFakeName(userName)) {
-        shouldShowWarning = true;
-      }
-
-      if (shouldShowWarning && window.openWarningModal) {
-        window.openWarningModal();
-      }
-    }
-
-    // FETCH FUNCTION
-    window.fetchUserDataFromCloud = async function(userName, userPin) {
-      if (!userName || !userPin) return;
-      const userDocId = `${userName}_${userPin}`;
-
-      if (await checkIsUserBanned(userDocId)) return;
-      await checkIsUserWarned(userDocId, userName);
-      
-      try {
-          const docSnap = await getDoc(doc(db, "squad_progress", userDocId));
-          if (docSnap.exists()) {
-              const data = docSnap.data();
-              
-              if (data.trackerData) window.trackerData = data.trackerData;
-              if (data.photoUrl && !userProfile.photoUrl) userProfile.photoUrl = data.photoUrl;
-              if (data.userExtras) {
-                window.userExtras = data.userExtras;
-                if (!window.userExtras.monthlyStudyMins) window.userExtras.monthlyStudyMins = {};
-                if (window.userExtras.totalXp === undefined) window.userExtras.totalXp = data.xp || 0;
-                if (window.userExtras.streak === undefined) window.userExtras.streak = data.streak || 0;
-              }
-              
-              localStorage.setItem("JEE_2027_SQUAD_TRACKER_V1", JSON.stringify(window.trackerData));
-              localStorage.setItem("JEE_2027_EXTRAS_V1", JSON.stringify(window.userExtras));
-              localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
-              
-              updateNavAvatarDisplay();
-              if (typeof window.updateGlobalStats === 'function') window.updateGlobalStats();
-              if (typeof window.refreshCurrentTab === 'function') window.refreshCurrentTab();
-              
-              console.log("☁️ Successfully loaded complete data from Cloud!");
-          } else {
-              if(window.syncUserDataToCloud) window.syncUserDataToCloud();
-          }
-      } catch(e) { console.error("Cloud fetch error:", e); }
     };
 
-    // AUTO-SYNC FUNCTION (INCLUDES TOTAL XP, STREAK & ALL DATA)
-    window.syncUserDataToCloud = async function() {
-      if (!userProfile.name || !userProfile.pin) return;
-      
-      const userDocId = `${userProfile.name}_${userProfile.pin}`;
-      if (await checkIsUserBanned(userDocId)) return;
+    // 🚪 SIGN OUT ACTION
+    window.handleGoogleSignOut = async function() {
+      if (confirm("Kya aap sach me Sign Out karna chahte hain?")) {
+        await signOut(auth);
+        userProfile = { uid: "", email: "", name: "", isSetup: false, participateLdb: null, photoUrl: "" };
+        localStorage.removeItem("JEE_2027_USER_PROFILE");
+        location.reload();
+      }
+    };
 
+    // 🔗 LINK OLD ACCOUNT (TRANSFERS OLD DATA TO GOOGLE ACCOUNT)
+    window.openManualLinkPrompt = async function() {
+      const oldName = prompt("Apna purana Registered Name enter karo (e.g. Aryan):");
+      if (!oldName) return;
+      const oldPin = prompt("Apna purana 4-digit PIN enter karo:");
+      if (!oldPin) return;
+
+      const oldDocId = `${oldName.trim()}_${oldPin.trim()}`;
+      try {
+        const docSnap = await getDoc(doc(db, "squad_progress", oldDocId));
+        if (docSnap.exists()) {
+          const oldData = docSnap.data();
+          if (oldData.trackerData) window.trackerData = oldData.trackerData;
+          if (oldData.userExtras) window.userExtras = oldData.userExtras;
+          
+          saveToStorage();
+          refreshCurrentTab();
+          triggerConfetti(null, 100);
+          alert(`✅ Wah! '${oldName}' ka poora purana data aapke Google account ke sath successfully LINK ho gaya!`);
+        } else {
+          alert("❌ Is Name aur PIN se koi purana cloud record nahi mila.");
+        }
+      } catch (err) {
+        alert("Error linking old data: " + err.message);
+      }
+    };
+
+    // ☁️ FETCH USER DATA FROM FIRESTORE
+    async function fetchUserDataFromCloud(uid) {
+      if (!uid) return;
+      try {
+        const docSnap = await getDoc(doc(db, "squad_progress", uid));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.trackerData) window.trackerData = data.trackerData;
+          if (data.userExtras) {
+            window.userExtras = data.userExtras;
+            if (!window.userExtras.monthlyStudyMins) window.userExtras.monthlyStudyMins = {};
+            if (window.userExtras.totalXp === undefined) window.userExtras.totalXp = data.xp || 0;
+            if (window.userExtras.streak === undefined) window.userExtras.streak = data.streak || 0;
+          }
+          if (data.participateLdb !== undefined) userProfile.participateLdb = data.participateLdb;
+          
+          localStorage.setItem("JEE_2027_SQUAD_TRACKER_V1", JSON.stringify(window.trackerData));
+          localStorage.setItem("JEE_2027_EXTRAS_V1", JSON.stringify(window.userExtras));
+          localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
+
+          if (typeof window.updateGlobalStats === 'function') window.updateGlobalStats();
+          if (typeof window.refreshCurrentTab === 'function') window.refreshCurrentTab();
+        } else {
+          // If first time Google login, auto-sync local progress to their Google doc
+          syncUserDataToCloud();
+        }
+      } catch(e) { console.error("Cloud fetch error:", e); }
+    }
+
+    // ☁️ AUTO-SYNC FUNCTION (INDEXED BY GOOGLE UID)
+    window.syncUserDataToCloud = async function() {
+      if (!userProfile.uid) return;
+      
       const total = window.trackerData.length;
       const done = window.trackerData.filter(d => d.status === 'Completed').length;
       const highConf = window.trackerData.filter(d => d.confidence === 'High').length;
@@ -2810,7 +2633,9 @@
       const currentMonthMins = (window.userExtras.monthlyStudyMins && window.userExtras.monthlyStudyMins[currentMonthKey]) || 0;
 
       const myData = {
-        docId: userDocId,
+        docId: userProfile.uid,
+        uid: userProfile.uid,
+        email: userProfile.email,
         name: userProfile.name,
         photoUrl: userProfile.photoUrl || "",
         done: done,
@@ -2823,33 +2648,23 @@
         currentMonthKey: currentMonthKey,
         participateLdb: userProfile.participateLdb === true,
         updated: Date.now(),
-        
         trackerData: window.trackerData,
         userExtras: window.userExtras
       };
 
       try {
-        await setDoc(doc(db, "squad_progress", userDocId), myData);
+        await setDoc(doc(db, "squad_progress", userProfile.uid), myData);
       } catch(e) { console.error("Firebase Sync error:", e); }
     };
 
-    // Initial check on load
-    setTimeout(async () => {
-      const docId = userProfile.name ? `${userProfile.name}_${userProfile.pin}` : null;
-      const isBanned = await checkIsUserBanned(docId);
-      if (!isBanned && userProfile && userProfile.isSetup && userProfile.name && userProfile.pin) {
-        window.fetchUserDataFromCloud(userProfile.name, userProfile.pin);
-      }
-    }, 500);
-
     // 🚩 USER REPORT FUNCTION
     window.reportUser = async function(docId, reportedName) {
-      if (reportedName === userProfile.name) {
+      if (docId === userProfile.uid) {
         alert("Bhai kudh ko report mat kar! 😂");
         return;
       }
 
-      const reason = prompt(`🚨 Report Aspirant '${reportedName}':\n\nKya problem hai? (e.g. Fake name, offensive username, suspicious data)`);
+      const reason = prompt(`🚨 Report Aspirant '${reportedName}':\n\nKya problem hai? (e.g. Fake marks, suspicious data)`);
       if (!reason) return;
 
       try {
@@ -2874,46 +2689,9 @@
           reporter: userProfile.name || "Anonymous"
         });
 
-        alert(`✅ Thanks! '${reportedName}' ki report Admin (Manav) ko review ke liye bhej di gayi hai.`);
+        alert(`✅ Thanks! '${reportedName}' ki report Admin ko review ke liye bhej di gayi hai.`);
       } catch(err) {
         console.error("Report error:", err);
-        alert("Report submit karte waqt error aaya.");
-      }
-    };
-
-    // ⚠️ WARN USER FUNCTION (ADMIN MASTER)
-    window.warnUser = async function(docId, userName) {
-      if (!docId || docId === 'undefined') {
-        alert("❌ Error: Document ID missing for this user.");
-        return;
-      }
-
-      if(!confirm(`⚠️ Bhai '${userName}' ko Warning bhejni hai?\n\nUske screen par: "apna real name use kro :) wrna ban hoge in next 24 hrs" ka popup show hoga.`)) return;
-      try {
-        await setDoc(doc(db, "warned_users", docId), {
-          docId: docId,
-          name: userName || "Unknown",
-          warnedAt: Date.now()
-        });
-
-        alert(`⚠️ '${userName}' ko 24-hr Real Name Warning bhej di gayi hai!`);
-        await window.refreshAdminData();
-      } catch(e) {
-        console.error("Warning set error:", e);
-        alert("❌ Error sending warning: " + e.message);
-      }
-    };
-
-    // 🔄 UNWARN USER FUNCTION (ADMIN MASTER)
-    window.unwarnUser = async function(docId, userName) {
-      if(!confirm(`Bhai '${userName}' ki warning remove karni hai?`)) return;
-      try {
-        await deleteDoc(doc(db, "warned_users", docId));
-        alert(`✅ '${userName}' ki warning remove kar di gayi hai.`);
-        await window.refreshAdminData();
-      } catch(e) {
-        console.error("Unwarn error:", e);
-        alert("❌ Error removing warning: " + e.message);
       }
     };
 
@@ -2929,10 +2707,7 @@
         snapshot.forEach(d => {
           const data = d.data();
           if (data.participateLdb === true) {
-            squadList.push({
-              ...data,
-              docId: d.id
-            });
+            squadList.push({ ...data, docId: d.id });
           }
         });
 
@@ -2942,7 +2717,6 @@
         });
 
         container.innerHTML = '';
-
         if (squadList.length === 0) {
           container.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:30px;">Abhi tak kisi dost ne rank submit nahi ki. Be the first!</div>';
           return;
@@ -2968,7 +2742,7 @@
             monthHrs = (u.monthStudyMins / 60).toFixed(1);
           }
 
-          const isMe = userProfile.name === u.name;
+          const isMe = (userProfile.uid && userProfile.uid === u.docId) || (userProfile.name === u.name);
 
           const avatarHtml = u.photoUrl 
             ? `<img src="${u.photoUrl}" style="width:38px; height:38px; border-radius:50%; object-fit:cover; border:1.5px solid var(--lime-neon);" />` 
@@ -3001,7 +2775,7 @@
               </div>
               
               ${!isMe ? `
-                <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.3); padding:6px 10px; background:rgba(248,113,113,0.06);" onclick="reportUser('${u.docId}', '${u.name}')" title="Report Fake Name">
+                <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.3); padding:6px 10px; background:rgba(248,113,113,0.06);" onclick="reportUser('${u.docId}', '${u.name}')" title="Report User">
                   <i class="fa-solid fa-flag"></i>
                 </button>
               ` : ''}
@@ -3012,18 +2786,12 @@
 
       } catch (err) {
         console.error("Leaderboard fetch error:", err);
-        container.innerHTML = '<div style="color:#f87171; text-align:center; padding:20px;">Could not load leaderboard data. Please retry.</div>';
       }
     };
 
     // 🚫 PERMANENT BAN FUNCTION (ADMIN MASTER)
     window.removeUser = async function(docId, userName) {
-      if (!docId || docId === 'undefined') {
-        alert("❌ Error: Document ID missing for this user in Firebase.");
-        return;
-      }
-
-      if(!confirm(`⚠️ WARNING: Bhai pakka '${userName}' ko PERMANENT BAN lagana hai?\n\nYe user database aur Leaderboard se delete ho jayega aur iski screen par HARD LOCK lag jayega!`)) return;
+      if(!confirm(`⚠️ WARNING: Bhai pakka '${userName}' ko PERMANENT BAN lagana hai?`)) return;
       try {
         await setDoc(doc(db, "banned_users", docId), {
           bannedDocId: docId,
@@ -3033,56 +2801,47 @@
 
         await deleteDoc(doc(db, "squad_progress", docId));
         try { await deleteDoc(doc(db, "reported_users", `${docId}_reported`)); } catch(e){}
-        try { await deleteDoc(doc(db, "warned_users", docId)); } catch(e){}
         
-        alert(`🚫 User '${userName}' ko database aur Leaderboard se uda diya aur permanently BAN kar diya!`);
+        alert(`🚫 User '${userName}' ko permanently BAN kar diya!`);
         await window.refreshAdminData();
         if (window.fetchAndRenderPublicLeaderboard) window.fetchAndRenderPublicLeaderboard();
       } catch(e) {
-        console.error("Ban/Delete error:", e);
         alert("❌ Error banning user: " + e.message);
       }
     };
 
     // 🔓 UNBAN USER FUNCTION (ADMIN MASTER)
     window.unbanUser = async function(docId, userName) {
-      if(!confirm(`🔓 Bhai pakka '${userName}' ko UNBAN karna hai? Iska access dubara restore ho jayega.`)) return;
+      if(!confirm(`🔓 Bhai pakka '${userName}' ko UNBAN karna hai?`)) return;
       try {
         await deleteDoc(doc(db, "banned_users", docId));
-        alert(`✅ User '${userName}' ko successfully UNBAN kar diya gaya hai!`);
+        alert(`✅ User '${userName}' successfully UNBAN ho gaya!`);
         await window.refreshAdminData();
       } catch(e) {
-        console.error("Unban error:", e);
         alert("❌ Error unbanning user: " + e.message);
       }
     };
 
-    // ⚠️ WIPE ENTIRE LEADERBOARD (ADMIN MASTER)
+    // ⚠️ WIPE ENTIRE LEADERBOARD
     window.wipeEntireLeaderboard = async function() {
-      const confirmCode = prompt("⚠️ DANGER ZONE:\n\nPoore Leaderboard ka data delete karne ke liye type 'CONFIRM':");
-      if (confirmCode !== "CONFIRM") {
-        alert("Action Cancelled!");
-        return;
-      }
+      const confirmCode = prompt("⚠️ DANGER ZONE: Poore Leaderboard ka data delete karne ke liye type 'CONFIRM':");
+      if (confirmCode !== "CONFIRM") return;
 
       try {
         const snapshot = await getDocs(collection(db, "squad_progress"));
         let deletePromises = [];
-        snapshot.forEach(d => {
-          deletePromises.push(deleteDoc(doc(db, "squad_progress", d.id)));
-        });
+        snapshot.forEach(d => deletePromises.push(deleteDoc(doc(db, "squad_progress", d.id))));
         await Promise.all(deletePromises);
 
-        alert("✅ Poora Leaderboard saaf ho gaya! Fresh restart ke liye ready.");
+        alert("✅ Poora Leaderboard saaf ho gaya!");
         await window.refreshAdminData();
         if (window.fetchAndRenderPublicLeaderboard) window.fetchAndRenderPublicLeaderboard();
       } catch(err) {
-        console.error("Leaderboard wipe error:", err);
         alert("❌ Error wiping leaderboard: " + err.message);
       }
     };
 
-    // DISMISS REPORT FUNCTION
+    // DISMISS REPORT
     window.dismissReport = async function(reportDocId) {
       try {
         await deleteDoc(doc(db, "reported_users", reportDocId));
@@ -3090,148 +2849,127 @@
       } catch(e) {}
     };
 
-    // ADMIN DATA REFRESH (FETCHES ALL SIGNED-UP USERS + LIVE REPORTS + BANNED USERS + WARNED USERS)
+    // ADMIN DATA REFRESH
     window.refreshAdminData = async function() {
       const container = document.getElementById('adminSquadContainer');
       const repContainer = document.getElementById('adminReportedListContainer');
       const banContainer = document.getElementById('adminBannedListContainer');
       
-      container.innerHTML = '<div style="color:var(--lime-neon); text-align:center; padding: 20px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Fetching Live Data from Firebase...</div>';
+      if (container) container.innerHTML = '<div style="color:var(--lime-neon); text-align:center; padding: 20px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Fetching Live Data...</div>';
       
       try {
-        // Fetch warned users map
-        const warnSnapshot = await getDocs(collection(db, "warned_users"));
-        let warnedMap = {};
-        warnSnapshot.forEach(wDoc => {
-          warnedMap[wDoc.id] = true;
-        });
-
         // 1. Reports
         const repSnapshot = await getDocs(collection(db, "reported_users"));
-        repContainer.innerHTML = '';
-        if (repSnapshot.empty) {
-          repContainer.innerHTML = '<div style="color:var(--text-dim); font-size:0.78rem;">No active reports. Clean environment! ✅</div>';
-        } else {
-          repSnapshot.forEach(rDoc => {
-            const r = rDoc.data();
-            const latestReason = (r.reasons && r.reasons.length) ? r.reasons[r.reasons.length - 1] : 'No reason';
-            repContainer.innerHTML += `
-              <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.4); padding:8px 12px; border-radius:10px; border:1px solid rgba(248,113,113,0.3);">
-                <div>
-                  <strong style="color:#fff; font-size:0.85rem;">${r.targetName}</strong> 
-                  <span style="color:#f87171; font-size:0.75rem; font-weight:800;">(${r.count} reports)</span>
-                  <div style="font-size:0.7rem; color:var(--text-muted);">Reason: "${latestReason}"</div>
+        if (repContainer) {
+          repContainer.innerHTML = '';
+          if (repSnapshot.empty) {
+            repContainer.innerHTML = '<div style="color:var(--text-dim); font-size:0.78rem;">No active reports. Clean environment! ✅</div>';
+          } else {
+            repSnapshot.forEach(rDoc => {
+              const r = rDoc.data();
+              const latestReason = (r.reasons && r.reasons.length) ? r.reasons[r.reasons.length - 1] : 'No reason';
+              repContainer.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.4); padding:8px 12px; border-radius:10px; border:1px solid rgba(248,113,113,0.3);">
+                  <div>
+                    <strong style="color:#fff; font-size:0.85rem;">${r.targetName}</strong> 
+                    <span style="color:#f87171; font-size:0.75rem; font-weight:800;">(${r.count} reports)</span>
+                    <div style="font-size:0.7rem; color:var(--text-muted);">Reason: "${latestReason}"</div>
+                  </div>
+                  <div style="display:flex; gap:6px;">
+                    <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.4); padding:4px 8px; font-size:0.7rem;" onclick="removeUser('${r.targetDocId}', '${r.targetName}')">🚫 Ban</button>
+                    <button class="pill-btn" style="padding:4px 8px; font-size:0.7rem;" onclick="dismissReport('${rDoc.id}')">Dismiss</button>
+                  </div>
                 </div>
-                <div style="display:flex; gap:6px;">
-                  <button class="pill-btn" style="color:#fbbf24; border-color:rgba(251,191,36,0.4); padding:4px 8px; font-size:0.7rem;" onclick="warnUser('${r.targetDocId}', '${r.targetName}')">⚠️ Warn</button>
-                  <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.4); padding:4px 8px; font-size:0.7rem;" onclick="removeUser('${r.targetDocId}', '${r.targetName}')">🚫 Ban</button>
-                  <button class="pill-btn" style="padding:4px 8px; font-size:0.7rem;" onclick="dismissReport('${rDoc.id}')">Dismiss</button>
-                </div>
-              </div>
-            `;
-          });
+              `;
+            });
+          }
         }
 
         // 2. Banned
         const banSnapshot = await getDocs(collection(db, "banned_users"));
-        banContainer.innerHTML = '';
-        if (banSnapshot.empty) {
-          banContainer.innerHTML = '<div style="color:var(--text-dim); font-size:0.78rem;">No banned users found.</div>';
-        } else {
-          banSnapshot.forEach(bDoc => {
-            const b = bDoc.data();
-            const banDate = new Date(b.bannedAt || Date.now()).toLocaleDateString('en-IN');
-            banContainer.innerHTML += `
-              <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(248,113,113,0.05); padding:8px 12px; border-radius:10px; border:1px solid rgba(248,113,113,0.2);">
-                <div>
-                  <strong style="color:#fca5a5; font-size:0.85rem;">${b.name || b.bannedDocId}</strong>
-                  <div style="font-size:0.68rem; color:var(--text-dim);">Banned on: ${banDate}</div>
+        if (banContainer) {
+          banContainer.innerHTML = '';
+          if (banSnapshot.empty) {
+            banContainer.innerHTML = '<div style="color:var(--text-dim); font-size:0.78rem;">No banned users found.</div>';
+          } else {
+            banSnapshot.forEach(bDoc => {
+              const b = bDoc.data();
+              const banDate = new Date(b.bannedAt || Date.now()).toLocaleDateString('en-IN');
+              banContainer.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(248,113,113,0.05); padding:8px 12px; border-radius:10px; border:1px solid rgba(248,113,113,0.2);">
+                  <div>
+                    <strong style="color:#fca5a5; font-size:0.85rem;">${b.name || b.bannedDocId}</strong>
+                    <div style="font-size:0.68rem; color:var(--text-dim);">Banned on: ${banDate}</div>
+                  </div>
+                  <button class="pill-btn" style="color:var(--lime-bright); border-color:rgba(212,255,63,0.4); padding:4px 10px; font-size:0.72rem; background:rgba(212,255,63,0.08);" onclick="unbanUser('${bDoc.id}', '${b.name}')">
+                    <i class="fa-solid fa-lock-open"></i> Unban
+                  </button>
                 </div>
-                <button class="pill-btn" style="color:var(--lime-bright); border-color:rgba(212,255,63,0.4); padding:4px 10px; font-size:0.72rem; background:rgba(212,255,63,0.08);" onclick="unbanUser('${bDoc.id}', '${b.name}')">
-                  <i class="fa-solid fa-lock-open"></i> Unban
-                </button>
-              </div>
-            `;
-          });
+              `;
+            });
+          }
         }
 
         // 3. All Signups
         const snapshot = await getDocs(collection(db, "squad_progress"));
         let allSignedUpUsers = [];
         snapshot.forEach(d => {
-          allSignedUpUsers.push({
-            ...d.data(),
-            docId: d.id
-          });
+          allSignedUpUsers.push({ ...d.data(), docId: d.id });
         });
         
         allSignedUpUsers.sort((a, b) => (b.pct || 0) - (a.pct || 0));
-        container.innerHTML = '';
-        
-        if(allSignedUpUsers.length === 0) {
-           container.innerHTML = '<div style="color:var(--text-muted); text-align:center;">Abhi tak kisi aspirant ne signup/sync nahi kiya.</div>';
-           return;
-        }
-
-        const currentMonthKey = new Date().toLocaleString('en-IN', { month: 'short', year: 'numeric' });
-
-        allSignedUpUsers.forEach((user, i) => {
-          const row = document.createElement('div');
-          row.className = 'admin-row';
-          const lastActive = new Date(user.updated || Date.now()).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', day: '2-digit', month: 'short' });
-          const studiedHrs = Math.floor((user.studyMins || 0) / 60);
-          const userStreak = user.streak !== undefined ? user.streak : ((user.userExtras && user.userExtras.streak !== undefined) ? user.userExtras.streak : 0);
-
-          let monthHrs = "0.0";
-          if (user.userExtras && user.userExtras.monthlyStudyMins && user.userExtras.monthlyStudyMins[currentMonthKey]) {
-            monthHrs = (user.userExtras.monthlyStudyMins[currentMonthKey] / 60).toFixed(1);
-          } else if (user.monthStudyMins) {
-            monthHrs = (user.monthStudyMins / 60).toFixed(1);
+        if (container) {
+          container.innerHTML = '';
+          if(allSignedUpUsers.length === 0) {
+             container.innerHTML = '<div style="color:var(--text-muted); text-align:center;">Abhi tak kisi aspirant ne sync nahi kiya.</div>';
+             return;
           }
 
-          const adminAvatarHtml = user.photoUrl 
-            ? `<img src="${user.photoUrl}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid var(--lime-neon);" />` 
-            : `<div style="width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:0.75rem;"><i class="fa-solid fa-user"></i></div>`;
-          
-          const ldbBadge = user.participateLdb 
-            ? '<span style="font-size:0.65rem; background:rgba(212,255,63,0.15); color:var(--lime-bright); padding:2px 6px; border-radius:999px; border:1px solid rgba(212,255,63,0.3); font-weight:800;">🏆 In LDB</span>'
-            : '<span style="font-size:0.65rem; background:rgba(255,255,255,0.06); color:var(--text-dim); padding:2px 6px; border-radius:999px; font-weight:700;">🔒 Signed Up (Private)</span>';
+          const currentMonthKey = new Date().toLocaleString('en-IN', { month: 'short', year: 'numeric' });
 
-          const isWarned = warnedMap[user.docId] === true;
-          const warnStatusHtml = isWarned 
-            ? '<span style="font-size:0.65rem; background:rgba(248,113,113,0.15); color:#f87171; padding:2px 6px; border-radius:999px; font-weight:800; border:1px solid rgba(248,113,113,0.3);">⚠️ WARNED</span>'
-            : '';
+          allSignedUpUsers.forEach((user, i) => {
+            const row = document.createElement('div');
+            row.className = 'admin-row';
+            const lastActive = new Date(user.updated || Date.now()).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', day: '2-digit', month: 'short' });
+            const studiedHrs = Math.floor((user.studyMins || 0) / 60);
+            const userStreak = user.streak !== undefined ? user.streak : ((user.userExtras && user.userExtras.streak !== undefined) ? user.userExtras.streak : 0);
 
-          row.innerHTML = `
-            <div style="display:flex; align-items:center; gap:12px;">
-              ${adminAvatarHtml}
-              <div>
-                <div class="admin-user-name">#${i+1} ${user.name} ${ldbBadge} ${warnStatusHtml} <span style="font-size:0.75rem; color:#fb923c;">🔥 ${userStreak}d</span> <span style="font-size:0.75rem; color:var(--lime-bright);">(${user.xp || 0} XP)</span></div>
-                <div class="admin-user-sub">${user.done || 0} / 79 Done • ${monthHrs}h (${currentMonthKey}) • ${studiedHrs}h Total</div>
-                <div style="font-size:0.65rem; color:var(--text-dim); margin-top:4px;">Last seen: ${lastActive}</div>
+            let monthHrs = "0.0";
+            if (user.userExtras && user.userExtras.monthlyStudyMins && user.userExtras.monthlyStudyMins[currentMonthKey]) {
+              monthHrs = (user.userExtras.monthlyStudyMins[currentMonthKey] / 60).toFixed(1);
+            } else if (user.monthStudyMins) {
+              monthHrs = (user.monthStudyMins / 60).toFixed(1);
+            }
+
+            const adminAvatarHtml = user.photoUrl 
+              ? `<img src="${user.photoUrl}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid var(--lime-neon);" />` 
+              : `<div style="width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:0.75rem;"><i class="fa-solid fa-user"></i></div>`;
+            
+            const ldbBadge = user.participateLdb 
+              ? '<span style="font-size:0.65rem; background:rgba(212,255,63,0.15); color:var(--lime-bright); padding:2px 6px; border-radius:999px; border:1px solid rgba(212,255,63,0.3); font-weight:800;">🏆 In LDB</span>'
+              : '<span style="font-size:0.65rem; background:rgba(255,255,255,0.06); color:var(--text-dim); padding:2px 6px; border-radius:999px; font-weight:700;">🔒 Private</span>';
+
+            row.innerHTML = `
+              <div style="display:flex; align-items:center; gap:12px;">
+                ${adminAvatarHtml}
+                <div>
+                  <div class="admin-user-name">#${i+1} ${user.name} ${ldbBadge} <span style="font-size:0.75rem; color:#fb923c;">🔥 ${userStreak}d</span> <span style="font-size:0.75rem; color:var(--lime-bright);">(${user.xp || 0} XP)</span></div>
+                  <div class="admin-user-sub">${user.email || user.docId} • ${user.done || 0}/79 Done • ${monthHrs}h (${currentMonthKey})</div>
+                  <div style="font-size:0.65rem; color:var(--text-dim); margin-top:4px;">Last seen: ${lastActive}</div>
+                </div>
               </div>
-            </div>
-            <div class="admin-pct" style="display:flex; align-items:center; gap:10px;">
-              <span>${user.pct || 0}%</span>
-              ${isWarned ? `
-                <button class="pill-btn" style="color:var(--lime-bright); border-color:rgba(212,255,63,0.3); padding:6px 10px; background:rgba(212,255,63,0.08); font-size:0.75rem;" onclick="unwarnUser('${user.docId}', '${user.name}')" title="Remove Warning">
-                  <i class="fa-solid fa-check"></i> Unwarn
+              <div class="admin-pct" style="display:flex; align-items:center; gap:10px;">
+                <span>${user.pct || 0}%</span>
+                <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.3); padding:6px 10px; background:rgba(248,113,113,0.1); font-size:0.75rem;" onclick="removeUser('${user.docId}', '${user.name}')" title="Permanently Ban User">
+                   <i class="fa-solid fa-ban"></i> Ban
                 </button>
-              ` : `
-                <button class="pill-btn" style="color:#fbbf24; border-color:rgba(251,191,36,0.4); padding:6px 10px; background:rgba(251,191,36,0.1); font-size:0.75rem;" onclick="warnUser('${user.docId}', '${user.name}')" title="Send Fake Name Warning">
-                  <i class="fa-solid fa-triangle-exclamation"></i> Warn
-                </button>
-              `}
-              <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.3); padding:6px 10px; background:rgba(248,113,113,0.1); font-size:0.75rem;" onclick="removeUser('${user.docId}', '${user.name}')" title="Permanently Ban User">
-                 <i class="fa-solid fa-ban"></i> Ban
-              </button>
-            </div>
-          `;
-          container.appendChild(row);
-        });
+              </div>
+            `;
+            container.appendChild(row);
+          });
+        }
       } catch(e) {
         console.error("Admin panel error:", e);
-        container.innerHTML = '<div style="color:#f87171; text-align:center; padding: 10px;">Error aa gaya bhai! Check Firestore rules.</div>';
       }
     };
   </script>
