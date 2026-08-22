@@ -2449,7 +2449,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCsrOKDW7wt7Y9Mvqv0_cRzSEJtQnj1T9k",
@@ -2507,6 +2507,15 @@
       return false;
     }
 
+    // 🔄 CHECK REDIRECT RESULT ON PAGE LOAD
+    getRedirectResult(auth).then((result) => {
+      if (result && result.user) {
+        triggerConfetti(null, 80);
+      }
+    }).catch((err) => {
+      console.warn("Redirect check:", err);
+    });
+
     // 🔐 AUTH STATE OBSERVER (MANDATORY GOOGLE LOGIN)
     onAuthStateChanged(auth, async (user) => {
       const authModal = document.getElementById('googleAuthModal');
@@ -2535,18 +2544,25 @@
       }
     });
 
-    // 🚀 SIGN IN WITH GOOGLE ACTION
+    // 🚀 SIGN IN WITH GOOGLE ACTION (WITH AUTO-REDIRECT FALLBACK)
     window.handleGoogleSignIn = async function() {
       try {
         const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-        triggerConfetti(null, 80);
+        if (result && result.user) {
+          triggerConfetti(null, 80);
+        }
       } catch (error) {
-        console.error("Google Sign-In Error:", error);
-        if (error.code === 'auth/unauthorized-domain') {
-          alert("Domain error: Ye file abhi local browser (file://) me khuli hai. Isse Vercel (padhlecutie.vercel.app) par deploy karein ya localhost par chalayein!");
+        console.error("Popup sign-in error:", error);
+        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+          try {
+            await signInWithRedirect(auth, googleProvider);
+          } catch(redirectErr) {
+            alert("Please allow popups in your browser or disable shield for this site.");
+          }
+        } else if (error.code === 'auth/unauthorized-domain') {
+          alert("Domain not authorized in Firebase Console!");
         } else {
-          alert("Google Sign-in failed: " + error.message);
+          alert("Sign-in error: " + error.message);
         }
       }
     };
