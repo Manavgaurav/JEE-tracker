@@ -1232,12 +1232,6 @@
         </svg>
         <span>Continue with Google</span>
       </button>
-
-      <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08);">
-        <button class="pill-btn" onclick="openManualLinkPrompt()" style="font-size:0.75rem; border-color: rgba(255,255,255,0.15);">
-          <i class="fa-solid fa-link"></i> Link Old Account (Name + PIN)
-        </button>
-      </div>
     </div>
   </div>
 
@@ -1266,11 +1260,8 @@
         <div id="profileLdbStatusText" style="font-size:0.8rem; font-weight:700; color:var(--lime-bright);"></div>
       </div>
 
-      <div style="display:flex; gap:10px; margin-bottom: 20px;">
-        <button class="btn-action-primary" onclick="openManualLinkPrompt()" style="flex:1; justify-content:center; font-size:0.8rem;">
-          <i class="fa-solid fa-link"></i> Link Old Data
-        </button>
-        <button class="pill-btn" onclick="handleGoogleSignOut()" style="color:#f87171; border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.1); justify-content:center;">
+      <div style="display:flex; justify-content:center; margin-bottom: 20px;">
+        <button class="pill-btn" onclick="handleGoogleSignOut()" style="color:#f87171; border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.1); justify-content:center; width:100%; padding:10px;">
           <i class="fa-solid fa-right-from-bracket"></i> Sign Out
         </button>
       </div>
@@ -1293,7 +1284,7 @@
     </div>
   </div>
 
-  <!-- PRIVATE OWNER MASTER DASHBOARD MODAL (PIN: 2307) -->
+  <!-- PRIVATE OWNER MASTER DASHBOARD MODAL (AUTHENTICATED EMAIL PROTECTED) -->
   <div class="modal-backdrop" id="ownerAdminModal">
     <div class="modal-box" style="max-width: 680px;">
       <div class="modal-top">
@@ -1341,7 +1332,7 @@
       <div class="admin-squad-list" id="adminSquadContainer"></div>
 
       <div style="margin-top:18px; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:0.72rem; color:var(--lime-bright);">🔒 Master View (PIN: 2307 Protected)</span>
+        <span style="font-size:0.72rem; color:var(--lime-bright);">🔒 Master View (Google Admin Authenticated)</span>
         <button class="pill-btn" onclick="refreshAdminData()"><i class="fa-solid fa-rotate"></i> Refresh All Data</button>
       </div>
     </div>
@@ -2256,20 +2247,14 @@
       logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 1500);
       if (logoClickCount >= 3) {
         logoClickCount = 0;
-        promptOwnerPin();
+        if (window.verifyAndOpenAdminDashboard) window.verifyAndOpenAdminDashboard();
       }
-    }
-
-    function promptOwnerPin() {
-      const pin = prompt("🔐 Enter Owner Master Access PIN:");
-      if (pin === "2307") openAdminDashboard();
-      else if (pin !== null) alert("❌ Incorrect Access PIN!");
     }
 
     window.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault();
-        promptOwnerPin();
+        if (window.verifyAndOpenAdminDashboard) window.verifyAndOpenAdminDashboard();
       }
     });
 
@@ -2480,6 +2465,18 @@
     const auth = getAuth(app);
     const googleProvider = new GoogleAuthProvider();
 
+    const ADMIN_EMAILS = ["triggeredmarshmello@gmail.com"];
+
+    // 🔒 VERIFIED GOOGLE EMAIL ADMIN AUTHENTICATION
+    window.verifyAndOpenAdminDashboard = function() {
+      const currentUser = auth.currentUser;
+      if (currentUser && ADMIN_EMAILS.includes(currentUser.email)) {
+        openAdminDashboard();
+      } else {
+        alert("🚫 Access Denied: Sirf Admin Google Account (triggeredmarshmello@gmail.com) se master panel khulega!");
+      }
+    };
+
     // 🚫 HARD LOCKOUT UI
     function triggerHardLockout() {
       localStorage.setItem("JEE_2027_DEVICE_BANNED", "true");
@@ -2564,33 +2561,6 @@
       }
     };
 
-    // 🔗 LINK OLD ACCOUNT (TRANSFERS OLD DATA TO GOOGLE ACCOUNT)
-    window.openManualLinkPrompt = async function() {
-      const oldName = prompt("Apna purana Registered Name enter karo (e.g. Aryan):");
-      if (!oldName) return;
-      const oldPin = prompt("Apna purana 4-digit PIN enter karo:");
-      if (!oldPin) return;
-
-      const oldDocId = `${oldName.trim()}_${oldPin.trim()}`;
-      try {
-        const docSnap = await getDoc(doc(db, "squad_progress", oldDocId));
-        if (docSnap.exists()) {
-          const oldData = docSnap.data();
-          if (oldData.trackerData) window.trackerData = oldData.trackerData;
-          if (oldData.userExtras) window.userExtras = oldData.userExtras;
-          
-          saveToStorage();
-          refreshCurrentTab();
-          triggerConfetti(null, 100);
-          alert(`✅ Wah! '${oldName}' ka poora purana data aapke Google account ke sath successfully LINK ho gaya!`);
-        } else {
-          alert("❌ Is Name aur PIN se koi purana cloud record nahi mila.");
-        }
-      } catch (err) {
-        alert("Error linking old data: " + err.message);
-      }
-    };
-
     // ☁️ FETCH USER DATA FROM FIRESTORE
     async function fetchUserDataFromCloud(uid) {
       if (!uid) return;
@@ -2614,7 +2584,6 @@
           if (typeof window.updateGlobalStats === 'function') window.updateGlobalStats();
           if (typeof window.refreshCurrentTab === 'function') window.refreshCurrentTab();
         } else {
-          // If first time Google login, auto-sync local progress to their Google doc
           syncUserDataToCloud();
         }
       } catch(e) { console.error("Cloud fetch error:", e); }
