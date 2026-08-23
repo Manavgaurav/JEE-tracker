@@ -2467,6 +2467,8 @@
     import { 
       getAuth, 
       signInWithPopup, 
+      signInWithRedirect, 
+      getRedirectResult, 
       GoogleAuthProvider, 
       onAuthStateChanged, 
       signOut, 
@@ -2487,11 +2489,25 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // Browser local persistence
+    // Browser local persistence fix
     setPersistence(auth, browserLocalPersistence).catch((err) => console.warn("Persistence error:", err));
 
     const googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+    // Handle return from redirect login automatically
+    getRedirectResult(auth).then((result) => {
+      if (result && result.user) {
+        const authModal = document.getElementById('googleAuthModal');
+        if (authModal) {
+          authModal.classList.remove('open');
+          authModal.style.setProperty('display', 'none', 'important');
+        }
+        if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
+      }
+    }).catch((error) => {
+      console.warn("Redirect result notice:", error);
+    });
 
     function triggerHardLockout() {
       localStorage.setItem("JEE_2027_DEVICE_BANNED", "true");
@@ -2517,7 +2533,7 @@
           return true;
         }
       } catch(e) {
-        console.warn("Ban check bypassed (safe):", e);
+        console.warn("Ban check bypass (safe):", e);
       }
       return false;
     }
@@ -2527,7 +2543,7 @@
       const authModal = document.getElementById('googleAuthModal');
       
       if (user) {
-        // 🔥 FORCE CLOSE MODAL IMMEDIATELY
+        // Force hide modal immediately on login
         if (authModal) {
           authModal.classList.remove('open');
           authModal.style.setProperty('display', 'none', 'important');
@@ -2544,14 +2560,14 @@
         if (navDisp) navDisp.innerText = userProfile.name;
         if (typeof updateNavAvatarDisplay === 'function') updateNavAvatarDisplay();
 
-        // Safe Ban Check
+        // Safe ban check
         checkIsUserBanned(user.uid);
 
         // Fetch cloud data for this Google user
         try {
           await fetchUserDataFromCloud(user.uid);
         } catch(fetchErr) {
-          console.warn("Cloud data fetch notice:", fetchErr);
+          console.warn("Cloud data fetch catch:", fetchErr);
         }
       } else {
         userProfile.isSetup = false;
@@ -2562,7 +2578,7 @@
       }
     });
 
-    // 🚀 SIGN IN WITH GOOGLE ACTION
+    // 🚀 SIGN IN WITH GOOGLE ACTION (POPUP BLOCKED -> AUTO REDIRECT)
     let authRunning = false;
     window.handleGoogleSignIn = async function() {
       if (authRunning) return;
@@ -2586,8 +2602,23 @@
           if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
         }
       } catch (error) {
-        console.error("Google Auth Catch:", error);
-        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+        console.warn("Popup blocked or failed. Auto-switching to Redirect mode...", error);
+        
+        // Agar browser tracking prevention / popup blocker ne block kiya, seedhe redirect karo bina error dikhaye
+        if (
+          error.code === 'auth/popup-blocked' ||
+          error.code === 'auth/cancelled-popup-request' ||
+          error.code === 'auth/internal-error'
+        ) {
+          try {
+            await signInWithRedirect(auth, googleProvider);
+            return;
+          } catch (redErr) {
+            alert("Redirect Login Failed: " + redErr.message);
+          }
+        } else if (error.code === 'auth/operation-not-allowed') {
+          alert("🚨 Firebase Console me Google Sign-In Provider DISABLED hai!\n\nAuthentication > Sign-in method me jaakar Google ko Enable karo.");
+        } else if (error.code !== 'auth/popup-closed-by-user') {
           alert("Sign-In Error: " + error.message);
         }
       } finally {
@@ -2659,6 +2690,7 @@
           if (typeof window.updateGlobalStats === 'function') window.updateGlobalStats();
           if (typeof window.refreshCurrentTab === 'function') window.refreshCurrentTab();
         } else {
+          // If first time Google login, auto-sync local progress to their Google doc
           syncUserDataToCloud();
         }
       } catch(e) { console.error("Cloud fetch error:", e); }
