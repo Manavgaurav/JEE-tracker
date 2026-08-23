@@ -1232,6 +1232,12 @@
         </svg>
         <span>Continue with Google</span>
       </button>
+
+      <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08);">
+        <button class="pill-btn" onclick="openManualLinkPrompt()" style="font-size:0.75rem; border-color: rgba(255,255,255,0.15);">
+          <i class="fa-solid fa-link"></i> Link Old Account (Name + PIN)
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1260,8 +1266,11 @@
         <div id="profileLdbStatusText" style="font-size:0.8rem; font-weight:700; color:var(--lime-bright);"></div>
       </div>
 
-      <div style="display:flex; justify-content:center; margin-bottom: 20px;">
-        <button class="pill-btn" onclick="handleGoogleSignOut()" style="color:#f87171; border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.1); justify-content:center; width:100%; padding:10px;">
+      <div style="display:flex; gap:10px; margin-bottom: 20px;">
+        <button class="btn-action-primary" onclick="openManualLinkPrompt()" style="flex:1; justify-content:center; font-size:0.8rem;">
+          <i class="fa-solid fa-link"></i> Link Old Data
+        </button>
+        <button class="pill-btn" onclick="handleGoogleSignOut()" style="color:#f87171; border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.1); justify-content:center;">
           <i class="fa-solid fa-right-from-bracket"></i> Sign Out
         </button>
       </div>
@@ -1284,7 +1293,7 @@
     </div>
   </div>
 
-  <!-- PRIVATE OWNER MASTER DASHBOARD MODAL (AUTHENTICATED EMAIL PROTECTED) -->
+  <!-- PRIVATE OWNER MASTER DASHBOARD MODAL (PIN: 2307) -->
   <div class="modal-backdrop" id="ownerAdminModal">
     <div class="modal-box" style="max-width: 680px;">
       <div class="modal-top">
@@ -1332,7 +1341,7 @@
       <div class="admin-squad-list" id="adminSquadContainer"></div>
 
       <div style="margin-top:18px; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:0.72rem; color:var(--lime-bright);">🔒 Master View (Google Admin Authenticated)</span>
+        <span style="font-size:0.72rem; color:var(--lime-bright);">🔒 Master View (PIN: 2307 Protected)</span>
         <button class="pill-btn" onclick="refreshAdminData()"><i class="fa-solid fa-rotate"></i> Refresh All Data</button>
       </div>
     </div>
@@ -2247,14 +2256,20 @@
       logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 1500);
       if (logoClickCount >= 3) {
         logoClickCount = 0;
-        if (window.verifyAndOpenAdminDashboard) window.verifyAndOpenAdminDashboard();
+        promptOwnerPin();
       }
+    }
+
+    function promptOwnerPin() {
+      const pin = prompt("🔐 Enter Owner Master Access PIN:");
+      if (pin === "2307") openAdminDashboard();
+      else if (pin !== null) alert("❌ Incorrect Access PIN!");
     }
 
     window.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault();
-        if (window.verifyAndOpenAdminDashboard) window.verifyAndOpenAdminDashboard();
+        promptOwnerPin();
       }
     });
 
@@ -2449,7 +2464,17 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getAuth, 
+      signInWithPopup, 
+      signInWithRedirect, 
+      getRedirectResult, 
+      GoogleAuthProvider, 
+      onAuthStateChanged, 
+      signOut, 
+      setPersistence, 
+      browserLocalPersistence 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCsrOKDW7wt7Y9Mvqv0_cRzSEJtQnj1T9k",
@@ -2463,19 +2488,17 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+
+    // Persistence fix: Local storage session lock
+    setPersistence(auth, browserLocalPersistence).catch((err) => console.warn("Persistence error:", err));
+
     const googleProvider = new GoogleAuthProvider();
+    googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-    const ADMIN_EMAILS = ["triggeredmarshmello@gmail.com"];
-
-    // 🔒 VERIFIED GOOGLE EMAIL ADMIN AUTHENTICATION
-    window.verifyAndOpenAdminDashboard = function() {
-      const currentUser = auth.currentUser;
-      if (currentUser && ADMIN_EMAILS.includes(currentUser.email)) {
-        openAdminDashboard();
-      } else {
-        alert("🚫 Access Denied: Sirf Admin Google Account (triggeredmarshmello@gmail.com) se master panel khulega!");
-      }
-    };
+    // Catch redirect auth result on page return
+    getRedirectResult(auth).catch((error) => {
+      console.warn("Redirect result notice:", error);
+    });
 
     // 🚫 HARD LOCKOUT UI
     function triggerHardLockout() {
@@ -2502,19 +2525,10 @@
           return true;
         }
       } catch(e) {
-        console.warn("Ban check error:", e);
+        console.warn("Ban check error (rules check):", e);
       }
       return false;
     }
-
-    // 🔄 CHECK REDIRECT RESULT ON PAGE LOAD
-    getRedirectResult(auth).then((result) => {
-      if (result && result.user) {
-        triggerConfetti(null, 80);
-      }
-    }).catch((err) => {
-      console.warn("Redirect check:", err);
-    });
 
     // 🔐 AUTH STATE OBSERVER (MANDATORY GOOGLE LOGIN)
     onAuthStateChanged(auth, async (user) => {
@@ -2525,7 +2539,7 @@
         if (isBanned) return;
 
         userProfile.uid = user.uid;
-        userProfile.email = user.email;
+        userProfile.email = user.email || "";
         userProfile.name = user.displayName || "Aspirant";
         userProfile.photoUrl = user.photoURL || "";
         userProfile.isSetup = true;
@@ -2533,7 +2547,8 @@
 
         const navDisp = document.getElementById('navUserNameDisplay');
         if (navDisp) navDisp.innerText = userProfile.name;
-        updateNavAvatarDisplay();
+        if (typeof updateNavAvatarDisplay === 'function') updateNavAvatarDisplay();
+        
         if (authModal) authModal.classList.remove('open');
 
         // Fetch cloud data for this Google user
@@ -2544,25 +2559,45 @@
       }
     });
 
-    // 🚀 SIGN IN WITH GOOGLE ACTION (WITH AUTO-REDIRECT FALLBACK)
+    // 🚀 SIGN IN WITH GOOGLE ACTION (POPUP WITH AUTO-REDIRECT FALLBACK)
+    let authInProgress = false;
     window.handleGoogleSignIn = async function() {
+      if (authInProgress) return;
+      authInProgress = true;
+
+      const authBtn = document.querySelector('.btn-google-auth');
+      const originalBtnHtml = authBtn ? authBtn.innerHTML : '';
+      if (authBtn) {
+        authBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Signing in...</span>`;
+        authBtn.style.opacity = '0.7';
+      }
+
       try {
-        const result = await signInWithPopup(auth, googleProvider);
-        if (result && result.user) {
-          triggerConfetti(null, 80);
-        }
+        await signInWithPopup(auth, googleProvider);
+        if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
       } catch (error) {
-        console.error("Popup sign-in error:", error);
-        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+        console.warn("Popup blocked or failed, switching to Redirect mode:", error);
+        
+        if (
+          error.code === 'auth/popup-blocked' ||
+          error.code === 'auth/popup-closed-by-user' ||
+          error.code === 'auth/cancelled-popup-request' ||
+          error.code === 'auth/internal-error'
+        ) {
           try {
             await signInWithRedirect(auth, googleProvider);
-          } catch(redirectErr) {
-            alert("Please allow popups in your browser or disable shield for this site.");
+            return;
+          } catch (redErr) {
+            alert("Login Failed: " + redErr.message);
           }
-        } else if (error.code === 'auth/unauthorized-domain') {
-          alert("Domain not authorized in Firebase Console!");
         } else {
-          alert("Sign-in error: " + error.message);
+          alert("Google Sign-in failed: " + error.message);
+        }
+      } finally {
+        authInProgress = false;
+        if (authBtn) {
+          authBtn.innerHTML = originalBtnHtml;
+          authBtn.style.opacity = '1';
         }
       }
     };
@@ -2574,6 +2609,33 @@
         userProfile = { uid: "", email: "", name: "", isSetup: false, participateLdb: null, photoUrl: "" };
         localStorage.removeItem("JEE_2027_USER_PROFILE");
         location.reload();
+      }
+    };
+
+    // 🔗 LINK OLD ACCOUNT (TRANSFERS OLD DATA TO GOOGLE ACCOUNT)
+    window.openManualLinkPrompt = async function() {
+      const oldName = prompt("Apna purana Registered Name enter karo (e.g. Aryan):");
+      if (!oldName) return;
+      const oldPin = prompt("Apna purana 4-digit PIN enter karo:");
+      if (!oldPin) return;
+
+      const oldDocId = `${oldName.trim()}_${oldPin.trim()}`;
+      try {
+        const docSnap = await getDoc(doc(db, "squad_progress", oldDocId));
+        if (docSnap.exists()) {
+          const oldData = docSnap.data();
+          if (oldData.trackerData) window.trackerData = oldData.trackerData;
+          if (oldData.userExtras) window.userExtras = oldData.userExtras;
+          
+          saveToStorage();
+          if (typeof refreshCurrentTab === 'function') refreshCurrentTab();
+          if (typeof triggerConfetti === 'function') triggerConfetti(null, 100);
+          alert(`✅ Wah! '${oldName}' ka poora purana data aapke Google account ke sath successfully LINK ho gaya!`);
+        } else {
+          alert("❌ Is Name aur PIN se koi purana cloud record nahi mila.");
+        }
+      } catch (err) {
+        alert("Error linking old data: " + err.message);
       }
     };
 
