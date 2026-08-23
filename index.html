@@ -2489,14 +2489,18 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // Persistence fix: Local storage session lock
+    // Persistence fix: Browser localStorage lock
     setPersistence(auth, browserLocalPersistence).catch((err) => console.warn("Persistence error:", err));
 
     const googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: 'select_account' });
 
     // Catch redirect auth result on page return
-    getRedirectResult(auth).catch((error) => {
+    getRedirectResult(auth).then((result) => {
+      if (result && result.user) {
+        if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
+      }
+    }).catch((error) => {
       console.warn("Redirect result notice:", error);
     });
 
@@ -2525,7 +2529,7 @@
           return true;
         }
       } catch(e) {
-        console.warn("Ban check error (rules check):", e);
+        console.warn("Ban check error (safe catch):", e);
       }
       return false;
     }
@@ -2535,8 +2539,12 @@
       const authModal = document.getElementById('googleAuthModal');
       
       if (user) {
-        const isBanned = await checkIsUserBanned(user.uid);
-        if (isBanned) return;
+        try {
+          const isBanned = await checkIsUserBanned(user.uid);
+          if (isBanned) return;
+        } catch(e) {
+          console.warn("Ban check safe catch:", e);
+        }
 
         userProfile.uid = user.uid;
         userProfile.email = user.email || "";
@@ -2549,26 +2557,37 @@
         if (navDisp) navDisp.innerText = userProfile.name;
         if (typeof updateNavAvatarDisplay === 'function') updateNavAvatarDisplay();
         
-        if (authModal) authModal.classList.remove('open');
+        // Modal forcefully close
+        if (authModal) {
+          authModal.classList.remove('open');
+          authModal.style.setProperty('display', 'none', 'important');
+        }
 
         // Fetch cloud data for this Google user
-        await fetchUserDataFromCloud(user.uid);
+        try {
+          await fetchUserDataFromCloud(user.uid);
+        } catch(fetchErr) {
+          console.error("Cloud fetch error:", fetchErr);
+        }
       } else {
         userProfile.isSetup = false;
-        if (authModal) authModal.classList.add('open');
+        if (authModal) {
+          authModal.classList.add('open');
+          authModal.style.removeProperty('display');
+        }
       }
     });
 
     // 🚀 SIGN IN WITH GOOGLE ACTION (POPUP WITH AUTO-REDIRECT FALLBACK)
-    let authInProgress = false;
+    let authRunning = false;
     window.handleGoogleSignIn = async function() {
-      if (authInProgress) return;
-      authInProgress = true;
+      if (authRunning) return;
+      authRunning = true;
 
       const authBtn = document.querySelector('.btn-google-auth');
       const originalBtnHtml = authBtn ? authBtn.innerHTML : '';
       if (authBtn) {
-        authBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Signing in...</span>`;
+        authBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Connecting Google...</span>`;
         authBtn.style.opacity = '0.7';
       }
 
@@ -2590,11 +2609,13 @@
           } catch (redErr) {
             alert("Login Failed: " + redErr.message);
           }
+        } else if (error.code === 'auth/operation-not-allowed') {
+          alert("🚨 Firebase Console me Google Sign-In Provider DISABLED hai!\n\nAuthentication > Sign-in method me jaakar Google ko Enable karo.");
         } else {
-          alert("Google Sign-in failed: " + error.message);
+          alert("Google Sign-In Error (" + error.code + "):\n" + error.message);
         }
       } finally {
-        authInProgress = false;
+        authRunning = false;
         if (authBtn) {
           authBtn.innerHTML = originalBtnHtml;
           authBtn.style.opacity = '1';
@@ -2662,6 +2683,7 @@
           if (typeof window.updateGlobalStats === 'function') window.updateGlobalStats();
           if (typeof window.refreshCurrentTab === 'function') window.refreshCurrentTab();
         } else {
+          // If first time Google login, auto-sync local progress to their Google doc
           syncUserDataToCloud();
         }
       } catch(e) { console.error("Cloud fetch error:", e); }
