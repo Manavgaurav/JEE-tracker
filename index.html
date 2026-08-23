@@ -2449,7 +2449,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, setPersistence, browserLocalPersistence, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCsrOKDW7wt7Y9Mvqv0_cRzSEJtQnj1T9k",
@@ -2463,12 +2463,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-    
-    // Set permanent local persistence so user stays logged in across sessions
-    setPersistence(auth, browserLocalPersistence).catch(console.error);
-
     const googleProvider = new GoogleAuthProvider();
-    googleProvider.setCustomParameters({ prompt: 'select_account' });
 
     const ADMIN_EMAILS = ["triggeredmarshmello@gmail.com"];
 
@@ -2512,6 +2507,15 @@
       return false;
     }
 
+    // 🔄 CHECK REDIRECT RESULT ON PAGE LOAD
+    getRedirectResult(auth).then((result) => {
+      if (result && result.user) {
+        triggerConfetti(null, 80);
+      }
+    }).catch((err) => {
+      console.warn("Redirect check:", err);
+    });
+
     // 🔐 AUTH STATE OBSERVER (MANDATORY GOOGLE LOGIN)
     onAuthStateChanged(auth, async (user) => {
       const authModal = document.getElementById('googleAuthModal');
@@ -2540,29 +2544,25 @@
       }
     });
 
-    // 🚀 SIGN IN WITH GOOGLE ACTION (POPUP WITH ERROR CATCHING - NO REDIRECT LOOPS)
+    // 🚀 SIGN IN WITH GOOGLE ACTION (WITH AUTO-REDIRECT FALLBACK)
     window.handleGoogleSignIn = async function() {
-      const btn = document.querySelector('.btn-google-auth');
-      const originalText = btn ? btn.innerHTML : '';
-      if (btn) btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting...`;
-      
       try {
         const result = await signInWithPopup(auth, googleProvider);
         if (result && result.user) {
           triggerConfetti(null, 80);
         }
       } catch (error) {
-        console.error("Google Sign-In Error:", error);
-        if (btn) btn.innerHTML = originalText;
-
-        if (error.code === 'auth/popup-blocked') {
-          alert("⚠️ Pop-up Blocked: Browser ke address bar me 'Pop-up blocked' icon par click karein aur 'Always allow' select karein!");
-        } else if (error.code === 'auth/popup-closed-by-user') {
-          // User closed the popup window, stay on screen normally
+        console.error("Popup sign-in error:", error);
+        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+          try {
+            await signInWithRedirect(auth, googleProvider);
+          } catch(redirectErr) {
+            alert("Please allow popups in your browser or disable shield for this site.");
+          }
         } else if (error.code === 'auth/unauthorized-domain') {
-          alert("⚠️ Firebase Error: Ye domain Firebase Console me authorized nahi hai.");
+          alert("Domain not authorized in Firebase Console!");
         } else {
-          alert("Google Sign-in failed: " + error.message);
+          alert("Sign-in error: " + error.message);
         }
       }
     };
