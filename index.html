@@ -1232,12 +1232,6 @@
         </svg>
         <span>Continue with Google</span>
       </button>
-
-      <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08);">
-        <button class="pill-btn" onclick="openManualLinkPrompt()" style="font-size:0.75rem; border-color: rgba(255,255,255,0.15);">
-          <i class="fa-solid fa-link"></i> Link Old Account (Name + PIN)
-        </button>
-      </div>
     </div>
   </div>
 
@@ -1266,11 +1260,8 @@
         <div id="profileLdbStatusText" style="font-size:0.8rem; font-weight:700; color:var(--lime-bright);"></div>
       </div>
 
-      <div style="display:flex; gap:10px; margin-bottom: 20px;">
-        <button class="btn-action-primary" onclick="openManualLinkPrompt()" style="flex:1; justify-content:center; font-size:0.8rem;">
-          <i class="fa-solid fa-link"></i> Link Old Data
-        </button>
-        <button class="pill-btn" onclick="handleGoogleSignOut()" style="color:#f87171; border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.1); justify-content:center;">
+      <div style="display:flex; justify-content:center; margin-bottom: 20px;">
+        <button class="pill-btn" onclick="handleGoogleSignOut()" style="width:100%; color:#f87171; border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.1); justify-content:center; padding:10px;">
           <i class="fa-solid fa-right-from-bracket"></i> Sign Out
         </button>
       </div>
@@ -1293,7 +1284,7 @@
     </div>
   </div>
 
-  <!-- PRIVATE OWNER MASTER DASHBOARD MODAL (PIN: 2307) -->
+  <!-- PRIVATE OWNER MASTER DASHBOARD MODAL -->
   <div class="modal-backdrop" id="ownerAdminModal">
     <div class="modal-box" style="max-width: 680px;">
       <div class="modal-top">
@@ -1341,7 +1332,7 @@
       <div class="admin-squad-list" id="adminSquadContainer"></div>
 
       <div style="margin-top:18px; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:0.72rem; color:var(--lime-bright);">🔒 Master View (PIN: 2307 Protected)</span>
+        <span style="font-size:0.72rem; color:var(--lime-bright);">🔒 Protected by Owner Google Account</span>
         <button class="pill-btn" onclick="refreshAdminData()"><i class="fa-solid fa-rotate"></i> Refresh All Data</button>
       </div>
     </div>
@@ -2256,20 +2247,22 @@
       logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 1500);
       if (logoClickCount >= 3) {
         logoClickCount = 0;
-        promptOwnerPin();
+        triggerAdminAccessCheck();
       }
     }
 
-    function promptOwnerPin() {
-      const pin = prompt("🔐 Enter Owner Master Access PIN:");
-      if (pin === "2307") openAdminDashboard();
-      else if (pin !== null) alert("❌ Incorrect Access PIN!");
+    function triggerAdminAccessCheck() {
+      if (typeof window.checkOwnerAdminPermission === 'function') {
+        window.checkOwnerAdminPermission();
+      } else {
+        alert("🔒 Authenticating admin permissions...");
+      }
     }
 
     window.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault();
-        promptOwnerPin();
+        triggerAdminAccessCheck();
       }
     });
 
@@ -2466,7 +2459,6 @@
     import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { 
       getAuth, 
-      signInWithPopup, 
       signInWithRedirect, 
       getRedirectResult, 
       GoogleAuthProvider, 
@@ -2475,6 +2467,13 @@
       setPersistence, 
       browserLocalPersistence 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    // 🔒 OWNER AUTHORIZED GOOGLE ACCOUNTS LIST
+    // Yahan apna exact Google Account email daal do:
+    const ADMIN_EMAILS = [
+      "manavgaurav2307@gmail.com",
+      "vaironmusic@gmail.com"
+    ];
 
     const firebaseConfig = {
       apiKey: "AIzaSyCsrOKDW7wt7Y9Mvqv0_cRzSEJtQnj1T9k",
@@ -2489,13 +2488,13 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // Browser local persistence fix
+    // Lock session persistence
     setPersistence(auth, browserLocalPersistence).catch((err) => console.warn("Persistence error:", err));
 
     const googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-    // Handle return from redirect login automatically
+    // Handle return from Google OAuth
     getRedirectResult(auth).then((result) => {
       if (result && result.user) {
         const authModal = document.getElementById('googleAuthModal');
@@ -2506,8 +2505,25 @@
         if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
       }
     }).catch((error) => {
-      console.warn("Redirect result notice:", error);
+      console.warn("Redirect processing notice:", error);
     });
+
+    // 🔒 SECURE ADMIN OWNER CHECK FUNCTION
+    window.checkOwnerAdminPermission = function() {
+      if (!userProfile || !userProfile.email) {
+        alert("🔒 Access Denied: Pehle apne Google Account se sign in karein!");
+        return;
+      }
+
+      const userEmail = (userProfile.email || "").trim().toLowerCase();
+      const isAuthorized = ADMIN_EMAILS.some(adminEmail => adminEmail.trim().toLowerCase() === userEmail);
+
+      if (isAuthorized) {
+        openAdminDashboard();
+      } else {
+        alert(`🚫 Access Denied: '${userProfile.email}' ke paas Owner Master Dashboard ka access nahi hai!\n\nYe panel sirf authorized Owner account se hi khul sakta hai.`);
+      }
+    };
 
     function triggerHardLockout() {
       localStorage.setItem("JEE_2027_DEVICE_BANNED", "true");
@@ -2533,17 +2549,16 @@
           return true;
         }
       } catch(e) {
-        console.warn("Ban check bypass (safe):", e);
+        console.warn("Ban check error (safe catch):", e);
       }
       return false;
     }
 
-    // 🔐 AUTH STATE OBSERVER (MANDATORY GOOGLE LOGIN)
+    // 🔐 AUTH STATE OBSERVER
     onAuthStateChanged(auth, async (user) => {
       const authModal = document.getElementById('googleAuthModal');
       
       if (user) {
-        // Force hide modal immediately on login
         if (authModal) {
           authModal.classList.remove('open');
           authModal.style.setProperty('display', 'none', 'important');
@@ -2560,14 +2575,12 @@
         if (navDisp) navDisp.innerText = userProfile.name;
         if (typeof updateNavAvatarDisplay === 'function') updateNavAvatarDisplay();
 
-        // Safe ban check
         checkIsUserBanned(user.uid);
 
-        // Fetch cloud data for this Google user
         try {
           await fetchUserDataFromCloud(user.uid);
         } catch(fetchErr) {
-          console.warn("Cloud data fetch catch:", fetchErr);
+          console.warn("Cloud data fetch notice:", fetchErr);
         }
       } else {
         userProfile.isSetup = false;
@@ -2578,54 +2591,27 @@
       }
     });
 
-    // 🚀 SIGN IN WITH GOOGLE ACTION (POPUP BLOCKED -> AUTO REDIRECT)
+    // 🚀 SIGN IN WITH GOOGLE ACTION (RELIABLE REDIRECT MODE)
     let authRunning = false;
     window.handleGoogleSignIn = async function() {
       if (authRunning) return;
       authRunning = true;
 
       const authBtn = document.querySelector('.btn-google-auth');
-      const originalBtnHtml = authBtn ? authBtn.innerHTML : '';
       if (authBtn) {
         authBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Connecting Google...</span>`;
         authBtn.style.opacity = '0.7';
       }
 
       try {
-        const res = await signInWithPopup(auth, googleProvider);
-        if (res && res.user) {
-          const authModal = document.getElementById('googleAuthModal');
-          if (authModal) {
-            authModal.classList.remove('open');
-            authModal.style.setProperty('display', 'none', 'important');
-          }
-          if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
-        }
+        await signInWithRedirect(auth, googleProvider);
       } catch (error) {
-        console.warn("Popup blocked or failed. Auto-switching to Redirect mode...", error);
-        
-        // Agar browser tracking prevention / popup blocker ne block kiya, seedhe redirect karo bina error dikhaye
-        if (
-          error.code === 'auth/popup-blocked' ||
-          error.code === 'auth/cancelled-popup-request' ||
-          error.code === 'auth/internal-error'
-        ) {
-          try {
-            await signInWithRedirect(auth, googleProvider);
-            return;
-          } catch (redErr) {
-            alert("Redirect Login Failed: " + redErr.message);
-          }
-        } else if (error.code === 'auth/operation-not-allowed') {
-          alert("🚨 Firebase Console me Google Sign-In Provider DISABLED hai!\n\nAuthentication > Sign-in method me jaakar Google ko Enable karo.");
-        } else if (error.code !== 'auth/popup-closed-by-user') {
-          alert("Sign-In Error: " + error.message);
-        }
-      } finally {
+        console.error("Sign-In Error:", error);
+        alert("Google Sign-In Error: " + error.message);
         authRunning = false;
         if (authBtn) {
-          authBtn.innerHTML = originalBtnHtml;
           authBtn.style.opacity = '1';
+          authBtn.innerHTML = `<span>Continue with Google</span>`;
         }
       }
     };
@@ -2637,33 +2623,6 @@
         userProfile = { uid: "", email: "", name: "", isSetup: false, participateLdb: null, photoUrl: "" };
         localStorage.removeItem("JEE_2027_USER_PROFILE");
         location.reload();
-      }
-    };
-
-    // 🔗 LINK OLD ACCOUNT (TRANSFERS OLD DATA TO GOOGLE ACCOUNT)
-    window.openManualLinkPrompt = async function() {
-      const oldName = prompt("Apna purana Registered Name enter karo (e.g. Aryan):");
-      if (!oldName) return;
-      const oldPin = prompt("Apna purana 4-digit PIN enter karo:");
-      if (!oldPin) return;
-
-      const oldDocId = `${oldName.trim()}_${oldPin.trim()}`;
-      try {
-        const docSnap = await getDoc(doc(db, "squad_progress", oldDocId));
-        if (docSnap.exists()) {
-          const oldData = docSnap.data();
-          if (oldData.trackerData) window.trackerData = oldData.trackerData;
-          if (oldData.userExtras) window.userExtras = oldData.userExtras;
-          
-          saveToStorage();
-          if (typeof refreshCurrentTab === 'function') refreshCurrentTab();
-          if (typeof triggerConfetti === 'function') triggerConfetti(null, 100);
-          alert(`✅ Wah! '${oldName}' ka poora purana data aapke Google account ke sath successfully LINK ho gaya!`);
-        } else {
-          alert("❌ Is Name aur PIN se koi purana cloud record nahi mila.");
-        }
-      } catch (err) {
-        alert("Error linking old data: " + err.message);
       }
     };
 
@@ -2690,7 +2649,6 @@
           if (typeof window.updateGlobalStats === 'function') window.updateGlobalStats();
           if (typeof window.refreshCurrentTab === 'function') window.refreshCurrentTab();
         } else {
-          // If first time Google login, auto-sync local progress to their Google doc
           syncUserDataToCloud();
         }
       } catch(e) { console.error("Cloud fetch error:", e); }
