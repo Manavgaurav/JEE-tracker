@@ -2467,8 +2467,6 @@
     import { 
       getAuth, 
       signInWithPopup, 
-      signInWithRedirect, 
-      getRedirectResult, 
       GoogleAuthProvider, 
       onAuthStateChanged, 
       signOut, 
@@ -2489,22 +2487,12 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // Persistence fix: Browser localStorage lock
+    // Browser local persistence
     setPersistence(auth, browserLocalPersistence).catch((err) => console.warn("Persistence error:", err));
 
     const googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-    // Catch redirect auth result on page return
-    getRedirectResult(auth).then((result) => {
-      if (result && result.user) {
-        if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
-      }
-    }).catch((error) => {
-      console.warn("Redirect result notice:", error);
-    });
-
-    // 🚫 HARD LOCKOUT UI
     function triggerHardLockout() {
       localStorage.setItem("JEE_2027_DEVICE_BANNED", "true");
       document.body.innerHTML = `
@@ -2529,7 +2517,7 @@
           return true;
         }
       } catch(e) {
-        console.warn("Ban check error (safe catch):", e);
+        console.warn("Ban check bypassed (safe):", e);
       }
       return false;
     }
@@ -2539,11 +2527,10 @@
       const authModal = document.getElementById('googleAuthModal');
       
       if (user) {
-        try {
-          const isBanned = await checkIsUserBanned(user.uid);
-          if (isBanned) return;
-        } catch(e) {
-          console.warn("Ban check safe catch:", e);
+        // 🔥 FORCE CLOSE MODAL IMMEDIATELY
+        if (authModal) {
+          authModal.classList.remove('open');
+          authModal.style.setProperty('display', 'none', 'important');
         }
 
         userProfile.uid = user.uid;
@@ -2556,29 +2543,26 @@
         const navDisp = document.getElementById('navUserNameDisplay');
         if (navDisp) navDisp.innerText = userProfile.name;
         if (typeof updateNavAvatarDisplay === 'function') updateNavAvatarDisplay();
-        
-        // Modal forcefully close
-        if (authModal) {
-          authModal.classList.remove('open');
-          authModal.style.setProperty('display', 'none', 'important');
-        }
+
+        // Safe Ban Check
+        checkIsUserBanned(user.uid);
 
         // Fetch cloud data for this Google user
         try {
           await fetchUserDataFromCloud(user.uid);
         } catch(fetchErr) {
-          console.error("Cloud fetch error:", fetchErr);
+          console.warn("Cloud data fetch notice:", fetchErr);
         }
       } else {
         userProfile.isSetup = false;
         if (authModal) {
-          authModal.classList.add('open');
           authModal.style.removeProperty('display');
+          authModal.classList.add('open');
         }
       }
     });
 
-    // 🚀 SIGN IN WITH GOOGLE ACTION (POPUP WITH AUTO-REDIRECT FALLBACK)
+    // 🚀 SIGN IN WITH GOOGLE ACTION
     let authRunning = false;
     window.handleGoogleSignIn = async function() {
       if (authRunning) return;
@@ -2592,27 +2576,19 @@
       }
 
       try {
-        await signInWithPopup(auth, googleProvider);
-        if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
-      } catch (error) {
-        console.warn("Popup blocked or failed, switching to Redirect mode:", error);
-        
-        if (
-          error.code === 'auth/popup-blocked' ||
-          error.code === 'auth/popup-closed-by-user' ||
-          error.code === 'auth/cancelled-popup-request' ||
-          error.code === 'auth/internal-error'
-        ) {
-          try {
-            await signInWithRedirect(auth, googleProvider);
-            return;
-          } catch (redErr) {
-            alert("Login Failed: " + redErr.message);
+        const res = await signInWithPopup(auth, googleProvider);
+        if (res && res.user) {
+          const authModal = document.getElementById('googleAuthModal');
+          if (authModal) {
+            authModal.classList.remove('open');
+            authModal.style.setProperty('display', 'none', 'important');
           }
-        } else if (error.code === 'auth/operation-not-allowed') {
-          alert("🚨 Firebase Console me Google Sign-In Provider DISABLED hai!\n\nAuthentication > Sign-in method me jaakar Google ko Enable karo.");
-        } else {
-          alert("Google Sign-In Error (" + error.code + "):\n" + error.message);
+          if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
+        }
+      } catch (error) {
+        console.error("Google Auth Catch:", error);
+        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+          alert("Sign-In Error: " + error.message);
         }
       } finally {
         authRunning = false;
@@ -2683,7 +2659,6 @@
           if (typeof window.updateGlobalStats === 'function') window.updateGlobalStats();
           if (typeof window.refreshCurrentTab === 'function') window.refreshCurrentTab();
         } else {
-          // If first time Google login, auto-sync local progress to their Google doc
           syncUserDataToCloud();
         }
       } catch(e) { console.error("Cloud fetch error:", e); }
