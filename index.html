@@ -2509,11 +2509,11 @@
       console.warn("Redirect processing notice:", error);
     });
 
-    // 🔒 SECURE ADMIN OWNER CHECK FUNCTION
+    // 🔒 SECURE ADMIN OWNER CHECK FUNCTION (NO EMAIL EXPOSURE IN ALERT)
     window.checkOwnerAdminPermission = function() {
       const currentEmail = (auth.currentUser && auth.currentUser.email) || userProfile.email || "";
       if (!currentEmail) {
-        alert("🔒 Access Denied: Pehle Google Account se sign in karein!");
+        alert("🚫 Access Denied: Pehle Google Account se login karein!");
         return;
       }
 
@@ -2522,7 +2522,7 @@
       if (isAuthorized) {
         openAdminDashboard();
       } else {
-        alert(`🚫 Access Denied: '${currentEmail}' ke paas Owner Master Dashboard ka access nahi hai!\n\nYe panel sirf verified Owner account se hi khulega.`);
+        alert("🚫 Access Denied: Aapke paas Owner Master Dashboard access karne ki permission nahi hai!");
       }
     };
 
