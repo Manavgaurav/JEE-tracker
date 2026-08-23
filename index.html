@@ -2459,6 +2459,7 @@
     import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { 
       getAuth, 
+      signInWithPopup, 
       signInWithRedirect, 
       getRedirectResult, 
       GoogleAuthProvider, 
@@ -2469,7 +2470,7 @@
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     // 🔒 OWNER AUTHORIZED GOOGLE ACCOUNTS LIST
-    // Yahan apna exact Google Account email daal do:
+    // Yahan apna Google Account email daal do:
     const ADMIN_EMAILS = [
       "manavgaurav2307@gmail.com",
       "vaironmusic@gmail.com"
@@ -2510,18 +2511,18 @@
 
     // 🔒 SECURE ADMIN OWNER CHECK FUNCTION
     window.checkOwnerAdminPermission = function() {
-      if (!userProfile || !userProfile.email) {
-        alert("🔒 Access Denied: Pehle apne Google Account se sign in karein!");
+      const currentEmail = (auth.currentUser && auth.currentUser.email) || userProfile.email || "";
+      if (!currentEmail) {
+        alert("🔒 Access Denied: Pehle Google Account se sign in karein!");
         return;
       }
 
-      const userEmail = (userProfile.email || "").trim().toLowerCase();
-      const isAuthorized = ADMIN_EMAILS.some(adminEmail => adminEmail.trim().toLowerCase() === userEmail);
+      const isAuthorized = ADMIN_EMAILS.some(adminEmail => adminEmail.trim().toLowerCase() === currentEmail.trim().toLowerCase());
 
       if (isAuthorized) {
         openAdminDashboard();
       } else {
-        alert(`🚫 Access Denied: '${userProfile.email}' ke paas Owner Master Dashboard ka access nahi hai!\n\nYe panel sirf authorized Owner account se hi khul sakta hai.`);
+        alert(`🚫 Access Denied: '${currentEmail}' ke paas Owner Master Dashboard ka access nahi hai!\n\nYe panel sirf verified Owner account se hi khulega.`);
       }
     };
 
@@ -2559,6 +2560,7 @@
       const authModal = document.getElementById('googleAuthModal');
       
       if (user) {
+        // 🔥 Immediately remove the login wall
         if (authModal) {
           authModal.classList.remove('open');
           authModal.style.setProperty('display', 'none', 'important');
@@ -2591,27 +2593,53 @@
       }
     });
 
-    // 🚀 SIGN IN WITH GOOGLE ACTION (RELIABLE REDIRECT MODE)
+    // 🚀 SIGN IN WITH GOOGLE ACTION (POPUP WITH AUTO REDIRECT FALLBACK)
     let authRunning = false;
     window.handleGoogleSignIn = async function() {
       if (authRunning) return;
       authRunning = true;
 
       const authBtn = document.querySelector('.btn-google-auth');
+      const originalBtnHtml = authBtn ? authBtn.innerHTML : '';
       if (authBtn) {
         authBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Connecting Google...</span>`;
         authBtn.style.opacity = '0.7';
       }
 
       try {
-        await signInWithRedirect(auth, googleProvider);
+        const res = await signInWithPopup(auth, googleProvider);
+        if (res && res.user) {
+          const authModal = document.getElementById('googleAuthModal');
+          if (authModal) {
+            authModal.classList.remove('open');
+            authModal.style.setProperty('display', 'none', 'important');
+          }
+          if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
+        }
       } catch (error) {
-        console.error("Sign-In Error:", error);
-        alert("Google Sign-In Error: " + error.message);
+        console.warn("Popup blocked or failed. Auto-switching to Redirect mode...", error);
+        
+        if (
+          error.code === 'auth/popup-blocked' ||
+          error.code === 'auth/cancelled-popup-request' ||
+          error.code === 'auth/internal-error'
+        ) {
+          try {
+            await signInWithRedirect(auth, googleProvider);
+            return;
+          } catch (redErr) {
+            alert("Redirect Login Failed: " + redErr.message);
+          }
+        } else if (error.code === 'auth/operation-not-allowed') {
+          alert("🚨 Firebase Console me Google Sign-In Provider DISABLED hai!\n\nAuthentication > Sign-in method me jaakar Google ko Enable karo.");
+        } else if (error.code !== 'auth/popup-closed-by-user') {
+          alert("Sign-In Error: " + error.message);
+        }
+      } finally {
         authRunning = false;
         if (authBtn) {
+          authBtn.innerHTML = originalBtnHtml;
           authBtn.style.opacity = '1';
-          authBtn.innerHTML = `<span>Continue with Google</span>`;
         }
       }
     };
