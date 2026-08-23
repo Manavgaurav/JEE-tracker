@@ -1785,10 +1785,10 @@
             <span style="font-size:0.75rem; color:var(--text-dim);">${c11.length} Chapters</span>
           </div>
         `;
-        const grid11 = document.createElement('div');
-        grid11.className = 'lecture-grid';
-        c11.forEach(item => grid11.appendChild(createChapterCard(item)));
-        sec11.appendChild(grid11);
+        const grid12 = document.createElement('div');
+        grid12.className = 'lecture-grid';
+        c11.forEach(item => grid12.appendChild(createChapterCard(item)));
+        sec11.appendChild(grid12);
         container.appendChild(sec11);
       }
 
@@ -2449,7 +2449,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCsrOKDW7wt7Y9Mvqv0_cRzSEJtQnj1T9k",
@@ -2507,15 +2507,6 @@
       return false;
     }
 
-    // 🔄 CHECK REDIRECT RESULT ON PAGE LOAD
-    getRedirectResult(auth).then((result) => {
-      if (result && result.user) {
-        triggerConfetti(null, 80);
-      }
-    }).catch((err) => {
-      console.warn("Redirect check:", err);
-    });
-
     // 🔐 AUTH STATE OBSERVER (MANDATORY GOOGLE LOGIN)
     onAuthStateChanged(auth, async (user) => {
       const authModal = document.getElementById('googleAuthModal');
@@ -2544,27 +2535,22 @@
       }
     });
 
-    // 🚀 SIGN IN WITH GOOGLE ACTION (WITH AUTO-REDIRECT FALLBACK)
-    window.handleGoogleSignIn = async function() {
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        if (result && result.user) {
-          triggerConfetti(null, 80);
-        }
-      } catch (error) {
-        console.error("Popup sign-in error:", error);
-        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-          try {
-            await signInWithRedirect(auth, googleProvider);
-          } catch(redirectErr) {
-            alert("Please allow popups in your browser or disable shield for this site.");
+    // 🚀 SIGN IN WITH GOOGLE ACTION (SYNCHRONOUS USER-CLICK TRIGGER)
+    window.handleGoogleSignIn = function() {
+      signInWithPopup(auth, googleProvider)
+        .then((result) => {
+          if (result && result.user) {
+            triggerConfetti(null, 80);
           }
-        } else if (error.code === 'auth/unauthorized-domain') {
-          alert("Domain not authorized in Firebase Console!");
-        } else {
-          alert("Sign-in error: " + error.message);
-        }
-      }
+        })
+        .catch((error) => {
+          console.error("Google Sign-In Error:", error);
+          if (error.code === 'auth/popup-blocked') {
+            alert("⚠️ Pop-up Blocked: Browser ke address bar me Pop-up/Shield icon par click karke 'Allow' karein!");
+          } else if (error.code !== 'auth/popup-closed-by-user') {
+            alert("Google Sign-in failed: " + error.message);
+          }
+        });
     };
 
     // 🚪 SIGN OUT ACTION
