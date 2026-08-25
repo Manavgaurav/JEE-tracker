@@ -2494,36 +2494,48 @@
     const googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-    function triggerHardLockout() {
+    // 🚫 SERVER-SIDE UID BAN ENFORCEMENT (LOCAL STORAGE IS ONLY A UI CACHE)
+    function triggerHardLockout(message = "Aapka Google account permanently banned hai.") {
       localStorage.setItem("JEE_2027_DEVICE_BANNED", "true");
+      localStorage.removeItem("JEE_2027_USER_PROFILE");
+      localStorage.removeItem("JEE_2027_SQUAD_TRACKER_V1");
+      localStorage.removeItem("JEE_2027_EXTRAS_V1");
+
       document.body.innerHTML = `
-        <div style="height: 100vh; width: 100vw; background: #040805; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 24px; box-sizing: border-box; position: fixed; inset: 0; z-index: 999999;">
-          <div style="font-size: 4.5rem; margin-bottom: 16px; filter: drop-shadow(0 0 25px rgba(248, 113, 113, 0.5));">🚫</div>
-          <h1 style="color: #f87171; font-size: 2.1rem; margin-bottom: 12px; font-weight: 900; letter-spacing: -0.5px;">ACCESS PERMANENTLY BLOCKED</h1>
-          <p style="color: #9ca3af; max-width: 480px; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;">
-            Aapka Google account platform rules violate karne ki wajah se <strong>Permanently Ban</strong> kar diya gaya hai.
-          </p>
+        <div style="height:100vh;width:100vw;background:#040805;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;padding:24px;box-sizing:border-box;position:fixed;inset:0;z-index:999999;">
+          <div style="font-size:4.5rem;margin-bottom:16px;filter:drop-shadow(0 0 25px rgba(248,113,113,.5));">🚫</div>
+          <h1 style="color:#f87171;font-size:2.1rem;margin-bottom:12px;font-weight:900;letter-spacing:-.5px;">ACCESS PERMANENTLY BLOCKED</h1>
+          <p style="color:#9ca3af;max-width:520px;font-size:.95rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+          <div style="font-size:.75rem;color:#6b7280;font-family:'JetBrains Mono',monospace;">BAN IS LINKED TO YOUR GOOGLE ACCOUNT</div>
         </div>
       `;
       const canvas = document.getElementById('chemCanvas');
       if (canvas) canvas.remove();
     }
 
-    // Early Device Ban Check
-    if (localStorage.getItem("JEE_2027_DEVICE_BANNED") === "true") {
-      triggerHardLockout();
-    }
+    // NOTE: This local flag is NOT the real ban.
+    // The real ban is checked against banned_users/{Firebase Auth UID}.
+    // Therefore clearing storage, changing browser/device, or changing VPN does not remove the ban.
 
     let banUnsubscribe = null;
     function listenToBanStatus(uid) {
       if (!uid) return;
       if (banUnsubscribe) banUnsubscribe();
-      banUnsubscribe = onSnapshot(doc(db, "banned_users", uid), (snap) => {
-        if (snap.exists()) {
-          signOut(auth);
-          triggerHardLockout();
+      banUnsubscribe = onSnapshot(
+        doc(db, "banned_users", uid),
+        async (snap) => {
+          if (snap.exists()) {
+            try { await signOut(auth); } catch(e) {}
+            triggerHardLockout("Aapka Google account platform rules violate karne ki wajah se <strong>Permanently Ban</strong> kar diya gaya hai.");
+          }
+        },
+        (error) => {
+          console.error("Ban listener error:", error);
+          // Fail closed: if the security listener cannot be trusted, do not keep the session open.
+          try { signOut(auth); } catch(e) {}
+          triggerHardLockout("Ban security check unavailable hai. Safety ke liye access temporarily blocked hai. Page refresh karke dobara try karein.");
         }
-      });
+      );
     }
 
     async function checkIsUserBanned(uid) {
@@ -2531,15 +2543,19 @@
       try {
         const banSnap = await getDoc(doc(db, "banned_users", uid));
         if (banSnap.exists()) {
-          triggerHardLockout();
+          triggerHardLockout("Aapka Google account platform rules violate karne ki wajah se <strong>Permanently Ban</strong> kar diya gaya hai.");
           return true;
-        } else {
-          localStorage.removeItem("JEE_2027_DEVICE_BANNED");
         }
+
+        // Safe to clear the old local UI cache only AFTER the server says the UID is not banned.
+        localStorage.removeItem("JEE_2027_DEVICE_BANNED");
+        return false;
       } catch(e) {
-        console.warn("Ban check note:", e);
+        console.error("Ban security check failed:", e);
+        // Fail closed instead of allowing access when the ban status cannot be verified.
+        triggerHardLockout("Ban security check verify nahi ho paya. Safety ke liye access blocked hai. Internet/Firebase connection check karke refresh karein.");
+        return true;
       }
-      return false;
     }
 
     // Handle return from Google OAuth
@@ -2578,6 +2594,8 @@
       const authModal = document.getElementById('googleAuthModal');
       
       if (user) {
+        // ALWAYS verify the Firebase Auth UID against the server-side ban record.
+        // This runs again after logout/login, on a new browser, after storage is cleared, etc.
         const isBanned = await checkIsUserBanned(user.uid);
         if (isBanned) return;
 
@@ -2711,8 +2729,12 @@
 
     // ☁️ AUTO-SYNC FUNCTION (INDEXED BY GOOGLE UID)
     window.syncUserDataToCloud = async function() {
-      if (!userProfile.uid) return;
+      if (!userProfile.uid || !auth.currentUser || auth.currentUser.uid !== userProfile.uid) return;
       if (localStorage.getItem("JEE_2027_DEVICE_BANNED") === "true") return;
+
+      // Re-check the server ban record before every cloud write.
+      const banned = await checkIsUserBanned(userProfile.uid);
+      if (banned) return;
       
       const total = window.trackerData.length;
       const done = window.trackerData.filter(d => d.status === 'Completed').length;
