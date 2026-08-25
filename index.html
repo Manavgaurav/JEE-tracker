@@ -2456,7 +2456,7 @@
   <!-- FIREBASE CLOUD SYNC, AUTHENTICATION, LEADERBOARD & OWNER PANEL ENGINE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { 
       getAuth, 
       signInWithPopup, 
@@ -2470,9 +2470,8 @@
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     // 🔒 OWNER AUTHORIZED GOOGLE ACCOUNTS LIST
-    // Yahan apna Google Account email daal do:
     const ADMIN_EMAILS = [
-      "triggeredmarshmello@gmail.com",
+      "manavgaurav2307@gmail.com",
       "vaironmusic@gmail.com"
     ];
 
@@ -2495,6 +2494,54 @@
     const googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: 'select_account' });
 
+    function triggerHardLockout() {
+      localStorage.setItem("JEE_2027_DEVICE_BANNED", "true");
+      document.body.innerHTML = `
+        <div style="height: 100vh; width: 100vw; background: #040805; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 24px; box-sizing: border-box; position: fixed; inset: 0; z-index: 999999;">
+          <div style="font-size: 4.5rem; margin-bottom: 16px; filter: drop-shadow(0 0 25px rgba(248, 113, 113, 0.5));">🚫</div>
+          <h1 style="color: #f87171; font-size: 2.1rem; margin-bottom: 12px; font-weight: 900; letter-spacing: -0.5px;">ACCESS PERMANENTLY BLOCKED</h1>
+          <p style="color: #9ca3af; max-width: 480px; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;">
+            Aapka Google account platform rules violate karne ki wajah se <strong>Permanently Ban</strong> kar diya gaya hai.
+          </p>
+        </div>
+      `;
+      const canvas = document.getElementById('chemCanvas');
+      if (canvas) canvas.remove();
+    }
+
+    // Early Device Ban Check
+    if (localStorage.getItem("JEE_2027_DEVICE_BANNED") === "true") {
+      triggerHardLockout();
+    }
+
+    let banUnsubscribe = null;
+    function listenToBanStatus(uid) {
+      if (!uid) return;
+      if (banUnsubscribe) banUnsubscribe();
+      banUnsubscribe = onSnapshot(doc(db, "banned_users", uid), (snap) => {
+        if (snap.exists()) {
+          signOut(auth);
+          triggerHardLockout();
+        }
+      });
+    }
+
+    async function checkIsUserBanned(uid) {
+      if (!uid) return false;
+      try {
+        const banSnap = await getDoc(doc(db, "banned_users", uid));
+        if (banSnap.exists()) {
+          triggerHardLockout();
+          return true;
+        } else {
+          localStorage.removeItem("JEE_2027_DEVICE_BANNED");
+        }
+      } catch(e) {
+        console.warn("Ban check note:", e);
+      }
+      return false;
+    }
+
     // Handle return from Google OAuth
     getRedirectResult(auth).then((result) => {
       if (result && result.user) {
@@ -2509,7 +2556,7 @@
       console.warn("Redirect processing notice:", error);
     });
 
-    // 🔒 SECURE ADMIN OWNER CHECK FUNCTION (NO EMAIL EXPOSURE IN ALERT)
+    // 🔒 SECURE ADMIN OWNER CHECK FUNCTION
     window.checkOwnerAdminPermission = function() {
       const currentEmail = (auth.currentUser && auth.currentUser.email) || userProfile.email || "";
       if (!currentEmail) {
@@ -2526,41 +2573,16 @@
       }
     };
 
-    function triggerHardLockout() {
-      localStorage.setItem("JEE_2027_DEVICE_BANNED", "true");
-      document.body.innerHTML = `
-        <div style="height: 100vh; width: 100vw; background: #040805; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 24px; box-sizing: border-box; position: fixed; inset: 0; z-index: 999999;">
-          <div style="font-size: 4.5rem; margin-bottom: 16px; filter: drop-shadow(0 0 25px rgba(248, 113, 113, 0.5));">🚫</div>
-          <h1 style="color: #f87171; font-size: 2.1rem; margin-bottom: 12px; font-weight: 900; letter-spacing: -0.5px;">ACCESS PERMANENTLY BLOCKED</h1>
-          <p style="color: #9ca3af; max-width: 480px; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;">
-            Aapka Google account platform rules violate karne ki wajah se <strong>Permanently Ban</strong> kar diya gaya hai.
-          </p>
-        </div>
-      `;
-      const canvas = document.getElementById('chemCanvas');
-      if (canvas) canvas.remove();
-    }
-
-    async function checkIsUserBanned(uid) {
-      if (!uid) return false;
-      try {
-        const banSnap = await getDoc(doc(db, "banned_users", uid));
-        if (banSnap.exists()) {
-          triggerHardLockout();
-          return true;
-        }
-      } catch(e) {
-        console.warn("Ban check error (safe catch):", e);
-      }
-      return false;
-    }
-
     // 🔐 AUTH STATE OBSERVER
     onAuthStateChanged(auth, async (user) => {
       const authModal = document.getElementById('googleAuthModal');
       
       if (user) {
-        // 🔥 Immediately remove the login wall
+        const isBanned = await checkIsUserBanned(user.uid);
+        if (isBanned) return;
+
+        listenToBanStatus(user.uid);
+
         if (authModal) {
           authModal.classList.remove('open');
           authModal.style.setProperty('display', 'none', 'important');
@@ -2577,14 +2599,13 @@
         if (navDisp) navDisp.innerText = userProfile.name;
         if (typeof updateNavAvatarDisplay === 'function') updateNavAvatarDisplay();
 
-        checkIsUserBanned(user.uid);
-
         try {
           await fetchUserDataFromCloud(user.uid);
         } catch(fetchErr) {
           console.warn("Cloud data fetch notice:", fetchErr);
         }
       } else {
+        if (banUnsubscribe) { banUnsubscribe(); banUnsubscribe = null; }
         userProfile.isSetup = false;
         if (authModal) {
           authModal.style.removeProperty('display');
@@ -2593,7 +2614,7 @@
       }
     });
 
-    // 🚀 SIGN IN WITH GOOGLE ACTION (POPUP WITH AUTO REDIRECT FALLBACK)
+    // 🚀 SIGN IN WITH GOOGLE ACTION
     let authRunning = false;
     window.handleGoogleSignIn = async function() {
       if (authRunning) return;
@@ -2658,6 +2679,12 @@
     async function fetchUserDataFromCloud(uid) {
       if (!uid) return;
       try {
+        const banCheck = await getDoc(doc(db, "banned_users", uid));
+        if (banCheck.exists()) {
+          triggerHardLockout();
+          return;
+        }
+
         const docSnap = await getDoc(doc(db, "squad_progress", uid));
         if (docSnap.exists()) {
           const data = docSnap.data();
@@ -2685,6 +2712,7 @@
     // ☁️ AUTO-SYNC FUNCTION (INDEXED BY GOOGLE UID)
     window.syncUserDataToCloud = async function() {
       if (!userProfile.uid) return;
+      if (localStorage.getItem("JEE_2027_DEVICE_BANNED") === "true") return;
       
       const total = window.trackerData.length;
       const done = window.trackerData.filter(d => d.status === 'Completed').length;
@@ -2993,7 +3021,6 @@
             const row = document.createElement('div');
             row.className = 'admin-row';
             const lastActive = new Date(user.updated || Date.now()).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', day: '2-digit', month: 'short' });
-            const studiedHrs = Math.floor((user.studyMins || 0) / 60);
             const userStreak = user.streak !== undefined ? user.streak : ((user.userExtras && user.userExtras.streak !== undefined) ? user.userExtras.streak : 0);
 
             let monthHrs = "0.0";
