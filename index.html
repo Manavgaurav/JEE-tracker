@@ -3,185 +3,3086 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Service Unavailable | Website Closed</title>
+  <title>IIT JEE 2027 • Master Study OS</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
   <style>
+    :root {
+      --bg-pitch: #040805;
+      --bg-surface: rgba(9, 16, 11, 0.78);
+      --card-glass: rgba(13, 22, 15, 0.68);
+      --card-glass-hover: rgba(18, 30, 20, 0.88);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-glow: rgba(212, 255, 63, 0.35);
+      
+      --lime-neon: #d4ff3f;
+      --lime-bright: #bef264;
+      --lime-glow: rgba(212, 255, 63, 0.45);
+      --emerald-accent: #10b981;
+      
+      --phy-accent: #38bdf8;
+      --chem-accent: #34d399;
+      --math-accent: #c084fc;
+      
+      --text-pure: #ffffff;
+      --text-sub: #d1d5db;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+
+      --font-serif-accent: 'Instrument Serif', Georgia, serif;
+    }
+
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     body {
+      background-color: var(--bg-pitch);
+      background-image: 
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(26, 54, 28, 0.55), transparent 70%),
+        radial-gradient(ellipse 60% 50% at 85% 60%, rgba(13, 38, 20, 0.4), transparent 60%);
+      background-attachment: fixed;
+      color: var(--text-pure);
       min-height: 100vh;
-      background-color: #090d16;
-      color: #f1f5f9;
+      position: relative;
+      overflow-x: hidden;
+      padding-bottom: 110px;
+    }
+
+    #chemCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .grid-matrix {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Top Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: rgba(10, 18, 12, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      backdrop-filter: blur(28px) saturate(180%);
+      margin-bottom: 28px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .brand-icon-wrap {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #d4ff3f, #10b981);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      font-size: 1.05rem;
+      color: #040805;
+      box-shadow: 0 0 18px var(--lime-glow);
+    }
+    .brand-text span { font-size: 0.95rem; font-weight: 800; color: #fff; }
+    .brand-text small { font-size: 0.7rem; color: var(--lime-bright); font-weight: 600; }
+
+    .nav-pills { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .pill-btn {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .pill-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+    .nav-avatar-img {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--lime-neon);
+    }
+
+    /* DOCK MENU */
+    .app-dock-bar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(8, 15, 10, 0.9);
+      border: 1.5px solid rgba(212, 255, 63, 0.35);
+      border-radius: 999px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(28px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(212, 255, 63, 0.2);
+      z-index: 100;
+      max-width: 95vw;
+      overflow-x: auto;
+    }
+    .app-dock-bar::-webkit-scrollbar { display: none; }
+    .dock-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 9px 15px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      white-space: nowrap;
+    }
+    .dock-tab:hover { color: #ffffff; background: rgba(255, 255, 255, 0.06); }
+    .dock-tab.active {
+      background: var(--lime-neon);
+      color: #040805;
+      font-weight: 800;
+      box-shadow: 0 0 20px rgba(212, 255, 63, 0.5);
+      transform: scale(1.04);
+    }
+
+    .app-view { display: none; animation: viewSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .app-view.active { display: block; }
+    @keyframes viewSlideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* MONTHLY GOALS CARD */
+    .bold-monthly-card {
+      background: linear-gradient(135deg, rgba(20, 83, 45, 0.38) 0%, rgba(9, 16, 11, 0.95) 100%);
+      border: 1.5px solid var(--lime-neon);
+      border-radius: 28px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(212, 255, 63, 0.18);
       position: relative;
       overflow: hidden;
     }
-
-    /* Ambient Background Glow */
-    .glow-1 {
+    .bold-monthly-card::before {
+      content: 'AUTO-SYNC ACTIVE';
       position: absolute;
-      width: 450px;
-      height: 450px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 70%);
-      top: -100px;
-      left: -100px;
-      border-radius: 50%;
-      pointer-events: none;
+      top: 14px;
+      right: 20px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 1px;
+      color: var(--lime-neon);
+      background: rgba(212, 255, 63, 0.12);
+      border: 1px solid rgba(212, 255, 63, 0.3);
+      padding: 3px 10px;
+      border-radius: 999px;
     }
-
-    .glow-2 {
-      position: absolute;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0) 70%);
-      bottom: -150px;
-      right: -100px;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-
-    /* Card Container */
-    .closed-card {
-      position: relative;
-      z-index: 10;
-      max-width: 520px;
-      width: 100%;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 48px 36px;
-      text-align: center;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
-    }
-
-    /* Pulsing Badge */
-    .status-badge {
-      display: inline-flex;
+    .bold-month-header {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.25);
-      border-radius: 100px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #f87171;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 28px;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
     }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background-color: #ef4444;
-      border-radius: 50%;
-      box-shadow: 0 0 10px #ef4444;
-      animation: pulse 2s infinite ease-in-out;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-
-    /* Icon Box */
-    .icon-wrapper {
-      width: 72px;
-      height: 72px;
-      margin: 0 auto 24px;
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(99, 102, 241, 0.15));
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
+    .bold-month-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: #ffffff;
       display: flex;
       align-items: center;
-      justify-content: center;
-      color: #f87171;
+      gap: 10px;
     }
-
-    .icon-wrapper svg {
-      width: 36px;
-      height: 36px;
-    }
-
-    h1 {
-      font-size: 1.9rem;
+    .month-badge-pill {
+      background: var(--lime-neon);
+      color: #040805;
+      font-size: 0.8rem;
       font-weight: 800;
-      color: #ffffff;
-      letter-spacing: -0.5px;
-      margin-bottom: 12px;
+      padding: 4px 14px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
     }
-
-    p {
-      font-size: 0.96rem;
-      color: #94a3b8;
-      line-height: 1.6;
-      margin-bottom: 28px;
+    .bold-strategy-text {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      line-height: 1.5;
+      background: rgba(0, 0, 0, 0.35);
+      border-left: 3px solid var(--lime-neon);
+      padding: 10px 14px;
+      border-radius: 0 12px 12px 0;
+      margin-bottom: 18px;
     }
-
-    .info-box {
+    .month-subject-breakdown-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .month-subj-box {
       background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 12px;
-      padding: 14px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+    .month-subj-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 6px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 0.88rem;
-      color: #64748b;
+    }
+    .month-subj-chapters {
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      line-height: 1.45;
     }
 
-    .info-box span.val {
-      color: #cbd5e1;
-      font-weight: 600;
+    /* Hero / Dashboard View */
+    .hero-panel {
+      background: linear-gradient(150deg, rgba(13, 24, 15, 0.82) 0%, rgba(7, 14, 8, 0.92) 100%);
+      border: 1px solid var(--card-border);
+      border-radius: 32px;
+      padding: 36px;
+      backdrop-filter: blur(32px);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.75);
+      margin-bottom: 24px;
+    }
+    .hero-headline { font-size: 2.5rem; font-weight: 800; letter-spacing: -1.2px; line-height: 1.1; margin-bottom: 10px; color: #fff; }
+    .hero-headline .serif-accent { font-family: var(--font-serif-accent); font-style: italic; font-weight: 400; color: var(--lime-neon); }
+    .hero-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; max-width: 820px; }
+
+    /* Countdown UI */
+    .countdown-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    .countdown-box {
+      background: linear-gradient(145deg, rgba(20, 30, 22, 0.6), rgba(10, 15, 12, 0.9));
+      border: 1px solid rgba(212, 255, 63, 0.2);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: inset 0 0 20px rgba(212, 255, 63, 0.05), 0 8px 24px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    .countdown-box::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--lime-neon);
+    }
+    .countdown-box.adv { 
+      border-color: rgba(56, 189, 248, 0.2); 
+      box-shadow: inset 0 0 20px rgba(56, 189, 248, 0.05), 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .countdown-box.adv::before { background: #38bdf8; }
+    .countdown-title { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .countdown-timer { font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 800; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
+    
+    .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(90deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.05));
+      border: 1px solid rgba(249, 115, 22, 0.4);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-weight: 800;
+      color: #fb923c;
+      margin-top: 15px;
     }
 
-    .footer-note {
-      margin-top: 24px;
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin: 22px 0;
+    }
+    .stat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .stat-icon-wrap {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    .stat-total .stat-icon-wrap { background: rgba(212, 255, 63, 0.12); color: var(--lime-bright); }
+    .stat-done .stat-icon-wrap { background: rgba(16, 185, 129, 0.14); color: #34d399; }
+    .stat-prog .stat-icon-wrap { background: rgba(245, 158, 11, 0.14); color: #fbbf24; }
+    .stat-rev .stat-icon-wrap { background: rgba(163, 230, 53, 0.14); color: #bef264; }
+
+    .stat-num { font-size: 1.4rem; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; }
+    .stat-label { font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+
+    .progress-bar-container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 999px;
+      height: 10px;
+      padding: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #d4ff3f, #10b981, #38bdf8);
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.6s ease;
+      box-shadow: 0 0 18px rgba(212, 255, 63, 0.75), inset 0 0 8px rgba(255,255,255,0.4);
+    }
+
+    .subj-progress-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .subj-prog-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 12px 14px;
+    }
+    .subj-prog-header {
+      display: flex;
+      justify-content: space-between;
       font-size: 0.78rem;
-      color: #475569;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .subj-prog-bar-wrap {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 999px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .subj-prog-fill {
+      height: 100%;
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+    #phy-prog-fill { background: var(--phy-accent); box-shadow: 0 0 14px rgba(56, 189, 248, 0.6); }
+    #chem-prog-fill { background: var(--chem-accent); box-shadow: 0 0 14px rgba(52, 211, 153, 0.6); }
+    #math-prog-fill { background: var(--math-accent); box-shadow: 0 0 14px rgba(192, 132, 252, 0.6); }
+
+    /* Hub Cards */
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .hub-card {
+      background: var(--card-glass);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 22px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .hub-card:hover {
+      border-color: var(--card-border-glow);
+      background: var(--card-glass-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 14px 35px rgba(0,0,0,0.6);
+    }
+    .hub-card-top { display: flex; justify-content: space-between; align-items: center; }
+    .hub-card h3 { font-size: 1.15rem; font-weight: 800; color: #fff; }
+    .hub-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* Chapter Toolbar */
+    .view-toolbar {
+      background: var(--card-glass);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .search-input-wrap { flex: 1; min-width: 220px; position: relative; }
+    .search-input-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
+    .search-input { width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px 16px 10px 38px; border-radius: 12px; color: #fff; font-size: 0.86rem; outline: none; }
+    .search-input:focus { border-color: var(--lime-neon); }
+
+    select { color-scheme: dark; }
+    select option { background-color: #0b160e !important; color: #ffffff !important; font-weight: 600 !important; font-size: 0.88rem !important; }
+    .filter-select { background: #0d1a10 !important; border: 1.5px solid rgba(212, 255, 63, 0.3) !important; color: #ffffff !important; padding: 8px 14px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer; }
+
+    /* Chapter Cards */
+    .category-group { margin-bottom: 24px; }
+    .cat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding: 8px 14px; background: rgba(255, 255, 255, 0.02); border-radius: 10px; border-left: 4px solid var(--lime-neon); }
+    .cat-badge { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--lime-bright); display: flex; align-items: center; gap: 6px; }
+
+    .lecture-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+    .lecture-card {
+      background: var(--card-glass);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .lecture-card:hover { border-color: var(--card-border-glow); transform: translateY(-2px); }
+    .lecture-card.done { border-color: rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.04); }
+
+    .card-top { display: flex; justify-content: space-between; align-items: center; }
+    .badge-subj { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .badge-subj.Physics { background: rgba(56, 189, 248, 0.14); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-subj.Chemistry { background: rgba(52, 211, 153, 0.14); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+    .badge-subj.Mathematics { background: rgba(192, 132, 252, 0.14); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); }
+
+    .lec-title { font-size: 1.02rem; font-weight: 800; color: #fff; line-height: 1.35; }
+    .lec-sub { font-size: 0.74rem; color: var(--text-muted); }
+
+    .checkpoints-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
+    .check-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 7px 9px;
+      font-size: 0.73rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+    .check-btn.active { background: rgba(212, 255, 63, 0.12); border-color: rgba(212, 255, 63, 0.35); color: var(--lime-neon); }
+
+    .card-footer { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+    .lec-controls { display: grid; grid-template-columns: 1.2fr 1fr auto; gap: 6px; align-items: center; }
+
+    .status-dropdown, .conf-dropdown {
+      background: #0d1b11 !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
+      color: #fff !important;
+      padding: 7px 8px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+      text-align: center;
+    }
+    .status-dropdown.completed { color: #34d399 !important; border-color: #34d399 !important; }
+    .status-dropdown.in-progress { color: #fbbf24 !important; border-color: #fbbf24 !important; }
+
+    .conf-dropdown.high { color: #34d399 !important; border-color: #34d399 !important; }
+    .conf-dropdown.medium { color: #fbbf24 !important; border-color: #fbbf24 !important; }
+    .conf-dropdown.low { color: #f87171 !important; border-color: #f87171 !important; }
+
+    .btn-notes-edit { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-muted); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .btn-notes-edit.has-notes { color: var(--lime-neon); border-color: var(--lime-neon); }
+
+    /* Monthly Mission Hero */
+    .monthly-mission-hero {
+      background: linear-gradient(135deg, rgba(20, 83, 45, 0.3) 0%, rgba(9, 16, 11, 0.9) 100%);
+      border: 1px solid rgba(212, 255, 63, 0.3);
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .monthly-mission-left h3 { font-size: 1.25rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .monthly-mission-left p { font-size: 0.82rem; color: var(--text-sub); margin-top: 4px; }
+    .monthly-progress-pill { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 800; color: var(--lime-neon); background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 12px; border: 1px solid rgba(212, 255, 63, 0.3); }
+
+    .chapter-nav-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 16px; }
+    .ch-tab-btn { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-muted); padding: 8px 18px; border-radius: 999px; font-weight: 700; font-size: 0.82rem; cursor: pointer; white-space: nowrap; }
+    .ch-tab-btn.active { background: var(--lime-neon); color: #040805; border-color: var(--lime-neon); }
+
+    /* Focus Lounge */
+    .focus-arena-box {
+      background: var(--card-glass);
+      border: 1px solid var(--card-border);
+      border-radius: 36px;
+      padding: 48px 32px;
+      text-align: center;
+      max-width: 620px;
+      margin: 0 auto;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+    }
+    .timer-giant-digits {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 4.8rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 20px 0;
+      letter-spacing: -2px;
+      text-shadow: 0 0 35px rgba(212, 255, 63, 0.35);
+    }
+    .timer-dropdown-group {
+      display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;
+    }
+
+    /* Mocks & Errors */
+    .mock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 15px; max-height: 380px; overflow-y: auto; padding-right: 8px; }
+    .mock-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 18px; border-radius: 16px; }
+    
+    .error-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 15px; max-height: 380px; overflow-y: auto; padding-right: 8px; }
+    .error-card { background: rgba(248, 113, 113, 0.05); border: 1px solid rgba(248, 113, 113, 0.2); padding: 18px; border-radius: 16px; }
+    .error-card h4 { color: #f87171; font-size: 0.95rem; margin-bottom: 6px; }
+
+    .mock-grid::-webkit-scrollbar, .error-grid::-webkit-scrollbar, .leaderboard-list-wrap::-webkit-scrollbar { width: 6px; }
+    .mock-grid::-webkit-scrollbar-track, .error-grid::-webkit-scrollbar-track, .leaderboard-list-wrap::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 10px; }
+    .mock-grid::-webkit-scrollbar-thumb, .error-grid::-webkit-scrollbar-thumb, .leaderboard-list-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    .mock-grid::-webkit-scrollbar-thumb:hover, .error-grid::-webkit-scrollbar-thumb:hover, .leaderboard-list-wrap::-webkit-scrollbar-thumb:hover { background: var(--lime-neon); }
+
+    .btn-delete-item {
+      background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171;
+      width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; outline: none;
+    }
+    .btn-delete-item:hover { background: #f87171; color: #000; transform: scale(1.05); }
+
+    /* Public Leaderboard Arena Styling */
+    .ldb-hero-card {
+      background: linear-gradient(135deg, rgba(212, 255, 63, 0.12) 0%, rgba(13, 24, 15, 0.95) 100%);
+      border: 1.5px solid var(--lime-neon);
+      border-radius: 28px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    }
+    .leaderboard-list-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+    .ldb-row-card {
+      background: var(--card-glass);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      transition: all 0.2s ease;
+    }
+    .ldb-row-card:hover {
+      border-color: var(--card-border-glow);
+      background: var(--card-glass-hover);
+      transform: translateY(-2px);
+    }
+    .ldb-row-card.rank-1 { border-color: #ffd700; background: rgba(255, 215, 0, 0.06); }
+    .ldb-row-card.rank-2 { border-color: #c0c0c0; background: rgba(192, 192, 192, 0.05); }
+    .ldb-row-card.rank-3 { border-color: #cd7f32; background: rgba(205, 127, 50, 0.05); }
+    .ldb-rank-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: #fff;
+    }
+    .ldb-row-card.rank-1 .ldb-rank-badge { background: #ffd700; color: #000; font-weight: 900; }
+    .ldb-row-card.rank-2 .ldb-rank-badge { background: #c0c0c0; color: #000; font-weight: 900; }
+    .ldb-row-card.rank-3 .ldb-rank-badge { background: #cd7f32; color: #000; font-weight: 900; }
+
+    /* Modals & Google Login UI */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(3, 8, 4, 0.85); backdrop-filter: blur(16px); z-index: 999; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-backdrop.open { display: flex; }
+    .modal-box { background: #09120a; border: 1px solid rgba(212, 255, 63, 0.3); border-radius: 26px; max-width: 520px; width: 100%; padding: 28px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85); max-height: 90vh; overflow-y: auto;}
+    .modal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .modal-top h3 { font-size: 1.15rem; font-weight: 800; color: #fff; }
+    .btn-close-modal { background: none; border: none; color: var(--text-dim); font-size: 1.2rem; cursor: pointer; }
+
+    .modal-input-field { width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 12px; color: #fff; font-size: 0.88rem; margin-bottom: 16px; outline: none; }
+    .modal-input-field:focus { border-color: var(--lime-neon); }
+
+    .btn-action-primary { background: var(--lime-neon); color: #040805; font-weight: 800; border: none; padding: 10px 22px; border-radius: 999px; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+
+    .btn-google-auth {
+      background: #ffffff;
+      color: #1f2937;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
+      transition: all 0.2s ease;
+    }
+    .btn-google-auth:hover {
+      background: #f3f4f6;
+      transform: scale(1.02);
+      box-shadow: 0 6px 25px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Admin View */
+    .admin-squad-list { display: flex; flex-direction: column; gap: 10px; max-height: 380px; overflow-y: auto; margin-top: 14px; padding-right: 4px; }
+    .admin-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 16px; border-radius: 16px; }
+    .admin-user-name { font-weight: 700; color: #fff; font-size: 0.92rem; }
+    .admin-user-sub { font-size: 0.72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+    .admin-pct { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 800; color: var(--lime-neon); }
+
+    .site-footer { margin-top: 48px; display: flex; flex-direction: column; align-items: center; gap: 12px; padding-bottom: 30px;}
+    .glowing-watermark {
+      display: inline-flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 700; color: #ffffff;
+      background: rgba(14, 24, 16, 0.75); border: 1.5px solid rgba(212, 255, 63, 0.35); padding: 9px 24px;
+      border-radius: 999px; animation: neonPulse 2s ease-in-out infinite alternate;
+    }
+    .glowing-watermark .bolt-glow { color: var(--lime-neon); text-shadow: 0 0 10px var(--lime-neon); font-size: 1.05rem; }
+    .glowing-watermark strong { color: var(--lime-bright); }
+    
+    .tg-glow-btn {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-dim);
+      text-decoration: none; padding: 6px 16px; border-radius: 999px; background: rgba(255, 255, 255, 0.02); 
+      border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease; letter-spacing: 0.5px; margin-top: 8px;
+    }
+    .tg-glow-btn:hover {
+      color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.08);
+      transform: translateY(-2px); box-shadow: 0 4px 15px rgba(56, 189, 248, 0.15);
+    }
+
+    @keyframes neonPulse {
+      0% { border-color: rgba(212, 255, 63, 0.4); box-shadow: 0 0 15px rgba(212, 255, 63, 0.3), inset 0 0 10px rgba(212, 255, 63, 0.1); }
+      100% { border-color: rgba(212, 255, 63, 1); box-shadow: 0 0 35px rgba(212, 255, 63, 0.7), inset 0 0 15px rgba(212, 255, 63, 0.3); }
+    }
+
+    @media (max-width: 900px) {
+      .lecture-grid, .mock-grid, .error-grid { grid-template-columns: 1fr; }
+      .mock-grid, .error-grid { max-height: 280px; padding-right: 4px; }
+      .hero-headline { font-size: 2rem; }
+      .timer-giant-digits { font-size: 3.4rem; }
     }
   </style>
 </head>
 <body>
-  <div class="glow-1"></div>
-  <div class="glow-2"></div>
 
-  <div class="closed-card">
-    <div class="status-badge">
-      <span class="status-dot"></span>
-      Service Offline
-    </div>
+  <canvas id="chemCanvas"></canvas>
+  <div class="grid-matrix"></div>
 
-    <div class="icon-wrapper">
-      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-      </svg>
-    </div>
+  <div class="container">
 
-    <h1>Website is Closed</h1>
-    <p>This website is no longer publicly accessible or has been permanently discontinued. Thank you for visiting.</p>
+    <!-- Top Navbar -->
+    <header class="navbar">
+      <div class="brand" onclick="handleSecretAdminTrigger()">
+        <div class="brand-icon-wrap">
+          <i class="fa-solid fa-atom"></i>
+        </div>
+        <div class="brand-text">
+          <span>IIT JEE 2027 Study OS</span>
+          <small>MODULAR TRACKER • TARGET 2027</small>
+        </div>
+      </div>
+      <div class="nav-pills">
+        <button class="pill-btn" onclick="openProfileModal()">
+          <span id="navAvatarSpan"><i class="fa-solid fa-user"></i></span>
+          <span id="navUserNameDisplay">Profile & Data</span>
+        </button>
+        
+        <!-- 🔥 TOP NAVBAR FIRE STREAK PILL -->
+        <span class="pill-btn" style="color:#fb923c; border-color:rgba(249,115,22,0.4); background:rgba(249,115,22,0.1);">
+          <i class="fa-solid fa-fire" style="color:#fb923c;"></i> <span id="navStreakDisplay">0d</span>
+        </span>
 
-    <div class="info-box">
-      <span>Access Status</span>
-      <span class="val">Closed</span>
-    </div>
+        <button class="pill-btn timer-nav-btn" onclick="switchMainTab('timer')">
+          <i class="fa-solid fa-stopwatch"></i> <span id="navTimerStatus">Focus Lounge</span>
+        </button>
+        <!-- 🔥 LIVE XP PILL -->
+        <span class="pill-btn" style="color:var(--lime-bright); border-color:rgba(212,255,63,0.3); background:rgba(212,255,63,0.08);">
+          <i class="fa-solid fa-bolt" style="color:var(--lime-neon);"></i> <span id="navXpDisplay">0 XP</span>
+        </span>
+      </div>
+    </header>
 
-    <div class="footer-note">
-      © All Rights Reserved.
+    <!-- VIEW 1: DASHBOARD -->
+    <section class="app-view active" id="view-dashboard">
+      <div class="bold-monthly-card" id="autoMonthlyMissionCard"></div>
+
+      <div class="hero-panel">
+        <div class="hero-tag">
+          <span class="tag-dot"></span> Class 12th & 11th Master System • Curated by Manav
+        </div>
+        <h1 class="hero-headline">Consistency that <span class="serif-accent">elevates</span> your rank.</h1>
+        <p class="hero-desc">
+          Modular study station for <strong>Physics, Chemistry, and Mathematics</strong>. Complete coverage of theory, modules, and strategic PYQs.
+        </p>
+        
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+          <div class="streak-badge" id="dailyStreakBadge">
+            <i class="fa-solid fa-fire"></i> <span id="streakCountText">0 Days Streak</span> (Study 1hr min to maintain)
+          </div>
+          <div class="streak-badge" style="background:rgba(56, 189, 248, 0.1); border-color:rgba(56, 189, 248, 0.4); color:#38bdf8;" id="thisMonthHoursBadge">
+            <i class="fa-solid fa-clock"></i> <span id="thisMonthHrsText">0.0 Hrs</span> (This Month)
+          </div>
+        </div>
+
+        <div class="countdown-grid">
+          <div class="countdown-box">
+            <div>
+              <div class="countdown-title"><i class="fa-solid fa-hourglass-start" style="color:var(--lime-neon)"></i> JEE Main 2027</div>
+              <div style="font-size:0.75rem; color:var(--text-dim);">Estimated (Jan 2027)</div>
+            </div>
+            <div class="countdown-timer" id="jeeMainsTimer">-- Days</div>
+          </div>
+          <div class="countdown-box adv">
+            <div>
+              <div class="countdown-title" style="color:#38bdf8;"><i class="fa-solid fa-medal"></i> JEE Adv 2027</div>
+              <div style="font-size:0.75rem; color:var(--text-dim);">Estimated (May 2027)</div>
+            </div>
+            <div class="countdown-timer" id="jeeAdvTimer" style="color:#38bdf8;">-- Days</div>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card stat-total">
+            <div class="stat-icon-wrap"><i class="fa-solid fa-shapes"></i></div>
+            <div>
+              <div class="stat-num" id="total-count">79</div>
+              <div class="stat-label">Total Chapters</div>
+            </div>
+          </div>
+          <div class="stat-card stat-done">
+            <div class="stat-icon-wrap"><i class="fa-solid fa-circle-check"></i></div>
+            <div>
+              <div class="stat-num" id="done-count">0</div>
+              <div class="stat-label">Completed</div>
+            </div>
+          </div>
+          <div class="stat-card stat-prog">
+            <div class="stat-icon-wrap"><i class="fa-solid fa-hourglass-half"></i></div>
+            <div>
+              <div class="stat-num" id="prog-count">0</div>
+              <div class="stat-label">In Progress</div>
+            </div>
+          </div>
+          <div class="stat-card stat-rev">
+            <div class="stat-icon-wrap"><i class="fa-solid fa-rotate"></i></div>
+            <div>
+              <div class="stat-num" id="rev-count">0</div>
+              <div class="stat-label">Revision Done</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="master-progress"></div>
+        </div>
+
+        <div class="subj-progress-grid">
+          <div class="subj-prog-box">
+            <div class="subj-prog-header">
+              <span style="color:var(--phy-accent);"><i class="fa-solid fa-bolt"></i> Physics</span>
+              <span id="phy-prog-text">0/29 (0%)</span>
+            </div>
+            <div class="subj-prog-bar-wrap">
+              <div class="subj-prog-fill" id="phy-prog-fill"></div>
+            </div>
+          </div>
+
+          <div class="subj-prog-box">
+            <div class="subj-prog-header">
+              <span style="color:var(--chem-accent);"><i class="fa-solid fa-flask"></i> Chemistry</span>
+              <span id="chem-prog-text">0/22 (0%)</span>
+            </div>
+            <div class="subj-prog-bar-wrap">
+              <div class="subj-prog-fill" id="chem-prog-fill"></div>
+            </div>
+          </div>
+
+          <div class="subj-prog-box">
+            <div class="subj-prog-header">
+              <span style="color:var(--math-accent);"><i class="fa-solid fa-calculator"></i> Mathematics</span>
+              <span id="math-prog-text">0/28 (0%)</span>
+            </div>
+            <div class="subj-prog-bar-wrap">
+              <div class="subj-prog-fill" id="math-prog-fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Navigate Hub Cards -->
+      <div class="hub-grid">
+        <div class="hub-card" onclick="switchMainTab('leaderboard')">
+          <div class="hub-card-top">
+            <span class="badge-subj" style="background:rgba(212,255,63,0.15); color:var(--lime-bright);">Squad Arena</span>
+            <span style="font-size:0.75rem; color:var(--text-dim);">Live Sync</span>
+          </div>
+          <h3>🏆 Squad Leaderboard</h3>
+          <p>Check live rank of all aspirants, syllabus completion %, and monthly study sprints.</p>
+          <span style="font-size:0.78rem; color:var(--lime-bright); font-weight:700;">Open Leaderboard &rarr;</span>
+        </div>
+
+        <div class="hub-card" onclick="switchMainTab('physics')">
+          <div class="hub-card-top">
+            <span class="badge-subj Physics">Physics Arena</span>
+            <span style="font-size:0.75rem; color:var(--text-dim);">29 Chapters</span>
+          </div>
+          <h3>⚡ Physics Module</h3>
+          <p>Class 12 Electrodynamics & Optics + Class 11 Mechanics revision (2019–22 PYQs first).</p>
+          <span style="font-size:0.78rem; color:var(--phy-accent); font-weight:700;">Enter Physics &rarr;</span>
+        </div>
+
+        <div class="hub-card" onclick="switchMainTab('chemistry')">
+          <div class="hub-card-top">
+            <span class="badge-subj Chemistry">Chemistry Arena</span>
+            <span style="font-size:0.75rem; color:var(--text-dim);">22 Chapters</span>
+          </div>
+          <h3>🧪 Chemistry Module</h3>
+          <p>Organic, Inorganic & Physical breakdowns. Finish 12th on time with reverse PYQ strategy.</p>
+          <span style="font-size:0.78rem; color:var(--chem-accent); font-weight:700;">Enter Chemistry &rarr;</span>
+        </div>
+
+        <div class="hub-card" onclick="switchMainTab('maths')">
+          <div class="hub-card-top">
+            <span class="badge-subj Mathematics">Maths Arena</span>
+            <span style="font-size:0.75rem; color:var(--text-dim);">28 Chapters</span>
+          </div>
+          <h3>📐 Mathematics Module</h3>
+          <p>Calculus, Algebra, Vectors & 3D. Personal formula sheets & targeted revision cycles.</p>
+          <span style="font-size:0.78rem; color:var(--math-accent); font-weight:700;">Enter Mathematics &rarr;</span>
+        </div>
+
+        <div class="hub-card" onclick="switchMainTab('monthly')">
+          <div class="hub-card-top">
+            <span class="badge-subj" style="background:rgba(212,255,63,0.15); color:var(--lime-bright);">Strategic Roadmap</span>
+            <span style="font-size:0.75rem; color:var(--text-dim);">Aug &ndash; Dec</span>
+          </div>
+          <h3>📅 Monthly Targets</h3>
+          <p>Month-by-month focused goals and Class 11 vs 12 priority distribution.</p>
+          <span style="font-size:0.78rem; color:var(--lime-bright); font-weight:700;">View Roadmap &rarr;</span>
+        </div>
+        
+        <div class="hub-card" onclick="switchMainTab('mocks')">
+          <div class="hub-card-top">
+            <span class="badge-subj" style="background:rgba(248,113,113,0.15); color:#f87171;">Assessment</span>
+          </div>
+          <h3>📝 Mock Tests & Errors</h3>
+          <p>Log your JEE mock marks and note down mistakes in error logs for revision.</p>
+          <span style="font-size:0.78rem; color:#f87171; font-weight:700;">Open Tracker &rarr;</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: LEADERBOARD ARENA -->
+    <section class="app-view" id="view-leaderboard">
+      
+      <!-- STATE 1: PARTICIPATION PROMPT WITH STRICT WARNING -->
+      <div id="ldbPromptBox" style="display:none; text-align:center; max-width:580px; margin: 40px auto; background:var(--card-glass); border:1.5px solid var(--card-border); padding:40px 28px; border-radius:32px; box-shadow:0 20px 50px rgba(0,0,0,0.8);">
+        <div style="font-size:3.5rem; margin-bottom:12px;">🏆</div>
+        <h2 style="font-size:1.6rem; font-weight:800; color:#fff; margin-bottom:8px;">Join Squad Leaderboard?</h2>
+        <p style="font-size:0.88rem; color:var(--text-sub); line-height:1.6; margin-bottom:18px;">
+          Leaderboard par participate karke aap dosto ke saath syllabus completion %, XP aur monthly study hours me compete kar sakte hain.
+        </p>
+
+        <div style="background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); border-radius:14px; padding:12px 16px; margin-bottom:24px; text-align:left;">
+          <div style="color:#f87171; font-weight:800; font-size:0.82rem; margin-bottom:4px;"><i class="fa-solid fa-triangle-exclamation"></i> STRICT PLATFORM RULE:</div>
+          <div style="font-size:0.78rem; color:#fca5a5; line-height:1.5;">
+            Agar aapne ek baar Leaderboard <strong>JOIN</strong> kar liya, toh aap baad me <strong>LEAVE</strong> nahi kar sakte. Aapka score, XP aur focus time humesha squad me visible rahega. Leaderboard sirf participating students ko hi dikhega.
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+          <button class="btn-action-primary" onclick="setLdbParticipationChoice(true)" style="padding:12px 28px; font-size:0.92rem;">
+            <i class="fa-solid fa-trophy"></i> Yes, I Agree & Join
+          </button>
+          <button class="pill-btn" onclick="setLdbParticipationChoice(false)" style="padding:12px 20px; font-size:0.92rem; border-color:rgba(255,255,255,0.2);">
+            <i class="fa-solid fa-lock"></i> No, Keep Private
+          </button>
+        </div>
+      </div>
+
+      <!-- STATE 2: ACTIVE LEADERBOARD VIEW -->
+      <div id="ldbActiveContent" style="display:none;">
+        <div class="ldb-hero-card">
+          <div>
+            <h2 style="font-size:1.6rem; font-weight:900; color:#fff; display:flex; align-items:center; gap:10px;">
+              <i class="fa-solid fa-trophy" style="color:var(--lime-neon);"></i> Squad Live Leaderboard
+            </h2>
+            <p style="font-size:0.85rem; color:var(--text-sub); margin-top:4px;">
+              Live progress, XP points & monthly focus hours of all participating aspirants.
+            </p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span style="font-size:0.72rem; color:var(--lime-bright); background:rgba(212,255,63,0.1); border:1px solid rgba(212,255,63,0.25); padding:5px 12px; border-radius:999px; font-weight:700;">
+              <i class="fa-solid fa-lock"></i> Active Participant
+            </span>
+            <button class="pill-btn" onclick="fetchAndRenderPublicLeaderboard()" style="padding:9px 18px; font-size:0.82rem; background:rgba(212,255,63,0.15); border-color:var(--lime-neon); color:var(--lime-bright);">
+              <i class="fa-solid fa-rotate"></i> Refresh
+            </button>
+          </div>
+        </div>
+
+        <div class="leaderboard-list-wrap" id="publicLeaderboardContainer">
+          <div style="color:var(--lime-neon); text-align:center; padding: 30px;">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Loading Squad Standings...
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: PHYSICS -->
+    <section class="app-view" id="view-physics">
+      <div class="view-toolbar">
+        <div class="search-input-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" class="search-input" placeholder="Search Physics chapters..." oninput="handleSubjectSearch('Physics', this.value)" />
+        </div>
+        <select class="filter-select" onchange="handleClassFilter('Physics', this.value)">
+          <option value="all">All Classes (12th + 11th)</option>
+          <option value="Class 12">Class 12th Core</option>
+          <option value="Class 11">Class 11th Revision</option>
+        </select>
+      </div>
+      <div id="physicsContainer"></div>
+    </section>
+
+    <!-- VIEW 4: CHEMISTRY -->
+    <section class="app-view" id="view-chemistry">
+      <div class="view-toolbar">
+        <div class="search-input-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" class="search-input" placeholder="Search Chemistry chapters..." oninput="handleSubjectSearch('Chemistry', this.value)" />
+        </div>
+        <select class="filter-select" onchange="handleClassFilter('Chemistry', this.value)">
+          <option value="all">All Classes (12th + 11th)</option>
+          <option value="Class 12">Class 12th Core</option>
+          <option value="Class 11">Class 11th Revision</option>
+        </select>
+      </div>
+      <div id="chemistryContainer"></div>
+    </section>
+
+    <!-- VIEW 5: MATHEMATICS -->
+    <section class="app-view" id="view-maths">
+      <div class="view-toolbar">
+        <div class="search-input-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" class="search-input" placeholder="Search Mathematics chapters..." oninput="handleSubjectSearch('Mathematics', this.value)" />
+        </div>
+        <select class="filter-select" onchange="handleClassFilter('Mathematics', this.value)">
+          <option value="all">All Classes (12th + 11th)</option>
+          <option value="Class 12">Class 12th Core</option>
+          <option value="Class 11">Class 11th Revision</option>
+        </select>
+      </div>
+      <div id="mathsContainer"></div>
+    </section>
+
+    <!-- VIEW 6: MONTHLY ROADMAP -->
+    <section class="app-view" id="view-monthly">
+      <div class="chapter-nav-bar" id="monthlyTabsBar"></div>
+      <div id="monthlyTargetsContainer"></div>
+    </section>
+    
+    <!-- VIEW 7: MOCKS & ERROR LOGS -->
+    <section class="app-view" id="view-mocks">
+      <div class="view-toolbar">
+         <h3 style="color:#fff;"><i class="fa-solid fa-bullseye" style="color:#f87171;"></i> JEE Marks & Error Log Tracker</h3>
+      </div>
+      <div style="display:flex; gap:20px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:300px; background:var(--card-glass); padding:20px; border-radius:20px; border:1px solid var(--card-border);">
+           <h4 style="color:var(--lime-bright); margin-bottom:12px;">Add Mock Result</h4>
+           <input type="text" id="mockName" class="modal-input-field" placeholder="Test Name (e.g. AITS Part 1)">
+           
+           <div style="display:flex; gap:10px; margin-bottom:16px;">
+             <select id="mockType" class="filter-select" style="flex:1;" onchange="updateMockTotal()">
+               <option value="JEE MAINS">JEE Mains</option>
+               <option value="JEE ADV">JEE Advanced</option>
+             </select>
+             <input type="number" id="mockTotal" class="modal-input-field" style="margin-bottom:0; flex:1;" placeholder="Total Marks" value="300" title="Total Exam Marks">
+           </div>
+           
+           <input type="number" id="mockObtained" class="modal-input-field" placeholder="Total Marks Obtained">
+           <button class="btn-action-primary" onclick="saveMockResult()">Save Score</button>
+        </div>
+        
+        <div style="flex:1; min-width:300px; background:var(--card-glass); padding:20px; border-radius:20px; border:1px solid var(--card-border);">
+           <h4 style="color:#f87171; margin-bottom:12px;">Log a Mistake</h4>
+           <input type="text" id="errTopic" class="modal-input-field" placeholder="Chapter/Topic">
+           <textarea id="errDetail" class="modal-input-field" placeholder="What went wrong? Formula bhul gaya ya concept error?" style="height:60px; resize:vertical;"></textarea>
+           <button class="btn-action-primary" style="background:#f87171; color:#fff;" onclick="saveErrorLog()">Save Mistake</button>
+        </div>
+      </div>
+      
+      <h3 style="margin-top:30px; color:#fff;">Previous Mock Scores</h3>
+      <div id="mockResultsContainer" class="mock-grid"></div>
+      
+      <h3 style="margin-top:30px; color:#fff;">Error Book</h3>
+      <div id="errorLogsContainer" class="error-grid"></div>
+    </section>
+
+    <!-- VIEW 8: FOCUS LOUNGE -->
+    <section class="app-view" id="view-timer">
+      <div class="focus-arena-box">
+        <div class="hero-tag"><span class="tag-dot"></span> Tactical Focus Lounge</div>
+        <h2 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin-top: 6px;">Deep-Work Session</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Distraction-free environment for 2-hour study sprints.</p>
+        
+        <div class="timer-dropdown-group" style="margin-top:15px;">
+           <select id="timerStudySubj" class="filter-select">
+             <option value="Physics">⚡ Physics</option>
+             <option value="Chemistry">🧪 Chemistry</option>
+             <option value="Mathematics">📐 Mathematics</option>
+             <option value="Mock Test">📝 Mock Test</option>
+             <option value="Revision">🔄 General Rev</option>
+           </select>
+           <select id="timerStudyType" class="filter-select">
+             <option value="Theory Lecture">📖 Theory / Lecture</option>
+             <option value="Module Solving">📝 Module / DPPS</option>
+             <option value="PYQs">🎯 PYQs</option>
+             <option value="Formula Revision">📑 Formula Sheet</option>
+           </select>
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:8px; margin: 20px 0; flex-wrap: wrap;">
+          <button class="pill-btn" onclick="setTimerPreset(25)">25m Pomodoro</button>
+          <button class="pill-btn" onclick="setTimerPreset(45)">45m Sprint</button>
+          <button class="pill-btn" onclick="setTimerPreset(60)">1 Hour</button>
+          <button class="pill-btn" style="background:rgba(212,255,63,0.15); border-color:var(--lime-neon); color:var(--lime-neon);" onclick="setTimerPreset(120)">2 Hours (Full)</button>
+        </div>
+
+        <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.03); padding:8px 16px; border-radius:999px; border:1px solid rgba(255,255,255,0.08); margin-bottom:10px;">
+          <span style="font-size:0.78rem; color:var(--text-muted); font-weight:700;">Custom Time:</span>
+          <input type="number" id="customHoursInput" class="modal-input-field" style="width:60px; margin-bottom:0; padding:4px; text-align:center;" min="0" max="12" placeholder="Hrs" />
+          <span style="color:var(--text-dim);">h</span>
+          <input type="number" id="customMinutesInput" class="modal-input-field" style="width:60px; margin-bottom:0; padding:4px; text-align:center;" min="1" max="59" placeholder="Min" />
+          <span style="color:var(--text-dim);">m</span>
+          <button class="pill-btn" style="padding:4px 12px;" onclick="applyCustomDuration()">Set</button>
+        </div>
+
+        <div class="timer-giant-digits" id="modalTimerDigits">02:00:00</div>
+
+        <div style="display:flex; justify-content:center; gap:12px;">
+          <button class="btn-action-primary" id="timerPlayBtn" onclick="toggleTimer()" style="padding: 12px 32px; font-size: 0.95rem;">
+            <i class="fa-solid fa-play"></i> Start Session
+          </button>
+          <button class="pill-btn" onclick="resetTimer()" style="padding: 12px 20px;">
+            <i class="fa-solid fa-rotate-left"></i> Reset
+          </button>
+        </div>
+      </div>
+      
+      <div style="max-width: 620px; margin: 30px auto 0;">
+        <h4 style="color:#fff; margin-bottom:10px;"><i class="fa-solid fa-clock-rotate-left"></i> Recent Sessions</h4>
+        <div id="sessionLogsContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="glowing-watermark">
+        <span>Crafted with</span>
+        <span class="bolt-glow">⚡</span>
+        <span>by</span>
+        <strong>Manav</strong>
+      </div>
+      <p style="font-size: 0.72rem; color: var(--text-dim); margin-top:5px;">IIT-JEE 2027 Modular Study OS • #paperPhodnahai</p>
+      
+      <a href="https://t.me/catalyst_x" target="_blank" class="tg-glow-btn">
+        <i class="fa-brands fa-telegram"></i> @catalyst_x
+      </a>
+    </footer>
+
+  </div>
+
+  <!-- FLOATING APP DOCK NAVIGATION MENU -->
+  <div class="app-dock-bar">
+    <button class="dock-tab active" id="dockBtn-dashboard" onclick="switchMainTab('dashboard')">
+      <i class="fa-solid fa-shapes"></i> <span class="hide-mobile">Overview</span>
+    </button>
+    <button class="dock-tab" id="dockBtn-leaderboard" onclick="switchMainTab('leaderboard')">
+      <i class="fa-solid fa-trophy"></i> <span class="hide-mobile">Leaderboard</span>
+    </button>
+    <button class="dock-tab" id="dockBtn-physics" onclick="switchMainTab('physics')">
+      <i class="fa-solid fa-bolt"></i> <span class="hide-mobile">Physics</span>
+    </button>
+    <button class="dock-tab" id="dockBtn-chemistry" onclick="switchMainTab('chemistry')">
+      <i class="fa-solid fa-flask"></i> <span class="hide-mobile">Chemistry</span>
+    </button>
+    <button class="dock-tab" id="dockBtn-maths" onclick="switchMainTab('maths')">
+      <i class="fa-solid fa-calculator"></i> <span class="hide-mobile">Maths</span>
+    </button>
+    <button class="dock-tab" id="dockBtn-monthly" onclick="switchMainTab('monthly')">
+      <i class="fa-solid fa-calendar-check"></i> <span class="hide-mobile">Roadmap</span>
+    </button>
+    <button class="dock-tab" id="dockBtn-mocks" onclick="switchMainTab('mocks')">
+      <i class="fa-solid fa-pen-nib"></i> <span class="hide-mobile">Mocks</span>
+    </button>
+    <button class="dock-tab" id="dockBtn-timer" onclick="switchMainTab('timer')">
+      <i class="fa-solid fa-stopwatch"></i> <span class="hide-mobile">Focus</span>
+    </button>
+  </div>
+  <style> @media(max-width:768px){ .hide-mobile{display:none;} } </style>
+
+  <!-- 🔒 MANDATORY GOOGLE SIGN-IN MODAL WALL -->
+  <div class="modal-backdrop" id="googleAuthModal" style="z-index: 99999; backdrop-filter: blur(25px);">
+    <div class="modal-box" style="max-width: 440px; text-align: center; border: 1.5px solid var(--lime-neon);">
+      <div class="brand-icon-wrap" style="width: 52px; height: 52px; margin: 0 auto 16px; font-size: 1.5rem;">
+        <i class="fa-solid fa-atom"></i>
+      </div>
+      <h3 style="font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: 6px;">IIT JEE 2027 Master OS</h3>
+      <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:22px; line-height: 1.5;">
+        Apna real study progress, XP, aur Leaderboard rank sync karne ke liye Google Account se continue karein.
+      </p>
+      
+      <button class="btn-google-auth" onclick="handleGoogleSignIn()">
+        <svg width="20" height="20" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <span>Continue with Google</span>
+      </button>
     </div>
   </div>
+
+  <!-- User Profile & Backup Modal -->
+  <div class="modal-backdrop" id="profileModal">
+    <div class="modal-box" style="max-width: 440px; text-align: center;">
+      <div class="modal-top">
+        <h3>User Profile & Data Backup</h3>
+        <button class="btn-close-modal" onclick="closeProfileModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      
+      <div class="avatar-upload-wrap">
+        <div class="avatar-circle-preview" style="cursor:default;">
+          <img id="profilePhotoPreview" src="" style="display:none;" />
+          <i id="profilePhotoIcon" class="fa-solid fa-user" style="font-size: 1.6rem; color: var(--lime-neon);"></i>
+        </div>
+        <div style="font-weight: 800; font-size: 1.1rem; color: #fff; margin-top: 4px;" id="profileRealNameDisplay">--</div>
+        <div style="font-size: 0.76rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" id="profileEmailDisplay">--</div>
+        <span style="font-size:0.68rem; color:var(--lime-bright); background:rgba(212,255,63,0.1); padding:2px 10px; border-radius:999px; font-weight:700;">
+          <i class="fa-solid fa-circle-check"></i> Google Verified Account
+        </span>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:12px; border-radius:14px; margin-bottom:18px; text-align:left;">
+        <label style="font-size:0.82rem; font-weight:800; color:#fff; display:block; margin-bottom:4px;">🏆 Leaderboard Participation:</label>
+        <div id="profileLdbStatusText" style="font-size:0.8rem; font-weight:700; color:var(--lime-bright);"></div>
+      </div>
+
+      <div style="display:flex; justify-content:center; margin-bottom: 20px;">
+        <button class="pill-btn" onclick="handleGoogleSignOut()" style="width:100%; color:#f87171; border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.1); justify-content:center; padding:10px;">
+          <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+        </button>
+      </div>
+      
+      <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; text-align: left;">
+        <div style="font-size: 0.82rem; font-weight: 800; color: #fff; margin-bottom: 8px;">
+          <i class="fa-solid fa-cloud-arrow-down" style="color:var(--lime-neon);"></i> Local Data Backup & Restore
+        </div>
+        <p style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 12px;">Agar cloud kaam na kare toh browser file se manual restore karne ke liye.</p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="pill-btn" onclick="exportDataBackup()" style="flex:1; justify-content: center; background: rgba(212,255,63,0.12); color: var(--lime-neon); border-color: rgba(212,255,63,0.3);">
+            <i class="fa-solid fa-download"></i> Download Backup (.json)
+          </button>
+          <label class="pill-btn" style="flex:1; justify-content: center; cursor: pointer;">
+            <i class="fa-solid fa-upload"></i> Restore Backup
+            <input type="file" accept=".json" onchange="importDataBackup(event)" style="display: none;" />
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIVATE OWNER MASTER DASHBOARD MODAL -->
+  <div class="modal-backdrop" id="ownerAdminModal">
+    <div class="modal-box" style="max-width: 680px;">
+      <div class="modal-top">
+        <h3 style="display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-shield-halved" style="color:var(--lime-neon)"></i> Owner Master Analytics
+        </h3>
+        <button class="btn-close-modal" onclick="closeAdminModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- 🚨 REPORTED USERS ALERT SECTION FOR ADMIN -->
+      <div style="background:rgba(248,113,113,0.08); border:1.5px solid rgba(248,113,113,0.3); border-radius:18px; padding:16px; margin-bottom:18px;">
+        <h4 style="color:#f87171; font-size:0.95rem; font-weight:800; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-triangle-exclamation"></i> 🚨 Flagged / Reported Aspirants
+        </h4>
+        <p style="font-size:0.75rem; color:var(--text-sub); margin-bottom:10px;">
+          Dosto ne jin suspicious profiles ko report kiya hai wo yahan live dikhte hain:
+        </p>
+        <div id="adminReportedListContainer" style="display:flex; flex-direction:column; gap:8px; max-height:140px; overflow-y:auto;">
+          <div style="color:var(--text-dim); font-size:0.78rem;">No active reports. Clean environment! ✅</div>
+        </div>
+      </div>
+
+      <!-- 🚫 BANNED USERS LIST & UNBAN SECTION -->
+      <div style="background:rgba(255,255,255,0.03); border:1.5px solid rgba(255,255,255,0.1); border-radius:18px; padding:16px; margin-bottom:18px;">
+        <h4 style="color:#fff; font-size:0.95rem; font-weight:800; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-ban" style="color:#f87171;"></i> 🚫 Banned Users Management
+        </h4>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">
+          Jo Google accounts block ho chuke hain unhe review karein ya Unban karein:
+        </p>
+        <div id="adminBannedListContainer" style="display:flex; flex-direction:column; gap:8px; max-height:140px; overflow-y:auto;">
+          <div style="color:var(--text-dim); font-size:0.78rem;">No banned users found.</div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:8px; margin-bottom:12px;">
+        <p style="font-size:0.78rem; color:var(--text-muted); margin:0;">
+          All Google-authenticated aspirants:
+        </p>
+        <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.1); font-size:0.72rem; padding:4px 12px;" onclick="wipeEntireLeaderboard()">
+          <i class="fa-solid fa-trash-can"></i> Wipe / Reset All Ldb
+        </button>
+      </div>
+
+      <div class="admin-squad-list" id="adminSquadContainer"></div>
+
+      <div style="margin-top:18px; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:0.72rem; color:var(--lime-bright);">🔒 Protected by Owner Google Account</span>
+        <button class="pill-btn" onclick="refreshAdminData()"><i class="fa-solid fa-rotate"></i> Refresh All Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes Modal -->
+  <div class="modal-backdrop" id="editModal">
+    <div class="modal-box">
+      <div class="modal-top">
+        <h3 id="modalLecHeading">Chapter Notes</h3>
+        <button class="btn-close-modal" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <input type="hidden" id="modalLecId" />
+      <textarea id="modalNotesText" class="modal-input-field" style="min-height: 120px; resize: vertical;" placeholder="Formulas, doubts, marked PYQs..."></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="pill-btn" onclick="closeModal()">Cancel</button>
+        <button class="btn-action-primary" onclick="saveModalChanges()">Save Note</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const rawChaptersData = [
+      {"id": "phy_12_1", "subject": "Physics", "class": "Class 12", "month": "Till August", "name": "Electrostatics", "category": "Electrodynamics", "tagline": "PYQs 2019-2022 first priority", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_12_2", "subject": "Physics", "class": "Class 12", "month": "Till August", "name": "Capacitance", "category": "Electrodynamics", "tagline": "PYQs 2019-2022 first priority", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_12_3", "subject": "Physics", "class": "Class 12", "month": "Till August", "name": "Current Electricity", "category": "Electrodynamics", "tagline": "PYQs 2019-2022 first priority", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_12_4", "subject": "Physics", "class": "Class 12", "month": "Till August", "name": "Magnetic Effects of Current", "category": "Magnetism", "tagline": "PYQs 2019-2022 first priority", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_12_5", "subject": "Physics", "class": "Class 12", "month": "Till August", "name": "Magnetic Properties of Matter", "category": "Magnetism", "tagline": "PYQs 2019-2022 first priority", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_12_6", "subject": "Physics", "class": "Class 12", "month": "Till August", "name": "Alternating Current", "category": "Electromagnetism", "tagline": "PYQs 2019-2022 first priority", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_12_7", "subject": "Physics", "class": "Class 12", "month": "Till August", "name": "Electromagnetic Induction", "category": "Electromagnetism", "tagline": "PYQs 2019-2022 first priority", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_12_8", "subject": "Physics", "class": "Class 12", "month": "September", "name": "Wave Optics", "category": "Optics", "tagline": "PYQs 2019-2022 first priority", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_12_9", "subject": "Physics", "class": "Class 12", "month": "September", "name": "Ray Optics", "category": "Optics", "tagline": "PYQs 2019-2022 first priority", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_12_10", "subject": "Physics", "class": "Class 12", "month": "Till 15th Nov", "name": "Atomic Physics", "category": "Modern Physics", "tagline": "High Scoring Modern Physics", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_12_11", "subject": "Physics", "class": "Class 12", "month": "Till 15th Nov", "name": "Dual Nature of Matter", "category": "Modern Physics", "tagline": "High Scoring Modern Physics", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_12_12", "subject": "Physics", "class": "Class 12", "month": "Till 15th Nov", "name": "Nuclear Physics", "category": "Modern Physics", "tagline": "High Scoring Modern Physics", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_12_13", "subject": "Physics", "class": "Class 12", "month": "Till 15th Nov", "name": "Semiconductors & EM Waves", "category": "Modern Physics", "tagline": "JEE Main Guarantee Chapter", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "phy_11_1", "subject": "Physics", "class": "Class 11", "month": "August", "name": "Units and Dimensions", "category": "Mechanics Basics", "tagline": "Cover ≥50%, Basic Illustrations & Formula Rev", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_2", "subject": "Physics", "class": "Class 11", "month": "August", "name": "Mathematics in Physics", "category": "Mechanics Basics", "tagline": "Cover ≥50%, Basic Illustrations & Formula Rev", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_3", "subject": "Physics", "class": "Class 11", "month": "September", "name": "Motion In One Dimension", "category": "Kinematics", "tagline": "Cover ≥50%, Basic Illustrations & Formula Rev", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_4", "subject": "Physics", "class": "Class 11", "month": "September", "name": "Motion In Two Dimensions", "category": "Kinematics", "tagline": "Cover ≥50%, Basic Illustrations & Formula Rev", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_5", "subject": "Physics", "class": "Class 11", "month": "September", "name": "Laws of Motion", "category": "Mechanics", "tagline": "Cover ≥50%, Basic Illustrations & Formula Rev", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_6", "subject": "Physics", "class": "Class 11", "month": "October", "name": "Work Power Energy", "category": "Mechanics", "tagline": "Cover ≥50%, Basic Illustrations & Formula Rev", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_7", "subject": "Physics", "class": "Class 11", "month": "October", "name": "Center of Mass Momentum & Collision", "category": "Mechanics", "tagline": "Cover ≥50%, Basic Illustrations & Formula Rev", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_8", "subject": "Physics", "class": "Class 11", "month": "October", "name": "Rotational Motion", "category": "Mechanics", "tagline": "Cover ≥50%, Basic Illustrations & Formula Rev", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_9", "subject": "Physics", "class": "Class 11", "month": "November", "name": "Gravitation", "category": "Properties of Matter", "tagline": "Bulk Target Nov-Dec", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_10", "subject": "Physics", "class": "Class 11", "month": "November", "name": "Mechanical Properties of Fluids", "category": "Properties of Matter", "tagline": "Bulk Target Nov-Dec", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_11", "subject": "Physics", "class": "Class 11", "month": "November", "name": "Mechanical Properties of Solids", "category": "Properties of Matter", "tagline": "Bulk Target Nov-Dec", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_12", "subject": "Physics", "class": "Class 11", "month": "November", "name": "Oscillation", "category": "SHM & Waves", "tagline": "Bulk Target Nov-Dec", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_13", "subject": "Physics", "class": "Class 11", "month": "December", "name": "Waves and Sound", "category": "SHM & Waves", "tagline": "Bulk Target Nov-Dec", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_14", "subject": "Physics", "class": "Class 11", "month": "December", "name": "Kinetic Theory of Gases", "category": "Thermal Physics", "tagline": "Bulk Target Nov-Dec", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_15", "subject": "Physics", "class": "Class 11", "month": "December", "name": "Thermal Properties of Matter", "category": "Thermal Physics", "tagline": "Bulk Target Nov-Dec", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "phy_11_16", "subject": "Physics", "class": "Class 11", "month": "December", "name": "Thermodynamics", "category": "Thermal Physics", "tagline": "Bulk Target Nov-Dec", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "chem_12_1", "subject": "Chemistry", "class": "Class 12", "month": "Till August", "name": "General Organic Chemistry (GOC)", "category": "Organic Chemistry", "tagline": "PYQs: Reverse order (recent years first)", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_2", "subject": "Chemistry", "class": "Class 12", "month": "Till August", "name": "Hydrocarbons", "category": "Organic Chemistry", "tagline": "PYQs: Reverse order (recent years first)", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_3", "subject": "Chemistry", "class": "Class 12", "month": "Till August", "name": "Solutions", "category": "Physical Chemistry", "tagline": "PYQs: Reverse order (recent years first)", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_4", "subject": "Chemistry", "class": "Class 12", "month": "Till August", "name": "Electrochemistry", "category": "Physical Chemistry", "tagline": "PYQs: Reverse order (recent years first)", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_5", "subject": "Chemistry", "class": "Class 12", "month": "Till August", "name": "Chemical Kinetics", "category": "Physical Chemistry", "tagline": "PYQs: Reverse order (recent years first)", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_6", "subject": "Chemistry", "class": "Class 12", "month": "Till August", "name": "Haloalkanes and Haloarenes", "category": "Organic Chemistry", "tagline": "PYQs: Reverse order (recent years first)", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_7", "subject": "Chemistry", "class": "Class 12", "month": "Till August", "name": "Alcohols Phenols and Ethers", "category": "Organic Chemistry", "tagline": "PYQs: Reverse order (recent years first)", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_8", "subject": "Chemistry", "class": "Class 12", "month": "Till September", "name": "Aldehydes and Ketones", "category": "Organic Chemistry", "tagline": "PYQs: Reverse order (recent years first)", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_9", "subject": "Chemistry", "class": "Class 12", "month": "Till September", "name": "Carboxylic Acid Derivatives", "category": "Organic Chemistry", "tagline": "PYQs: Reverse order (recent years first)", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_10", "subject": "Chemistry", "class": "Class 12", "month": "Till September", "name": "Amines", "category": "Organic Chemistry", "tagline": "PYQs: Reverse order (recent years first)", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_11", "subject": "Chemistry", "class": "Class 12", "month": "Till 15th Nov", "name": "p Block Elements (Group 15 to 18)", "category": "Inorganic Chemistry", "tagline": "Finish Class 12th on time", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_12", "subject": "Chemistry", "class": "Class 12", "month": "Till 15th Nov", "name": "d and f Block Elements", "category": "Inorganic Chemistry", "tagline": "Finish Class 12th on time", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_13", "subject": "Chemistry", "class": "Class 12", "month": "Till 15th Nov", "name": "Coordination Compounds", "category": "Inorganic Chemistry", "tagline": "High weightage chapter", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_12_14", "subject": "Chemistry", "class": "Class 12", "month": "Till 15th Nov", "name": "Biomolecules", "category": "Organic Chemistry", "tagline": "NCERT Line by Line", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ 2022-19", "target_questions": "50-60 Qs Module"},
+      {"id": "chem_11_1", "subject": "Chemistry", "class": "Class 11", "month": "September", "name": "Some Basic Concepts of Chemistry (Mole Concept)", "category": "Physical Chemistry", "tagline": "Class 11th Revision Focus", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "chem_11_2", "subject": "Chemistry", "class": "Class 11", "month": "September", "name": "Structure of Atom", "category": "Physical Chemistry", "tagline": "Class 11th Revision Focus", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "chem_11_3", "subject": "Chemistry", "class": "Class 11", "month": "October", "name": "Periodic Properties", "category": "Inorganic Chemistry", "tagline": "Class 11th Revision Focus", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "chem_11_4", "subject": "Chemistry", "class": "Class 11", "month": "October", "name": "Chemical Bonding", "category": "Inorganic Chemistry", "tagline": "Most Crucial Backbone Chapter", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "chem_11_5", "subject": "Chemistry", "class": "Class 11", "month": "November", "name": "Chemical Equilibrium", "category": "Physical Chemistry", "tagline": "Class 11th Revision Focus", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "chem_11_6", "subject": "Chemistry", "class": "Class 11", "month": "November", "name": "Ionic Equilibrium", "category": "Physical Chemistry", "tagline": "Formulas + Quality Problems", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "chem_11_7", "subject": "Chemistry", "class": "Class 11", "month": "December", "name": "Redox Reactions", "category": "Physical Chemistry", "tagline": "Class 11th Revision Focus", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "chem_11_8", "subject": "Chemistry", "class": "Class 11", "month": "December", "name": "Thermodynamics (Chemistry)", "category": "Physical Chemistry", "tagline": "Class 11th Revision Focus", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_12_1", "subject": "Mathematics", "class": "Class 12", "month": "Till August", "name": "Sets and Relations", "category": "Algebra & Calculus", "tagline": "PYQs: Recent years first, 2022 challenge", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_2", "subject": "Mathematics", "class": "Class 12", "month": "Till August", "name": "Matrices", "category": "Algebra", "tagline": "High Scoring Area", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_3", "subject": "Mathematics", "class": "Class 12", "month": "Till August", "name": "Determinants", "category": "Algebra", "tagline": "High Scoring Area", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_4", "subject": "Mathematics", "class": "Class 12", "month": "Till August", "name": "Inverse Trigonometric Functions", "category": "Calculus", "tagline": "Crucial for Integration", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_5", "subject": "Mathematics", "class": "Class 12", "month": "Till August", "name": "Functions", "category": "Calculus", "tagline": "Core Backbone of Calculus", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_6", "subject": "Mathematics", "class": "Class 12", "month": "Till August", "name": "Limits Continuity and Differentiability (LCD)", "category": "Calculus", "tagline": "Standard JEE Main/Adv Questions", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_7", "subject": "Mathematics", "class": "Class 12", "month": "Till August", "name": "Differentiation (MOD)", "category": "Calculus", "tagline": "Formula Revision Crucial", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_8", "subject": "Mathematics", "class": "Class 12", "month": "Till August", "name": "Application of Derivatives (AOD)", "category": "Calculus", "tagline": "Monotonicity, Max-Min, Tangents", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_9", "subject": "Mathematics", "class": "Class 12", "month": "Till August", "name": "Indefinite Integration", "category": "Calculus", "tagline": "Make personal formula sheets", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_10", "subject": "Mathematics", "class": "Class 12", "month": "Till September", "name": "Definite Integration", "category": "Calculus", "tagline": "King Property, Periodic & Leibniz", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_11", "subject": "Mathematics", "class": "Class 12", "month": "Till September", "name": "Area Under Curves (AUC)", "category": "Calculus", "tagline": "1 Question Guaranteed in JEE", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_12", "subject": "Mathematics", "class": "Class 12", "month": "Till October", "name": "Differential Equations", "category": "Calculus", "tagline": "Linear DE & Variable Separable", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_13", "subject": "Mathematics", "class": "Class 12", "month": "Till October", "name": "Vector Algebra", "category": "Vectors & 3D", "tagline": "High weightage - Do thoroughly", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_14", "subject": "Mathematics", "class": "Class 12", "month": "Till November", "name": "Three-Dimensional Geometry (3D)", "category": "Vectors & 3D", "tagline": "High weightage - Do thoroughly", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_12_15", "subject": "Mathematics", "class": "Class 12", "month": "Till November", "name": "Probability", "category": "Algebra", "tagline": "Bayes Theorem, Distribution & Independence", "pyq1_label": "PYQ 2019-22", "pyq2_label": "PYQ 2023-26", "target_questions": "50-60 Qs Module"},
+      {"id": "math_11_1", "subject": "Mathematics", "class": "Class 11", "month": "August", "name": "Quadratic Equation", "category": "Algebra", "tagline": "Cover ≥50%, PYQs 2026-23", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_11_2", "subject": "Mathematics", "class": "Class 11", "month": "August", "name": "Sequences and Series", "category": "Algebra", "tagline": "Cover ≥50%, PYQs 2026-23", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_11_3", "subject": "Mathematics", "class": "Class 11", "month": "September", "name": "Complex Number", "category": "Algebra", "tagline": "Cover ≥50%, PYQs 2026-23", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_11_4", "subject": "Mathematics", "class": "Class 11", "month": "September", "name": "Binomial Theorem", "category": "Algebra", "tagline": "Cover ≥50%, PYQs 2026-23", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_11_5", "subject": "Mathematics", "class": "Class 11", "month": "October", "name": "Permutation Combination (P&C)", "category": "Algebra", "tagline": "Cover ≥50%, PYQs 2026-23", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_11_6", "subject": "Mathematics", "class": "Class 11", "month": "October", "name": "Trigonometric Ratios & Identities", "category": "Trigonometry", "tagline": "Formula Revision Essential", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_11_7", "subject": "Mathematics", "class": "Class 11", "month": "October", "name": "Trigonometric Equations", "category": "Trigonometry", "tagline": "Formula Revision Essential", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_11_8", "subject": "Mathematics", "class": "Class 11", "month": "November", "name": "Statistics", "category": "Algebra", "tagline": "1 Question Guaranteed in JEE", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_11_9", "subject": "Mathematics", "class": "Class 11", "month": "November", "name": "Straight Lines", "category": "Coordinate Geometry", "tagline": "Backbone of Conics", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_11_10", "subject": "Mathematics", "class": "Class 11", "month": "November", "name": "Circle", "category": "Coordinate Geometry", "tagline": "Cover ≥50%, PYQs 2026-23", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_11_11", "subject": "Mathematics", "class": "Class 11", "month": "December", "name": "Parabola", "category": "Conic Sections", "tagline": "Focus on standard forms & tangents", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_11_12", "subject": "Mathematics", "class": "Class 11", "month": "December", "name": "Ellipse", "category": "Conic Sections", "tagline": "Focus on standard forms & tangents", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"},
+      {"id": "math_11_13", "subject": "Mathematics", "class": "Class 11", "month": "December", "name": "Hyperbola", "category": "Conic Sections", "tagline": "Focus on standard forms & tangents", "pyq1_label": "PYQ 2026-23", "pyq2_label": "PYQ Target", "target_questions": "20-30 Illustrations"}
+    ];
+
+    const STORAGE_KEY = "JEE_2027_SQUAD_TRACKER_V1";
+    const USER_KEY = "JEE_2027_USER_PROFILE";
+    const NEW_FEATURES_KEY = "JEE_2027_EXTRAS_V1";
+    const BAN_STORAGE_KEY = "JEE_2027_DEVICE_BANNED";
+
+    var userProfile = JSON.parse(localStorage.getItem(USER_KEY)) || { uid: "", email: "", name: "", isSetup: false, participateLdb: null, photoUrl: "" };
+
+    var userExtras = JSON.parse(localStorage.getItem(NEW_FEATURES_KEY)) || {
+      studyLogs: [],
+      mockResults: [],
+      errorLogs: [],
+      streak: 0,
+      lastStudyDate: null,
+      todayStudyMins: 0,
+      totalStudyMins: 0,
+      monthlyStudyMins: {},
+      totalXp: 0
+    };
+    if (!userExtras.monthlyStudyMins) userExtras.monthlyStudyMins = {};
+    if (userExtras.totalXp === undefined) userExtras.totalXp = 0;
+
+    function loadInitialData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) {
+        return rawChaptersData.map(item => ({
+          ...item, status: "Not Started", confidence: "None", notes: "",
+          theory_done: false, module_done: false, pyq1_done: false, pyq2_done: false, rev_done: false, formula_done: false
+        }));
+      }
+      try {
+        const parsed = JSON.parse(saved);
+        return rawChaptersData.map(rawItem => {
+          const match = parsed.find(p => p.id === rawItem.id);
+          return match ? { ...rawItem, ...match } : {
+            ...rawItem, status: "Not Started", confidence: "None", notes: "",
+            theory_done: false, module_done: false, pyq1_done: false, pyq2_done: false, rev_done: false, formula_done: false
+          };
+        });
+      } catch (e) { return rawChaptersData; }
+    }
+
+    var trackerData = loadInitialData();
+
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(trackerData));
+      localStorage.setItem(NEW_FEATURES_KEY, JSON.stringify(userExtras));
+      updateGlobalStats();
+      if(window.syncUserDataToCloud) window.syncUserDataToCloud();
+    }
+
+    let currentMainTab = 'dashboard';
+    let selectedActiveMonth = getAutonomousMonth();
+    let subjectFilters = {
+      Physics: { search: '', class: 'all' },
+      Chemistry: { search: '', class: 'all' },
+      Mathematics: { search: '', class: 'all' }
+    };
+
+    const monthTargetMeta = {
+      "August": {
+        title: "August Targets (Kickoff Phase)",
+        subtitle: "Class 12 Core (Electrodynamics, GOC & Calculus) + Class 11 Fundamentals",
+        strategy: "Physics 2019-22 PYQs first. Finish full GOC & Relations/Functions on priority.",
+        phy: "Electrostatics, Capacitance, Current Electricity, Magnetism (12th) + Units, Math in Physics (11th)",
+        chem: "GOC, Hydrocarbons, Solutions, Electrochemistry, Kinetics, Haloalkanes, Alcohols (12th)",
+        math: "Sets & Relations, Matrices, Determinants, ITF, Functions, LCD, Differentiation, AOD, Indefinite (12th) + Quadratic, Sequences (11th)"
+      },
+      "September": {
+        title: "September Targets (Optics & Carbonyl Push)",
+        subtitle: "Wave & Ray Optics + Aldehydes/Ketones/Amines + Definite Integration + 11th Kinematics",
+        strategy: "Maintain pace in Optics. Start Chemistry Mole Concept & Atomic structure revision.",
+        phy: "Wave Optics, Ray Optics (12th) + 1D Motion, 2D Motion, Laws of Motion (11th)",
+        chem: "Aldehydes, Ketones, Carboxylic Acid Derivatives, Amines (12th) + Mole Concept, Atomic Structure (11th)",
+        math: "Definite Integration, Area Under Curves (12th) + Complex Numbers, Binomial Theorem (11th)"
+      },
+      "October": {
+        title: "October Targets (Mechanics & Algebra Surge)",
+        subtitle: "Differential Equations, Vectors + 11th Mechanics (WPE, COM, Rotation) + P&C / Bonding",
+        strategy: "Heavy Class 11th Mechanics push. Formula sheet revision is strictly non-negotiable.",
+        phy: "Work Power Energy, Center of Mass & Collision, Rotational Motion (11th Heavy Surge)",
+        chem: "Periodic Properties, Chemical Bonding (11th Backbone Chapters)",
+        math: "Differential Equations, Vector Algebra (12th) + P&C, Trigonometric Identities & Equations (11th)"
+      },
+      "November": {
+        title: "November Targets (Bulk Push Month)",
+        subtitle: "Modern Physics & Inorganic Block + 3D Geometry + 11th Fluids, Solids & Conics Kickoff",
+        strategy: "Bulk target pushed in November assuming Class 12 syllabus is on track.",
+        phy: "Atomic, Dual Nature, Nuclear, Semiconductors (12th) + Gravitation, Fluids, Solids, Oscillation (11th)",
+        chem: "p Block, d & f Block, Coordination Compounds, Biomolecules (12th) + Chemical & Ionic Equilibrium (11th)",
+        math: "3D Geometry, Probability (12th) + Statistics, Straight Lines, Circle (11th)"
+      },
+      "December": {
+        title: "December Targets (Final Wrap-up & Conics)",
+        subtitle: "Waves, Sound & Thermal Physics + Conic Sections (Parabola, Ellipse, Hyperbola) + Thermodynamics",
+        strategy: "Complete final 11th coverage (≥50% illustrations) and lock all formula notebooks.",
+        phy: "Waves and Sound, Kinetic Theory of Gases, Thermal Properties, Thermodynamics (11th)",
+        chem: "Redox Reactions, Thermodynamics (Chemistry 11th)",
+        math: "Parabola, Ellipse, Hyperbola (Conic Sections 11th)"
+      }
+    };
+
+    function getAutonomousMonth() {
+      const mIdx = new Date().getMonth();
+      if (mIdx <= 7) return "August";
+      if (mIdx === 8) return "September";
+      if (mIdx === 9) return "October";
+      if (mIdx === 10) return "November";
+      return "December";
+    }
+
+    function renderAutonomousDashboardMonthMission() {
+      const autoMonth = getAutonomousMonth();
+      const meta = monthTargetMeta[autoMonth];
+      const mName = autoMonth.toLowerCase();
+
+      const monthChs = trackerData.filter(d => d.month.toLowerCase().includes(mName));
+      const doneChs = monthChs.filter(c => c.status === 'Completed').length;
+      const monthPct = monthChs.length > 0 ? Math.round((doneChs / monthChs.length) * 100) : 0;
+
+      const card = document.getElementById('autoMonthlyMissionCard');
+      if (!card) return;
+
+      card.innerHTML = `
+        <div class="bold-month-header">
+          <div class="bold-month-title">
+            <i class="fa-solid fa-crosshairs" style="color:var(--lime-neon)"></i>
+            <span>Current Month Mission</span>
+            <span class="month-badge-pill">${autoMonth.toUpperCase()} GOALS</span>
+          </div>
+          <div style="font-family:'JetBrains Mono', monospace; font-size:1.1rem; font-weight:800; color:var(--lime-neon);">
+            ${doneChs} / ${monthChs.length} Chapters Done (${monthPct}%)
+          </div>
+        </div>
+
+        <div class="bold-strategy-text">
+          <strong>🎯 ${meta.title}:</strong> ${meta.strategy}
+        </div>
+
+        <div class="month-subject-breakdown-grid">
+          <div class="month-subj-box">
+            <div class="month-subj-title" style="color:var(--phy-accent);">
+              <span>⚡ Physics Targets</span>
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div class="month-subj-chapters">${meta.phy}</div>
+          </div>
+          <div class="month-subj-box">
+            <div class="month-subj-title" style="color:var(--chem-accent);">
+              <span>🧪 Chemistry Targets</span>
+              <i class="fa-solid fa-flask"></i>
+            </div>
+            <div class="month-subj-chapters">${meta.chem}</div>
+          </div>
+          <div class="month-subj-box">
+            <div class="month-subj-title" style="color:var(--math-accent);">
+              <span>📐 Maths Targets</span>
+              <i class="fa-solid fa-calculator"></i>
+            </div>
+            <div class="month-subj-chapters">${meta.math}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function switchMainTab(tabKey) {
+      currentMainTab = tabKey;
+      document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.dock-tab').forEach(b => b.classList.remove('active'));
+
+      const targetView = document.getElementById(`view-${tabKey}`);
+      const targetBtn = document.getElementById(`dockBtn-${tabKey}`);
+      if (targetView) targetView.classList.add('active');
+      if (targetBtn) targetBtn.classList.add('active');
+
+      if (tabKey === 'dashboard') {
+         renderAutonomousDashboardMonthMission();
+         updateCountdown();
+         checkStreak();
+      }
+      else if (tabKey === 'leaderboard') {
+         renderLeaderboardTabState();
+      }
+      else if (tabKey === 'physics') renderSubjectArena('Physics', 'physicsContainer');
+      else if (tabKey === 'chemistry') renderSubjectArena('Chemistry', 'chemistryContainer');
+      else if (tabKey === 'maths') renderSubjectArena('Mathematics', 'mathsContainer');
+      else if (tabKey === 'monthly') renderMonthlyArena();
+      else if (tabKey === 'mocks') renderMocksAndErrors();
+      else if (tabKey === 'timer') renderStudyLogs();
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 🏆 LEADERBOARD TAB STATE CONTROLLER
+    function renderLeaderboardTabState() {
+      const promptBox = document.getElementById('ldbPromptBox');
+      const activeContent = document.getElementById('ldbActiveContent');
+
+      if (userProfile.participateLdb === true) {
+        if (promptBox) promptBox.style.display = 'none';
+        if (activeContent) activeContent.style.display = 'block';
+        if (window.fetchAndRenderPublicLeaderboard) window.fetchAndRenderPublicLeaderboard();
+      } else {
+        if (activeContent) activeContent.style.display = 'none';
+        if (promptBox) promptBox.style.display = 'block';
+      }
+    }
+
+    window.setLdbParticipationChoice = function(choice) {
+      if (userProfile.participateLdb === true && choice === false) {
+        alert("🔒 Rule: Leaderboard join karne ke baad aap leave nahi kar sakte!");
+        return;
+      }
+
+      if (choice === true) {
+        const confirmed = confirm("⚠️ FINAL WARNING:\n\nAgar aapne ek baar Squad Leaderboard JOIN kar liya, toh aap dubara LEAVE nahi kar payenge!\n\nAapka rank, avatar, XP aur monthly study hours public rahenge.\n\nKya aap pakka Join karna chahte hain?");
+        if (!confirmed) return;
+      }
+
+      userProfile.participateLdb = choice;
+      localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
+      
+      if (choice === true) {
+        triggerConfetti(null, 80);
+      }
+      
+      if (window.syncUserDataToCloud) window.syncUserDataToCloud();
+      renderLeaderboardTabState();
+    };
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const jeeMains = new Date("Jan 24, 2027 00:00:00").getTime();
+      const jeeAdv = new Date("May 25, 2027 00:00:00").getTime();
+
+      let mainsDays = Math.floor((jeeMains - now) / (1000 * 60 * 60 * 24));
+      let advDays = Math.floor((jeeAdv - now) / (1000 * 60 * 60 * 24));
+
+      const mainsElem = document.getElementById('jeeMainsTimer');
+      if (mainsElem) mainsElem.innerText = (mainsDays > 0 ? mainsDays : 0) + " Days";
+      const advElem = document.getElementById('jeeAdvTimer');
+      if (advElem) advElem.innerText = (advDays > 0 ? advDays : 0) + " Days";
+    }
+
+    function checkStreak() {
+      const today = new Date().toLocaleDateString('en-IN');
+      if (userExtras.lastStudyDate !== today) {
+         const yesterday = new Date();
+         yesterday.setDate(yesterday.getDate() - 1);
+         const yDate = yesterday.toLocaleDateString('en-IN');
+         
+         if (userExtras.lastStudyDate !== yDate && userExtras.todayStudyMins < 60) {
+            userExtras.streak = 0;
+         }
+         if(userExtras.lastStudyDate !== today && userExtras.todayStudyMins > 0) {
+            userExtras.todayStudyMins = 0;
+         }
+      }
+      
+      const navStreak = document.getElementById('navStreakDisplay');
+      if (navStreak) navStreak.innerText = `${userExtras.streak || 0}d`;
+
+      const badge = document.getElementById('dailyStreakBadge');
+      if (badge) {
+        if (userExtras.todayStudyMins >= 60) {
+          badge.style.background = 'linear-gradient(90deg, rgba(212, 255, 63, 0.2), rgba(212, 255, 63, 0.05))';
+          badge.style.color = '#d4ff3f';
+          badge.style.borderColor = '#d4ff3f';
+          badge.innerHTML = `<i class="fa-solid fa-fire"></i> <span id="streakCountText">${userExtras.streak} Days Streak</span> (Today's Target Met ✅)`;
+        } else {
+          badge.style.background = '';
+          badge.style.color = '';
+          badge.style.borderColor = '';
+          badge.innerHTML = `<i class="fa-solid fa-fire"></i> <span id="streakCountText">${userExtras.streak} Days Streak</span> (${userExtras.todayStudyMins}/60 mins done)`;
+        }
+      }
+
+      const currentMonthKey = new Date().toLocaleString('en-IN', { month: 'short', year: 'numeric' });
+      const thisMonthMins = (userExtras.monthlyStudyMins && userExtras.monthlyStudyMins[currentMonthKey]) || 0;
+      const thisMonthHrs = (thisMonthMins / 60).toFixed(1);
+      const mElem = document.getElementById('thisMonthHrsText');
+      if (mElem) mElem.innerText = `${thisMonthHrs} Hrs`;
+
+      updateNavAvatarDisplay();
+    }
+
+    function updateNavAvatarDisplay() {
+      const span = document.getElementById('navAvatarSpan');
+      if (!span) return;
+      if (userProfile.photoUrl) {
+        span.innerHTML = `<img src="${userProfile.photoUrl}" class="nav-avatar-img" />`;
+      } else {
+        span.innerHTML = `<i class="fa-solid fa-user"></i>`;
+      }
+    }
+
+    function handleSubjectSearch(subj, val) {
+      subjectFilters[subj].search = val.trim().toLowerCase();
+      const containerId = subj === 'Physics' ? 'physicsContainer' : subj === 'Chemistry' ? 'chemistryContainer' : 'mathsContainer';
+      renderSubjectArena(subj, containerId);
+    }
+
+    function handleClassFilter(subj, val) {
+      subjectFilters[subj].class = val;
+      const containerId = subj === 'Physics' ? 'physicsContainer' : subj === 'Chemistry' ? 'chemistryContainer' : 'mathsContainer';
+      renderSubjectArena(subj, containerId);
+    }
+
+    function renderSubjectArena(subj, containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      const filter = subjectFilters[subj];
+      const chapters = trackerData.filter(d => {
+        if (d.subject !== subj) return false;
+        if (filter.class !== 'all' && d.class !== filter.class) return false;
+        if (filter.search && !d.name.toLowerCase().includes(filter.search) && !d.category.toLowerCase().includes(filter.search)) return false;
+        return true;
+      });
+
+      const c12 = chapters.filter(c => c.class === 'Class 12');
+      const c11 = chapters.filter(c => c.class === 'Class 11');
+
+      if (c12.length > 0) {
+        const sec12 = document.createElement('div');
+        sec12.className = 'category-group';
+        sec12.innerHTML = `
+          <div class="cat-header">
+            <span class="cat-badge"><i class="fa-solid fa-book-open"></i> Class 12th Core Syllabus</span>
+            <span style="font-size:0.75rem; color:var(--text-dim);">${c12.length} Chapters</span>
+          </div>
+        `;
+        const grid12 = document.createElement('div');
+        grid12.className = 'lecture-grid';
+        c12.forEach(item => grid12.appendChild(createChapterCard(item)));
+        sec12.appendChild(grid12);
+        container.appendChild(sec12);
+      }
+
+      if (c11.length > 0) {
+        const sec11 = document.createElement('div');
+        sec11.className = 'category-group';
+        sec11.innerHTML = `
+          <div class="cat-header" style="border-left-color: #f97316;">
+            <span class="cat-badge" style="color: #fb923c;"><i class="fa-solid fa-fire"></i> Class 11th Revision Roadmap</span>
+            <span style="font-size:0.75rem; color:var(--text-dim);">${c11.length} Chapters</span>
+          </div>
+        `;
+        const grid11 = document.createElement('div');
+        grid11.className = 'lecture-grid';
+        c11.forEach(item => grid11.appendChild(createChapterCard(item)));
+        sec11.appendChild(grid11);
+        container.appendChild(sec11);
+      }
+
+      if (chapters.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 48px 16px; color: var(--text-muted);">No chapters match your search.</div>`;
+      }
+    }
+
+    function renderMonthlyArena() {
+      const tabsBar = document.getElementById('monthlyTabsBar');
+      if (!tabsBar) return;
+      tabsBar.innerHTML = '';
+      const months = ["August", "September", "October", "November", "December"];
+
+      months.forEach(m => {
+        const btn = document.createElement('button');
+        btn.className = `ch-tab-btn ${selectedActiveMonth === m ? 'active' : ''}`;
+        btn.innerHTML = `📅 ${m}`;
+        btn.onclick = () => {
+          selectedActiveMonth = m;
+          renderMonthlyArena();
+        };
+        tabsBar.appendChild(btn);
+      });
+
+      const container = document.getElementById('monthlyTargetsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const monthMeta = monthTargetMeta[selectedActiveMonth];
+      const mName = selectedActiveMonth.toLowerCase();
+
+      const monthChapters = trackerData.filter(d => d.month.toLowerCase().includes(mName));
+      const doneCount = monthChapters.filter(c => c.status === 'Completed').length;
+      const monthPct = monthChapters.length > 0 ? Math.round((doneCount / monthChapters.length) * 100) : 0;
+
+      const heroBox = document.createElement('div');
+      heroBox.className = 'monthly-mission-hero';
+      heroBox.innerHTML = `
+        <div class="monthly-mission-left">
+          <h3><i class="fa-solid fa-flag-checkered" style="color:var(--lime-neon)"></i> ${monthMeta.title}</h3>
+          <p>${monthMeta.subtitle}</p>
+          <div style="font-size:0.78rem; color:var(--lime-bright); margin-top:6px;"><i class="fa-solid fa-lightbulb"></i> Strategy: ${monthMeta.strategy}</div>
+        </div>
+        <div class="monthly-progress-pill">
+          ${doneCount} / ${monthChapters.length} Done (${monthPct}%)
+        </div>
+      `;
+      container.appendChild(heroBox);
+
+      const c12 = monthChapters.filter(c => c.class === 'Class 12');
+      const c11 = monthChapters.filter(c => c.class === 'Class 11');
+
+      if (c12.length > 0) {
+        const sec12 = document.createElement('div');
+        sec12.className = 'category-group';
+        sec12.innerHTML = `<div class="cat-header"><span class="cat-badge">📘 Class 12th Monthly Targets</span></div>`;
+        const grid12 = document.createElement('div');
+        grid12.className = 'lecture-grid';
+        c12.forEach(item => grid12.appendChild(createChapterCard(item)));
+        sec12.appendChild(grid12);
+        container.appendChild(sec12);
+      }
+
+      if (c11.length > 0) {
+        const sec11 = document.createElement('div');
+        sec11.className = 'category-group';
+        sec11.innerHTML = `<div class="cat-header" style="border-left-color: #f97316;"><span class="cat-badge" style="color:#fb923c;">📙 Class 11th Revision Plan</span></div>`;
+        const grid11 = document.createElement('div');
+        grid11.className = 'lecture-grid';
+        c11.forEach(item => grid11.appendChild(createChapterCard(item)));
+        sec11.appendChild(grid11);
+        container.appendChild(sec11);
+      }
+    }
+
+    function createChapterCard(item) {
+      const isDone = item.status === 'Completed';
+      const statusClass = item.status.toLowerCase().replace(' ', '-');
+      const confClass = item.confidence.toLowerCase();
+
+      const card = document.createElement('div');
+      card.className = `lecture-card ${isDone ? 'done' : ''}`;
+
+      card.innerHTML = `
+        <div class="card-top">
+          <span class="badge-subj ${item.subject}">${item.subject} • ${item.class}</span>
+          <span style="font-size:0.7rem; color: var(--text-muted);"><i class="fa-regular fa-calendar" style="margin-right:3px;"></i>${item.month}</span>
+        </div>
+
+        <div>
+          <div class="lec-title">${item.name}</div>
+          <div class="lec-sub"><i class="fa-solid fa-bullseye" style="color:var(--lime-bright)"></i> ${item.tagline}</div>
+        </div>
+
+        <div class="checkpoints-grid">
+          <div class="check-btn ${item.theory_done ? 'active' : ''}" onclick="toggleCheckpoint('${item.id}', 'theory_done', event)">
+            <span>📖 Theory</span> <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="check-btn ${item.module_done ? 'active' : ''}" onclick="toggleCheckpoint('${item.id}', 'module_done', event)">
+            <span>📝 ${item.target_questions}</span> <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="check-btn ${item.pyq1_done ? 'active' : ''}" onclick="toggleCheckpoint('${item.id}', 'pyq1_done', event)">
+            <span>🎯 ${item.pyq1_label}</span> <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="check-btn ${item.pyq2_done ? 'active' : ''}" onclick="toggleCheckpoint('${item.id}', 'pyq2_done', event)">
+            <span>⚡ ${item.pyq2_label}</span> <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="check-btn ${item.rev_done ? 'active' : ''}" onclick="toggleCheckpoint('${item.id}', 'rev_done', event)">
+            <span>🔄 Revision Cycle</span> <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="check-btn ${item.formula_done ? 'active' : ''}" onclick="toggleCheckpoint('${item.id}', 'formula_done', event)">
+            <span>📑 Formula Sheet</span> <i class="fa-solid fa-check"></i>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="lec-controls">
+            <select class="status-dropdown ${statusClass}" onchange="updateChapterStatus('${item.id}', this.value, event)">
+              <option value="Not Started" ${item.status === 'Not Started' ? 'selected' : ''}>⬜ Pending</option>
+              <option value="In Progress" ${item.status === 'In Progress' ? 'selected' : ''}>🟡 In Prog</option>
+              <option value="Completed" ${item.status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
+            </select>
+
+            <select class="conf-dropdown ${confClass}" onchange="updateChapterConfidence('${item.id}', this.value)">
+              <option value="None" ${item.confidence === 'None' ? 'selected' : ''}>⚪ Conf: None</option>
+              <option value="High" ${item.confidence === 'High' ? 'selected' : ''}>🟢 High</option>
+              <option value="Medium" ${item.confidence === 'Medium' ? 'selected' : ''}>🟡 Medium</option>
+              <option value="Low" ${item.confidence === 'Low' ? 'selected' : ''}>🔴 Low</option>
+            </select>
+
+            <button class="btn-notes-edit ${item.notes ? 'has-notes' : ''}" onclick="openEditModal('${item.id}')">
+              <i class="fa-regular fa-pen-to-square"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      return card;
+    }
+
+    // 🔥 TASK CHECKPOINT XP ENGINE (+15 XP PER TASK, +50 BONUS FOR FINISHING FULL CHAPTER)
+    function toggleCheckpoint(id, field, event) {
+      const item = trackerData.find(d => d.id === id);
+      if (item) {
+        item[field] = !item[field];
+        
+        // XP Calculation
+        if (item[field]) {
+          userExtras.totalXp = (userExtras.totalXp || 0) + 15;
+          triggerConfetti(event, 30);
+        } else {
+          userExtras.totalXp = Math.max(0, (userExtras.totalXp || 0) - 15);
+        }
+
+        const wasCompleted = item.status === "Completed";
+        if (item.theory_done && item.module_done && item.pyq1_done && item.pyq2_done && item.rev_done && item.formula_done) {
+          item.status = "Completed";
+          if (!wasCompleted) {
+            userExtras.totalXp = (userExtras.totalXp || 0) + 50;
+            triggerConfetti(event, 60);
+          }
+        } else if (item.theory_done || item.module_done || item.pyq1_done) {
+          if (item.status === "Not Started") item.status = "In Progress";
+        }
+        
+        saveToStorage();
+        refreshCurrentTab();
+      }
+    }
+
+    function updateChapterStatus(id, newStatus, event) {
+      const item = trackerData.find(d => d.id === id);
+      if (item) {
+        const wasDone = item.status === 'Completed';
+        item.status = newStatus;
+        if (newStatus === 'Completed') {
+          item.theory_done = item.module_done = item.pyq1_done = item.pyq2_done = item.rev_done = item.formula_done = true;
+          if (!wasDone) userExtras.totalXp = (userExtras.totalXp || 0) + 90;
+          triggerConfetti(event, 60);
+        }
+        saveToStorage();
+        refreshCurrentTab();
+      }
+    }
+
+    function updateChapterConfidence(id, newConf) {
+      const item = trackerData.find(d => d.id === id);
+      if (item) {
+        item.confidence = newConf;
+        saveToStorage();
+        refreshCurrentTab();
+      }
+    }
+
+    window.refreshCurrentTab = function() {
+      if (currentMainTab === 'dashboard') { renderAutonomousDashboardMonthMission(); checkStreak(); }
+      else if (currentMainTab === 'leaderboard') { renderLeaderboardTabState(); }
+      else if (currentMainTab === 'physics') renderSubjectArena('Physics', 'physicsContainer');
+      else if (currentMainTab === 'chemistry') renderSubjectArena('Chemistry', 'chemistryContainer');
+      else if (currentMainTab === 'maths') renderSubjectArena('Mathematics', 'mathsContainer');
+      else if (currentMainTab === 'monthly') renderMonthlyArena();
+      else if (currentMainTab === 'mocks') renderMocksAndErrors();
+      else if (currentMainTab === 'timer') renderStudyLogs();
+    };
+
+    window.updateGlobalStats = function() {
+      const total = trackerData.length;
+      const done = trackerData.filter(d => d.status === 'Completed').length;
+      const inProg = trackerData.filter(d => d.status === 'In Progress').length;
+      const revised = trackerData.filter(d => d.rev_done).length;
+      const percent = Math.round((done / total) * 100) || 0;
+
+      const totalElem = document.getElementById('total-count');
+      if (totalElem) totalElem.innerText = total;
+      const doneElem = document.getElementById('done-count');
+      if (doneElem) doneElem.innerText = done;
+      const progElem = document.getElementById('prog-count');
+      if (progElem) progElem.innerText = inProg;
+      const revElem = document.getElementById('rev-count');
+      if (revElem) revElem.innerText = revised;
+      const masterProg = document.getElementById('master-progress');
+      if (masterProg) masterProg.style.width = `${percent}%`;
+
+      const xpElem = document.getElementById('navXpDisplay');
+      if (xpElem) xpElem.innerText = `${userExtras.totalXp || 0} XP`;
+
+      const navStreak = document.getElementById('navStreakDisplay');
+      if (navStreak) navStreak.innerText = `${userExtras.streak || 0}d`;
+
+      const phyTotal = trackerData.filter(d => d.subject === 'Physics').length;
+      const phyDone = trackerData.filter(d => d.subject === 'Physics' && d.status === 'Completed').length;
+      const phyPct = Math.round((phyDone / phyTotal) * 100) || 0;
+      const phyText = document.getElementById('phy-prog-text');
+      if (phyText) phyText.innerText = `${phyDone}/${phyTotal} (${phyPct}%)`;
+      const phyFill = document.getElementById('phy-prog-fill');
+      if (phyFill) phyFill.style.width = `${phyPct}%`;
+
+      const chemTotal = trackerData.filter(d => d.subject === 'Chemistry').length;
+      const chemDone = trackerData.filter(d => d.subject === 'Chemistry' && d.status === 'Completed').length;
+      const chemPct = Math.round((chemDone / chemTotal) * 100) || 0;
+      const chemText = document.getElementById('chem-prog-text');
+      if (chemText) chemText.innerText = `${chemDone}/${chemTotal} (${chemPct}%)`;
+      const chemFill = document.getElementById('chem-prog-fill');
+      if (chemFill) chemFill.style.width = `${chemPct}%`;
+
+      const mathTotal = trackerData.filter(d => d.subject === 'Mathematics').length;
+      const mathDone = trackerData.filter(d => d.subject === 'Mathematics' && d.status === 'Completed').length;
+      const mathPct = Math.round((mathDone / mathTotal) * 100) || 0;
+      const mathText = document.getElementById('math-prog-text');
+      if (mathText) mathText.innerText = `${mathDone}/${mathTotal} (${mathPct}%)`;
+      const mathFill = document.getElementById('math-prog-fill');
+      if (mathFill) mathFill.style.width = `${mathPct}%`;
+    };
+
+    function triggerConfetti(e, count = 40) {
+      if (typeof confetti === 'function') {
+        const x = e && e.clientX ? e.clientX / window.innerWidth : 0.5;
+        const y = e && e.clientY ? e.clientY / window.innerHeight : 0.5;
+        confetti({ particleCount: count, spread: 60, origin: { x, y }, colors: ['#d4ff3f', '#bef264', '#10b981', '#ffffff'] });
+      }
+    }
+
+    function updateMockTotal() {
+        const type = document.getElementById('mockType').value;
+        document.getElementById('mockTotal').value = type === 'JEE MAINS' ? '300' : '360';
+    }
+
+    function saveMockResult() {
+      const name = document.getElementById('mockName').value.trim();
+      const type = document.getElementById('mockType').value;
+      const total = parseInt(document.getElementById('mockTotal').value) || (type === 'JEE MAINS' ? 300 : 360);
+      const obtained = parseInt(document.getElementById('mockObtained').value);
+      
+      if(name && !isNaN(obtained)) {
+         userExtras.mockResults.unshift({ name, type, obtained, total, date: new Date().toLocaleDateString('en-IN') });
+         saveToStorage();
+         document.getElementById('mockName').value = '';
+         document.getElementById('mockObtained').value = '';
+         renderMocksAndErrors();
+      }
+    }
+
+    function saveErrorLog() {
+      const topic = document.getElementById('errTopic').value.trim();
+      const detail = document.getElementById('errDetail').value.trim();
+      if(topic && detail) {
+         userExtras.errorLogs.unshift({ topic, detail, date: new Date().toLocaleDateString('en-IN') });
+         saveToStorage();
+         document.getElementById('errTopic').value = '';
+         document.getElementById('errDetail').value = '';
+         renderMocksAndErrors();
+      }
+    }
+    
+    window.deleteMockResult = function(idx) {
+        if(confirm("Bhai, pakka ye score delete karna hai?")) {
+            userExtras.mockResults.splice(idx, 1);
+            saveToStorage();
+            renderMocksAndErrors();
+        }
+    }
+
+    window.deleteErrorLog = function(idx) {
+        if(confirm("Ye mistake log sach me delete karni hai?")) {
+            userExtras.errorLogs.splice(idx, 1);
+            saveToStorage();
+            renderMocksAndErrors();
+        }
+    }
+
+    function renderMocksAndErrors() {
+      const mc = document.getElementById('mockResultsContainer');
+      if (!mc) return;
+      mc.innerHTML = userExtras.mockResults.length ? '' : '<div style="color:var(--text-muted);">No mock scores saved yet.</div>';
+      userExtras.mockResults.forEach((r, idx) => {
+        let color = r.type === 'JEE MAINS' ? 'var(--lime-bright)' : '#38bdf8';
+        mc.innerHTML += `
+          <div class="mock-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <div style="font-weight:800; color:#fff; font-size:1.05rem;">${r.name}</div>
+                <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:10px;"><i class="fa-regular fa-calendar"></i> ${r.date}</div>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                  <span style="font-size:0.7rem; font-weight:800; color:${color}; border:1px solid ${color}50; padding:3px 8px; border-radius:999px;">${r.type}</span>
+                  <button class="btn-delete-item" onclick="deleteMockResult(${idx})" title="Delete Score"><i class="fa-solid fa-trash-can"></i></button>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:10px 14px; border-radius:12px;">
+               <span style="font-size:0.85rem; color:var(--text-muted);">Score</span>
+               <strong style="font-size:1.2rem; color:#fff; font-family:'JetBrains Mono', monospace;">${r.obtained} <span style="font-size:0.8rem; color:var(--text-dim);">/ ${r.total}</span></strong>
+            </div>
+          </div>
+        `;
+      });
+
+      const ec = document.getElementById('errorLogsContainer');
+      if (!ec) return;
+      ec.innerHTML = userExtras.errorLogs.length ? '' : '<div style="color:var(--text-muted);">No errors logged yet. Great!</div>';
+      userExtras.errorLogs.forEach((e, idx) => {
+        ec.innerHTML += `
+          <div class="error-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <h4><i class="fa-solid fa-triangle-exclamation"></i> ${e.topic}</h4>
+                <button class="btn-delete-item" style="width:24px; height:24px; font-size:0.7rem;" onclick="deleteErrorLog(${idx})" title="Delete Log"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p style="font-size:0.82rem; color:var(--text-sub);">${e.detail}</p>
+            <div style="font-size:0.7rem; color:var(--text-dim); margin-top:8px; text-align:right;">${e.date}</div>
+          </div>
+        `;
+      });
+    }
+
+    function openEditModal(id) {
+      const item = trackerData.find(d => d.id === id);
+      if (!item) return;
+      document.getElementById('modalLecId').value = item.id;
+      document.getElementById('modalLecHeading').innerText = `${item.subject} • ${item.name}`;
+      document.getElementById('modalNotesText').value = item.notes || '';
+      document.getElementById('editModal').classList.add('open');
+    }
+    function closeModal() { document.getElementById('editModal').classList.remove('open'); }
+    function saveModalChanges() {
+      const id = document.getElementById('modalLecId').value;
+      const item = trackerData.find(d => d.id === id);
+      if (item) {
+        item.notes = document.getElementById('modalNotesText').value.trim();
+        saveToStorage();
+        closeModal();
+        refreshCurrentTab();
+      }
+    }
+
+    function openProfileModal() {
+      const nameDisp = document.getElementById('profileRealNameDisplay');
+      if (nameDisp) nameDisp.innerText = userProfile.name || "Aspirant";
+      const emailDisp = document.getElementById('profileEmailDisplay');
+      if (emailDisp) emailDisp.innerText = userProfile.email || "Google Account";
+      
+      const prev = document.getElementById('profilePhotoPreview');
+      const icon = document.getElementById('profilePhotoIcon');
+      if (userProfile.photoUrl) {
+        if (prev) { prev.src = userProfile.photoUrl; prev.style.display = 'block'; }
+        if (icon) icon.style.display = 'none';
+      } else {
+        if (prev) prev.style.display = 'none';
+        if (icon) icon.style.display = 'block';
+      }
+
+      const statusElem = document.getElementById('profileLdbStatusText');
+      if (statusElem) {
+        if (userProfile.participateLdb === true) {
+          statusElem.innerHTML = '<span style="color:var(--lime-bright);"><i class="fa-solid fa-lock"></i> Active Participant (Permanent)</span>';
+        } else {
+          statusElem.innerHTML = '<span style="color:var(--text-muted);"><i class="fa-solid fa-lock-open"></i> Private (Open Leaderboard tab to join)</span>';
+        }
+      }
+
+      document.getElementById('profileModal').classList.add('open');
+    }
+    function closeProfileModal() { document.getElementById('profileModal').classList.remove('open'); }
+
+    function exportDataBackup() {
+      const exportObj = {
+        app: "IIT_JEE_2027_STUDY_OS",
+        version: "2.0",
+        timestamp: new Date().toISOString(),
+        userProfile: userProfile,
+        trackerData: trackerData,
+        userExtras: userExtras
+      };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `JEE_2027_Backup_${userProfile.name || 'Student'}_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importDataBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && imported.trackerData && Array.isArray(imported.trackerData)) {
+            trackerData = imported.trackerData;
+            if (imported.userExtras) userExtras = imported.userExtras;
+            if (!userExtras.monthlyStudyMins) userExtras.monthlyStudyMins = {};
+            if (userExtras.totalXp === undefined) userExtras.totalXp = 0;
+            
+            saveToStorage();
+            refreshCurrentTab();
+            closeProfileModal();
+            triggerConfetti(null, 80);
+            alert("✅ Progress Backup successfully restored!");
+          } else {
+            alert("❌ Invalid Backup JSON format!");
+          }
+        } catch (err) {
+          alert("❌ File reading error: Corrupted JSON");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    let logoClickCount = 0;
+    let logoClickTimer = null;
+
+    function handleSecretAdminTrigger() {
+      logoClickCount++;
+      clearTimeout(logoClickTimer);
+      logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 1500);
+      if (logoClickCount >= 3) {
+        logoClickCount = 0;
+        triggerAdminAccessCheck();
+      }
+    }
+
+    function triggerAdminAccessCheck() {
+      if (typeof window.checkOwnerAdminPermission === 'function') {
+        window.checkOwnerAdminPermission();
+      } else {
+        alert("🔒 Authenticating admin permissions...");
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        triggerAdminAccessCheck();
+      }
+    });
+
+    function openAdminDashboard() {
+      if(window.refreshAdminData) window.refreshAdminData(); 
+      document.getElementById('ownerAdminModal').classList.add('open');
+    }
+    function closeAdminModal() { document.getElementById('ownerAdminModal').classList.remove('open'); }
+
+    let timerDuration = 120 * 60;
+    let timerLeft = 120 * 60;
+    let timerActive = false;
+    let timerIntervalId = null;
+    let sessionEndTime = null;
+    let sessionStartMins = 120; 
+
+    function setTimerPreset(mins) {
+      timerDuration = mins * 60;
+      timerLeft = timerDuration;
+      sessionStartMins = mins;
+      updateTimerDisplay();
+      if (timerActive) pauseTimer();
+    }
+
+    function applyCustomDuration() {
+      const hrs = parseInt(document.getElementById('customHoursInput').value) || 0;
+      const mins = parseInt(document.getElementById('customMinutesInput').value) || 0;
+      const totalMins = (hrs * 60) + mins;
+      if (totalMins > 0 && totalMins <= 720) {
+        timerDuration = totalMins * 60;
+        timerLeft = timerDuration;
+        sessionStartMins = totalMins;
+        updateTimerDisplay();
+        if (timerActive) pauseTimer();
+      }
+    }
+
+    function updateTimerDisplay() {
+      const h = Math.floor(timerLeft / 3600).toString().padStart(2, '0');
+      const m = Math.floor((timerLeft % 3600) / 60).toString().padStart(2, '0');
+      const s = (timerLeft % 60).toString().padStart(2, '0');
+      const str = `${h}:${m}:${s}`;
+      const modalDigits = document.getElementById('modalTimerDigits');
+      if (modalDigits) modalDigits.innerText = str;
+      const navStatus = document.getElementById('navTimerStatus');
+      if (navStatus) navStatus.innerText = timerActive ? `⏱️ ${str}` : 'Focus Lounge';
+    }
+
+    function toggleTimer() {
+      if (timerActive) pauseTimer(); else startTimer();
+    }
+
+    function startTimer() {
+      timerActive = true;
+      sessionEndTime = Date.now() + (timerLeft * 1000);
+      const btn = document.getElementById('timerPlayBtn');
+      if (btn) btn.innerHTML = `<i class="fa-solid fa-pause"></i> Pause`;
+
+      clearInterval(timerIntervalId);
+      timerIntervalId = setInterval(() => {
+        const remainingMs = sessionEndTime - Date.now();
+        if (remainingMs <= 0) {
+          timerLeft = 0;
+          clearInterval(timerIntervalId);
+          timerActive = false;
+          if (btn) btn.innerHTML = `<i class="fa-solid fa-play"></i> Start Session`;
+          updateTimerDisplay();
+          handleTimerComplete();
+        } else {
+          timerLeft = Math.ceil(remainingMs / 1000);
+          updateTimerDisplay();
+        }
+      }, 500);
+      updateTimerDisplay();
+    }
+
+    function pauseTimer() {
+      timerActive = false;
+      clearInterval(timerIntervalId);
+      const btn = document.getElementById('timerPlayBtn');
+      if (btn) btn.innerHTML = `<i class="fa-solid fa-play"></i> Resume`;
+      updateTimerDisplay();
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      timerLeft = timerDuration;
+      const btn = document.getElementById('timerPlayBtn');
+      if (btn) btn.innerHTML = `<i class="fa-solid fa-play"></i> Start Session`;
+      updateTimerDisplay();
+    }
+
+    function handleTimerComplete() {
+      triggerConfetti(null, 100);
+      alert("🎉 Focus session completed!");
+      
+      const subj = document.getElementById('timerStudySubj').value;
+      const type = document.getElementById('timerStudyType').value;
+      const durationMins = sessionStartMins;
+      
+      const today = new Date().toLocaleDateString('en-IN');
+      const currentMonthKey = new Date().toLocaleString('en-IN', { month: 'short', year: 'numeric' });
+
+      if (!userExtras.monthlyStudyMins) userExtras.monthlyStudyMins = {};
+      userExtras.monthlyStudyMins[currentMonthKey] = (userExtras.monthlyStudyMins[currentMonthKey] || 0) + durationMins;
+
+      userExtras.totalXp = (userExtras.totalXp || 0) + durationMins;
+
+      if(userExtras.lastStudyDate !== today) userExtras.todayStudyMins = 0;
+      
+      const wasStreakDone = userExtras.todayStudyMins >= 60;
+      userExtras.todayStudyMins += durationMins;
+      userExtras.totalStudyMins += durationMins;
+      
+      if(!wasStreakDone && userExtras.todayStudyMins >= 60) {
+         userExtras.streak += 1;
+         userExtras.totalXp = (userExtras.totalXp || 0) + 30;
+         triggerConfetti(null, 150);
+      }
+      userExtras.lastStudyDate = today;
+
+      userExtras.studyLogs.unshift({
+         subj, type, duration: durationMins, 
+         date: new Date().toLocaleString('en-IN', { hour: '2-digit', minute:'2-digit', day: '2-digit', month: 'short' })
+      });
+      
+      if(userExtras.studyLogs.length > 20) userExtras.studyLogs.pop();
+      
+      saveToStorage();
+      renderStudyLogs();
+      checkStreak();
+    }
+
+    function renderStudyLogs() {
+      const container = document.getElementById('sessionLogsContainer');
+      if(!container) return;
+      container.innerHTML = userExtras.studyLogs.length ? '' : '<div style="color:var(--text-muted); text-align:center; padding:10px;">No sessions logged yet.</div>';
+      
+      userExtras.studyLogs.forEach(log => {
+         let color = "var(--lime-neon)";
+         if(log.subj.includes("Physics")) color = "var(--phy-accent)";
+         if(log.subj.includes("Chemistry")) color = "var(--chem-accent)";
+         if(log.subj.includes("Mathematics")) color = "var(--math-accent)";
+         
+         container.innerHTML += `
+           <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:12px 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+             <div>
+               <div style="font-weight:700; color:${color}; font-size:0.9rem;">${log.subj} • ${log.type}</div>
+               <div style="font-size:0.7rem; color:var(--text-dim); margin-top:2px;">${log.date}</div>
+             </div>
+             <div style="font-family:'JetBrains Mono', monospace; font-weight:800; color:#fff;">+${log.duration}m</div>
+           </div>
+         `;
+      });
+    }
+
+    (function initCanvas() {
+      const canvas = document.getElementById('chemCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let w, h, nodes = [];
+      function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+      window.addEventListener('resize', resize);
+      resize();
+      for (let i = 0; i < 26; i++) {
+        nodes.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25, r: Math.random() * 8 + 4 });
+      }
+      function animate() {
+        ctx.clearRect(0, 0, w, h);
+        ctx.strokeStyle = "rgba(212, 255, 63, 0.08)";
+        ctx.fillStyle = "rgba(163, 230, 53, 0.03)";
+        nodes.forEach(n => {
+          n.x += n.vx; n.y += n.vy;
+          if (n.x < 0 || n.x > w) n.vx *= -1;
+          if (n.y < 0 || n.y > h) n.vy *= -1;
+          ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        });
+        requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderAutonomousDashboardMonthMission();
+      updateGlobalStats();
+      updateCountdown();
+      checkStreak();
+    });
+  </script>
+
+  <!-- FIREBASE CLOUD SYNC, AUTHENTICATION, LEADERBOARD & OWNER PANEL ENGINE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { 
+      getAuth, 
+      signInWithPopup, 
+      signInWithRedirect, 
+      getRedirectResult, 
+      GoogleAuthProvider, 
+      onAuthStateChanged, 
+      signOut, 
+      setPersistence, 
+      browserLocalPersistence 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    // 🔒 OWNER AUTHORIZED GOOGLE ACCOUNTS LIST
+    const ADMIN_EMAILS = [
+      "triggeredmarshmello@gmail.com",
+      "vaironmusic@gmail.com"
+    ];
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCsrOKDW7wt7Y9Mvqv0_cRzSEJtQnj1T9k",
+      authDomain: "jee-tracker-31fc9.firebaseapp.com",
+      projectId: "jee-tracker-31fc9",
+      storageBucket: "jee-tracker-31fc9.firebasestorage.app",
+      messagingSenderId: "531917856515",
+      appId: "1:531917856515:web:2f912155cd3b85941e5336"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Lock session persistence
+    setPersistence(auth, browserLocalPersistence).catch((err) => console.warn("Persistence error:", err));
+
+    const googleProvider = new GoogleAuthProvider();
+    googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+    // 🚫 SERVER-SIDE UID BAN ENFORCEMENT (LOCAL STORAGE IS ONLY A UI CACHE)
+    function triggerHardLockout(message = "Aapka Google account permanently banned hai.") {
+      localStorage.setItem("JEE_2027_DEVICE_BANNED", "true");
+      localStorage.removeItem("JEE_2027_USER_PROFILE");
+      localStorage.removeItem("JEE_2027_SQUAD_TRACKER_V1");
+      localStorage.removeItem("JEE_2027_EXTRAS_V1");
+
+      document.body.innerHTML = `
+        <div style="height:100vh;width:100vw;background:#040805;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;padding:24px;box-sizing:border-box;position:fixed;inset:0;z-index:999999;">
+          <div style="font-size:4.5rem;margin-bottom:16px;filter:drop-shadow(0 0 25px rgba(248,113,113,.5));">🚫</div>
+          <h1 style="color:#f87171;font-size:2.1rem;margin-bottom:12px;font-weight:900;letter-spacing:-.5px;">ACCESS PERMANENTLY BLOCKED</h1>
+          <p style="color:#9ca3af;max-width:520px;font-size:.95rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+          <div style="font-size:.75rem;color:#6b7280;font-family:'JetBrains Mono',monospace;">BAN IS LINKED TO YOUR GOOGLE ACCOUNT</div>
+        </div>
+      `;
+      const canvas = document.getElementById('chemCanvas');
+      if (canvas) canvas.remove();
+    }
+
+    // NOTE: This local flag is NOT the real ban.
+    // The real ban is checked against banned_users/{Firebase Auth UID}.
+    // Therefore clearing storage, changing browser/device, or changing VPN does not remove the ban.
+
+    let banUnsubscribe = null;
+    function listenToBanStatus(uid) {
+      if (!uid) return;
+      if (banUnsubscribe) banUnsubscribe();
+      banUnsubscribe = onSnapshot(
+        doc(db, "banned_users", uid),
+        async (snap) => {
+          if (snap.exists()) {
+            try { await signOut(auth); } catch(e) {}
+            triggerHardLockout("Aapka Google account platform rules violate karne ki wajah se <strong>Permanently Ban</strong> kar diya gaya hai.");
+          }
+        },
+        (error) => {
+          console.error("Ban listener error:", error);
+          // Fail closed: if the security listener cannot be trusted, do not keep the session open.
+          try { signOut(auth); } catch(e) {}
+          triggerHardLockout("Ban security check unavailable hai. Safety ke liye access temporarily blocked hai. Page refresh karke dobara try karein.");
+        }
+      );
+    }
+
+    async function checkIsUserBanned(uid) {
+      if (!uid) return false;
+      try {
+        const banSnap = await getDoc(doc(db, "banned_users", uid));
+        if (banSnap.exists()) {
+          triggerHardLockout("Aapka Google account platform rules violate karne ki wajah se <strong>Permanently Ban</strong> kar diya gaya hai.");
+          return true;
+        }
+
+        // Safe to clear the old local UI cache only AFTER the server says the UID is not banned.
+        localStorage.removeItem("JEE_2027_DEVICE_BANNED");
+        return false;
+      } catch(e) {
+        console.error("Ban security check failed:", e);
+        // Fail closed instead of allowing access when the ban status cannot be verified.
+        triggerHardLockout("Ban security check verify nahi ho paya. Safety ke liye access blocked hai. Internet/Firebase connection check karke refresh karein.");
+        return true;
+      }
+    }
+
+    // Handle return from Google OAuth
+    getRedirectResult(auth).then((result) => {
+      if (result && result.user) {
+        const authModal = document.getElementById('googleAuthModal');
+        if (authModal) {
+          authModal.classList.remove('open');
+          authModal.style.setProperty('display', 'none', 'important');
+        }
+        if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
+      }
+    }).catch((error) => {
+      console.warn("Redirect processing notice:", error);
+    });
+
+    // 🔒 SECURE ADMIN OWNER CHECK FUNCTION
+    window.checkOwnerAdminPermission = function() {
+      const currentEmail = (auth.currentUser && auth.currentUser.email) || userProfile.email || "";
+      if (!currentEmail) {
+        alert("🚫 Access Denied: Pehle Google Account se login karein!");
+        return;
+      }
+
+      const isAuthorized = ADMIN_EMAILS.some(adminEmail => adminEmail.trim().toLowerCase() === currentEmail.trim().toLowerCase());
+
+      if (isAuthorized) {
+        openAdminDashboard();
+      } else {
+        alert("🚫 Access Denied: Aapke paas Owner Master Dashboard access karne ki permission nahi hai!");
+      }
+    };
+
+    // 🔐 AUTH STATE OBSERVER
+    onAuthStateChanged(auth, async (user) => {
+      const authModal = document.getElementById('googleAuthModal');
+      
+      if (user) {
+        // ALWAYS verify the Firebase Auth UID against the server-side ban record.
+        // This runs again after logout/login, on a new browser, after storage is cleared, etc.
+        const isBanned = await checkIsUserBanned(user.uid);
+        if (isBanned) return;
+
+        listenToBanStatus(user.uid);
+
+        if (authModal) {
+          authModal.classList.remove('open');
+          authModal.style.setProperty('display', 'none', 'important');
+        }
+
+        userProfile.uid = user.uid;
+        userProfile.email = user.email || "";
+        userProfile.name = user.displayName || "Aspirant";
+        userProfile.photoUrl = user.photoURL || "";
+        userProfile.isSetup = true;
+        localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
+
+        const navDisp = document.getElementById('navUserNameDisplay');
+        if (navDisp) navDisp.innerText = userProfile.name;
+        if (typeof updateNavAvatarDisplay === 'function') updateNavAvatarDisplay();
+
+        try {
+          await fetchUserDataFromCloud(user.uid);
+        } catch(fetchErr) {
+          console.warn("Cloud data fetch notice:", fetchErr);
+        }
+      } else {
+        if (banUnsubscribe) { banUnsubscribe(); banUnsubscribe = null; }
+        userProfile.isSetup = false;
+        if (authModal) {
+          authModal.style.removeProperty('display');
+          authModal.classList.add('open');
+        }
+      }
+    });
+
+    // 🚀 SIGN IN WITH GOOGLE ACTION
+    let authRunning = false;
+    window.handleGoogleSignIn = async function() {
+      if (authRunning) return;
+      authRunning = true;
+
+      const authBtn = document.querySelector('.btn-google-auth');
+      const originalBtnHtml = authBtn ? authBtn.innerHTML : '';
+      if (authBtn) {
+        authBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Connecting Google...</span>`;
+        authBtn.style.opacity = '0.7';
+      }
+
+      try {
+        const res = await signInWithPopup(auth, googleProvider);
+        if (res && res.user) {
+          const authModal = document.getElementById('googleAuthModal');
+          if (authModal) {
+            authModal.classList.remove('open');
+            authModal.style.setProperty('display', 'none', 'important');
+          }
+          if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
+        }
+      } catch (error) {
+        console.warn("Popup blocked or failed. Auto-switching to Redirect mode...", error);
+        
+        if (
+          error.code === 'auth/popup-blocked' ||
+          error.code === 'auth/cancelled-popup-request' ||
+          error.code === 'auth/internal-error'
+        ) {
+          try {
+            await signInWithRedirect(auth, googleProvider);
+            return;
+          } catch (redErr) {
+            alert("Redirect Login Failed: " + redErr.message);
+          }
+        } else if (error.code === 'auth/operation-not-allowed') {
+          alert("🚨 Firebase Console me Google Sign-In Provider DISABLED hai!\n\nAuthentication > Sign-in method me jaakar Google ko Enable karo.");
+        } else if (error.code !== 'auth/popup-closed-by-user') {
+          alert("Sign-In Error: " + error.message);
+        }
+      } finally {
+        authRunning = false;
+        if (authBtn) {
+          authBtn.innerHTML = originalBtnHtml;
+          authBtn.style.opacity = '1';
+        }
+      }
+    };
+
+    // 🚪 SIGN OUT ACTION
+    window.handleGoogleSignOut = async function() {
+      if (confirm("Kya aap sach me Sign Out karna chahte hain?")) {
+        await signOut(auth);
+        userProfile = { uid: "", email: "", name: "", isSetup: false, participateLdb: null, photoUrl: "" };
+        localStorage.removeItem("JEE_2027_USER_PROFILE");
+        location.reload();
+      }
+    };
+
+    // ☁️ FETCH USER DATA FROM FIRESTORE
+    async function fetchUserDataFromCloud(uid) {
+      if (!uid) return;
+      try {
+        const banCheck = await getDoc(doc(db, "banned_users", uid));
+        if (banCheck.exists()) {
+          triggerHardLockout();
+          return;
+        }
+
+        const docSnap = await getDoc(doc(db, "squad_progress", uid));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.trackerData) window.trackerData = data.trackerData;
+          if (data.userExtras) {
+            window.userExtras = data.userExtras;
+            if (!window.userExtras.monthlyStudyMins) window.userExtras.monthlyStudyMins = {};
+            if (window.userExtras.totalXp === undefined) window.userExtras.totalXp = data.xp || 0;
+            if (window.userExtras.streak === undefined) window.userExtras.streak = data.streak || 0;
+          }
+          if (data.participateLdb !== undefined) userProfile.participateLdb = data.participateLdb;
+          
+          localStorage.setItem("JEE_2027_SQUAD_TRACKER_V1", JSON.stringify(window.trackerData));
+          localStorage.setItem("JEE_2027_EXTRAS_V1", JSON.stringify(window.userExtras));
+          localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
+
+          if (typeof window.updateGlobalStats === 'function') window.updateGlobalStats();
+          if (typeof window.refreshCurrentTab === 'function') window.refreshCurrentTab();
+        } else {
+          syncUserDataToCloud();
+        }
+      } catch(e) { console.error("Cloud fetch error:", e); }
+    }
+
+    // ☁️ AUTO-SYNC FUNCTION (INDEXED BY GOOGLE UID)
+    window.syncUserDataToCloud = async function() {
+      if (!userProfile.uid || !auth.currentUser || auth.currentUser.uid !== userProfile.uid) return;
+      if (localStorage.getItem("JEE_2027_DEVICE_BANNED") === "true") return;
+
+      // Re-check the server ban record before every cloud write.
+      const banned = await checkIsUserBanned(userProfile.uid);
+      if (banned) return;
+      
+      const total = window.trackerData.length;
+      const done = window.trackerData.filter(d => d.status === 'Completed').length;
+      const highConf = window.trackerData.filter(d => d.confidence === 'High').length;
+      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+      const currentMonthKey = new Date().toLocaleString('en-IN', { month: 'short', year: 'numeric' });
+      const currentMonthMins = (window.userExtras.monthlyStudyMins && window.userExtras.monthlyStudyMins[currentMonthKey]) || 0;
+
+      const myData = {
+        docId: userProfile.uid,
+        uid: userProfile.uid,
+        email: userProfile.email,
+        name: userProfile.name,
+        photoUrl: userProfile.photoUrl || "",
+        done: done,
+        pct: pct,
+        highConf: highConf,
+        xp: window.userExtras.totalXp || 0,
+        streak: window.userExtras.streak || 0,
+        studyMins: window.userExtras.totalStudyMins || 0,
+        monthStudyMins: currentMonthMins,
+        currentMonthKey: currentMonthKey,
+        participateLdb: userProfile.participateLdb === true,
+        updated: Date.now(),
+        trackerData: window.trackerData,
+        userExtras: window.userExtras
+      };
+
+      try {
+        await setDoc(doc(db, "squad_progress", userProfile.uid), myData);
+      } catch(e) { console.error("Firebase Sync error:", e); }
+    };
+
+    // 🚩 USER REPORT FUNCTION
+    window.reportUser = async function(docId, reportedName) {
+      if (docId === userProfile.uid) {
+        alert("Bhai kudh ko report mat kar! 😂");
+        return;
+      }
+
+      const reason = prompt(`🚨 Report Aspirant '${reportedName}':\n\nKya problem hai? (e.g. Fake marks, suspicious data)`);
+      if (!reason) return;
+
+      try {
+        const reportDocId = `${docId}_reported`;
+        const existingSnap = await getDoc(doc(db, "reported_users", reportDocId));
+        let count = 1;
+        let reasons = [reason];
+
+        if (existingSnap.exists()) {
+          const prev = existingSnap.data();
+          count = (prev.count || 1) + 1;
+          reasons = prev.reasons || [];
+          reasons.push(reason);
+        }
+
+        await setDoc(doc(db, "reported_users", reportDocId), {
+          targetDocId: docId,
+          targetName: reportedName,
+          count: count,
+          reasons: reasons,
+          lastReported: Date.now(),
+          reporter: userProfile.name || "Anonymous"
+        });
+
+        alert(`✅ Thanks! '${reportedName}' ki report Admin ko review ke liye bhej di gayi hai.`);
+      } catch(err) {
+        console.error("Report error:", err);
+      }
+    };
+
+    // 🏆 PUBLIC LEADERBOARD RENDER FUNCTION
+    window.fetchAndRenderPublicLeaderboard = async function() {
+      const container = document.getElementById('publicLeaderboardContainer');
+      if (!container) return;
+      container.innerHTML = '<div style="color:var(--lime-neon); text-align:center; padding: 30px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading Squad Standings...</div>';
+
+      try {
+        const snapshot = await getDocs(collection(db, "squad_progress"));
+        let squadList = [];
+        snapshot.forEach(d => {
+          const data = d.data();
+          if (data.participateLdb === true) {
+            squadList.push({ ...data, docId: d.id });
+          }
+        });
+
+        squadList.sort((a, b) => {
+          if (b.pct !== a.pct) return b.pct - a.pct;
+          return (b.xp || 0) - (a.xp || 0);
+        });
+
+        container.innerHTML = '';
+        if (squadList.length === 0) {
+          container.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:30px;">Abhi tak kisi dost ne rank submit nahi ki. Be the first!</div>';
+          return;
+        }
+
+        const currentMonthKey = new Date().toLocaleString('en-IN', { month: 'short', year: 'numeric' });
+
+        squadList.forEach((u, i) => {
+          const row = document.createElement('div');
+          const rankNum = i + 1;
+          const rankClass = rankNum === 1 ? 'rank-1' : rankNum === 2 ? 'rank-2' : rankNum === 3 ? 'rank-3' : '';
+          const rankSymbol = rankNum === 1 ? '🥇' : rankNum === 2 ? '🥈' : rankNum === 3 ? '🥉' : `#${rankNum}`;
+          
+          row.className = `ldb-row-card ${rankClass}`;
+
+          const userXp = u.xp || (u.userExtras && u.userExtras.totalXp) || 0;
+          const userStreak = u.streak !== undefined ? u.streak : ((u.userExtras && u.userExtras.streak !== undefined) ? u.userExtras.streak : 0);
+          
+          let monthHrs = "0.0";
+          if (u.userExtras && u.userExtras.monthlyStudyMins && u.userExtras.monthlyStudyMins[currentMonthKey]) {
+            monthHrs = (u.userExtras.monthlyStudyMins[currentMonthKey] / 60).toFixed(1);
+          } else if (u.monthStudyMins && u.currentMonthKey === currentMonthKey) {
+            monthHrs = (u.monthStudyMins / 60).toFixed(1);
+          }
+
+          const isMe = (userProfile.uid && userProfile.uid === u.docId) || (userProfile.name === u.name);
+
+          const avatarHtml = u.photoUrl 
+            ? `<img src="${u.photoUrl}" style="width:38px; height:38px; border-radius:50%; object-fit:cover; border:1.5px solid var(--lime-neon);" />` 
+            : `<div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:0.85rem; color:var(--text-dim);"><i class="fa-solid fa-user"></i></div>`;
+
+          row.innerHTML = `
+            <div style="display:flex; align-items:center; gap:14px; flex:1;">
+              <div class="ldb-rank-badge">${rankSymbol}</div>
+              ${avatarHtml}
+              <div>
+                <div style="font-weight:800; font-size:1.05rem; color:#fff; display:flex; align-items:center; gap:8px;">
+                  <span>${u.name}</span>
+                  ${isMe ? '<span style="font-size:0.65rem; background:var(--lime-neon); color:#000; padding:2px 8px; border-radius:999px; font-weight:800;">YOU</span>' : ''}
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:flex; gap:12px; flex-wrap:wrap;">
+                  <span><i class="fa-solid fa-fire" style="color:#fb923c"></i> ${userStreak}d Streak</span>
+                  <span><i class="fa-solid fa-bolt" style="color:var(--lime-bright)"></i> ${userXp} XP</span>
+                  <span><i class="fa-solid fa-check-double" style="color:#34d399"></i> ${u.done}/79 Chs</span>
+                  <span><i class="fa-solid fa-calendar-days" style="color:#38bdf8"></i> ${monthHrs}h (${currentMonthKey})</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:16px;">
+              <div style="text-align:right;">
+                <div style="font-family:'JetBrains Mono', monospace; font-size:1.35rem; font-weight:800; color:var(--lime-neon);">
+                  ${u.pct}%
+                </div>
+                <div style="font-size:0.68rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">Completed</div>
+              </div>
+              
+              ${!isMe ? `
+                <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.3); padding:6px 10px; background:rgba(248,113,113,0.06);" onclick="reportUser('${u.docId}', '${u.name}')" title="Report User">
+                  <i class="fa-solid fa-flag"></i>
+                </button>
+              ` : ''}
+            </div>
+          `;
+          container.appendChild(row);
+        });
+
+      } catch (err) {
+        console.error("Leaderboard fetch error:", err);
+      }
+    };
+
+    // 🚫 PERMANENT BAN FUNCTION (ADMIN MASTER)
+    window.removeUser = async function(docId, userName) {
+      if(!confirm(`⚠️ WARNING: Bhai pakka '${userName}' ko PERMANENT BAN lagana hai?`)) return;
+      try {
+        await setDoc(doc(db, "banned_users", docId), {
+          bannedDocId: docId,
+          name: userName || "Unknown",
+          bannedAt: Date.now()
+        });
+
+        await deleteDoc(doc(db, "squad_progress", docId));
+        try { await deleteDoc(doc(db, "reported_users", `${docId}_reported`)); } catch(e){}
+        
+        alert(`🚫 User '${userName}' ko permanently BAN kar diya!`);
+        await window.refreshAdminData();
+        if (window.fetchAndRenderPublicLeaderboard) window.fetchAndRenderPublicLeaderboard();
+      } catch(e) {
+        alert("❌ Error banning user: " + e.message);
+      }
+    };
+
+    // 🔓 UNBAN USER FUNCTION (ADMIN MASTER)
+    window.unbanUser = async function(docId, userName) {
+      if(!confirm(`🔓 Bhai pakka '${userName}' ko UNBAN karna hai?`)) return;
+      try {
+        await deleteDoc(doc(db, "banned_users", docId));
+        alert(`✅ User '${userName}' successfully UNBAN ho gaya!`);
+        await window.refreshAdminData();
+      } catch(e) {
+        alert("❌ Error unbanning user: " + e.message);
+      }
+    };
+
+    // ⚠️ WIPE ENTIRE LEADERBOARD
+    window.wipeEntireLeaderboard = async function() {
+      const confirmCode = prompt("⚠️ DANGER ZONE: Poore Leaderboard ka data delete karne ke liye type 'CONFIRM':");
+      if (confirmCode !== "CONFIRM") return;
+
+      try {
+        const snapshot = await getDocs(collection(db, "squad_progress"));
+        let deletePromises = [];
+        snapshot.forEach(d => deletePromises.push(deleteDoc(doc(db, "squad_progress", d.id))));
+        await Promise.all(deletePromises);
+
+        alert("✅ Poora Leaderboard saaf ho gaya!");
+        await window.refreshAdminData();
+        if (window.fetchAndRenderPublicLeaderboard) window.fetchAndRenderPublicLeaderboard();
+      } catch(err) {
+        alert("❌ Error wiping leaderboard: " + err.message);
+      }
+    };
+
+    // DISMISS REPORT
+    window.dismissReport = async function(reportDocId) {
+      try {
+        await deleteDoc(doc(db, "reported_users", reportDocId));
+        window.refreshAdminData();
+      } catch(e) {}
+    };
+
+    // ADMIN DATA REFRESH
+    window.refreshAdminData = async function() {
+      const container = document.getElementById('adminSquadContainer');
+      const repContainer = document.getElementById('adminReportedListContainer');
+      const banContainer = document.getElementById('adminBannedListContainer');
+      
+      if (container) container.innerHTML = '<div style="color:var(--lime-neon); text-align:center; padding: 20px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Fetching Live Data...</div>';
+      
+      try {
+        // 1. Reports
+        const repSnapshot = await getDocs(collection(db, "reported_users"));
+        if (repContainer) {
+          repContainer.innerHTML = '';
+          if (repSnapshot.empty) {
+            repContainer.innerHTML = '<div style="color:var(--text-dim); font-size:0.78rem;">No active reports. Clean environment! ✅</div>';
+          } else {
+            repSnapshot.forEach(rDoc => {
+              const r = rDoc.data();
+              const latestReason = (r.reasons && r.reasons.length) ? r.reasons[r.reasons.length - 1] : 'No reason';
+              repContainer.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.4); padding:8px 12px; border-radius:10px; border:1px solid rgba(248,113,113,0.3);">
+                  <div>
+                    <strong style="color:#fff; font-size:0.85rem;">${r.targetName}</strong> 
+                    <span style="color:#f87171; font-size:0.75rem; font-weight:800;">(${r.count} reports)</span>
+                    <div style="font-size:0.7rem; color:var(--text-muted);">Reason: "${latestReason}"</div>
+                  </div>
+                  <div style="display:flex; gap:6px;">
+                    <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.4); padding:4px 8px; font-size:0.7rem;" onclick="removeUser('${r.targetDocId}', '${r.targetName}')">🚫 Ban</button>
+                    <button class="pill-btn" style="padding:4px 8px; font-size:0.7rem;" onclick="dismissReport('${rDoc.id}')">Dismiss</button>
+                  </div>
+                </div>
+              `;
+            });
+          }
+        }
+
+        // 2. Banned
+        const banSnapshot = await getDocs(collection(db, "banned_users"));
+        if (banContainer) {
+          banContainer.innerHTML = '';
+          if (banSnapshot.empty) {
+            banContainer.innerHTML = '<div style="color:var(--text-dim); font-size:0.78rem;">No banned users found.</div>';
+          } else {
+            banSnapshot.forEach(bDoc => {
+              const b = bDoc.data();
+              const banDate = new Date(b.bannedAt || Date.now()).toLocaleDateString('en-IN');
+              banContainer.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(248,113,113,0.05); padding:8px 12px; border-radius:10px; border:1px solid rgba(248,113,113,0.2);">
+                  <div>
+                    <strong style="color:#fca5a5; font-size:0.85rem;">${b.name || b.bannedDocId}</strong>
+                    <div style="font-size:0.68rem; color:var(--text-dim);">Banned on: ${banDate}</div>
+                  </div>
+                  <button class="pill-btn" style="color:var(--lime-bright); border-color:rgba(212,255,63,0.4); padding:4px 10px; font-size:0.72rem; background:rgba(212,255,63,0.08);" onclick="unbanUser('${bDoc.id}', '${b.name}')">
+                    <i class="fa-solid fa-lock-open"></i> Unban
+                  </button>
+                </div>
+              `;
+            });
+          }
+        }
+
+        // 3. All Signups
+        const snapshot = await getDocs(collection(db, "squad_progress"));
+        let allSignedUpUsers = [];
+        snapshot.forEach(d => {
+          allSignedUpUsers.push({ ...d.data(), docId: d.id });
+        });
+        
+        allSignedUpUsers.sort((a, b) => (b.pct || 0) - (a.pct || 0));
+        if (container) {
+          container.innerHTML = '';
+          if(allSignedUpUsers.length === 0) {
+             container.innerHTML = '<div style="color:var(--text-muted); text-align:center;">Abhi tak kisi aspirant ne sync nahi kiya.</div>';
+             return;
+          }
+
+          const currentMonthKey = new Date().toLocaleString('en-IN', { month: 'short', year: 'numeric' });
+
+          allSignedUpUsers.forEach((user, i) => {
+            const row = document.createElement('div');
+            row.className = 'admin-row';
+            const lastActive = new Date(user.updated || Date.now()).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit', day: '2-digit', month: 'short' });
+            const userStreak = user.streak !== undefined ? user.streak : ((user.userExtras && user.userExtras.streak !== undefined) ? user.userExtras.streak : 0);
+
+            let monthHrs = "0.0";
+            if (user.userExtras && user.userExtras.monthlyStudyMins && user.userExtras.monthlyStudyMins[currentMonthKey]) {
+              monthHrs = (user.userExtras.monthlyStudyMins[currentMonthKey] / 60).toFixed(1);
+            } else if (user.monthStudyMins) {
+              monthHrs = (user.monthStudyMins / 60).toFixed(1);
+            }
+
+            const adminAvatarHtml = user.photoUrl 
+              ? `<img src="${user.photoUrl}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid var(--lime-neon);" />` 
+              : `<div style="width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:0.75rem;"><i class="fa-solid fa-user"></i></div>`;
+            
+            const ldbBadge = user.participateLdb 
+              ? '<span style="font-size:0.65rem; background:rgba(212,255,63,0.15); color:var(--lime-bright); padding:2px 6px; border-radius:999px; border:1px solid rgba(212,255,63,0.3); font-weight:800;">🏆 In LDB</span>'
+              : '<span style="font-size:0.65rem; background:rgba(255,255,255,0.06); color:var(--text-dim); padding:2px 6px; border-radius:999px; font-weight:700;">🔒 Private</span>';
+
+            row.innerHTML = `
+              <div style="display:flex; align-items:center; gap:12px;">
+                ${adminAvatarHtml}
+                <div>
+                  <div class="admin-user-name">#${i+1} ${user.name} ${ldbBadge} <span style="font-size:0.75rem; color:#fb923c;">🔥 ${userStreak}d</span> <span style="font-size:0.75rem; color:var(--lime-bright);">(${user.xp || 0} XP)</span></div>
+                  <div class="admin-user-sub">${user.email || user.docId} • ${user.done || 0}/79 Done • ${monthHrs}h (${currentMonthKey})</div>
+                  <div style="font-size:0.65rem; color:var(--text-dim); margin-top:4px;">Last seen: ${lastActive}</div>
+                </div>
+              </div>
+              <div class="admin-pct" style="display:flex; align-items:center; gap:10px;">
+                <span>${user.pct || 0}%</span>
+                <button class="pill-btn" style="color:#f87171; border-color:rgba(248,113,113,0.3); padding:6px 10px; background:rgba(248,113,113,0.1); font-size:0.75rem;" onclick="removeUser('${user.docId}', '${user.name}')" title="Permanently Ban User">
+                   <i class="fa-solid fa-ban"></i> Ban
+                </button>
+              </div>
+            `;
+            container.appendChild(row);
+          });
+        }
+      } catch(e) {
+        console.error("Admin panel error:", e);
+      }
+    };
+  </script>
 </body>
 </html>
