@@ -2513,10 +2513,6 @@
       if (canvas) canvas.remove();
     }
 
-    // NOTE: This local flag is NOT the real ban.
-    // The real ban is checked against banned_users/{Firebase Auth UID}.
-    // Therefore clearing storage, changing browser/device, or changing VPN does not remove the ban.
-
     let banUnsubscribe = null;
     function listenToBanStatus(uid) {
       if (!uid) return;
@@ -2531,7 +2527,6 @@
         },
         (error) => {
           console.error("Ban listener error:", error);
-          // Fail closed: if the security listener cannot be trusted, do not keep the session open.
           try { signOut(auth); } catch(e) {}
           triggerHardLockout("Ban security check unavailable hai. Safety ke liye access temporarily blocked hai. Page refresh karke dobara try karein.");
         }
@@ -2546,13 +2541,10 @@
           triggerHardLockout("Aapka Google account platform rules violate karne ki wajah se <strong>Permanently Ban</strong> kar diya gaya hai.");
           return true;
         }
-
-        // Safe to clear the old local UI cache only AFTER the server says the UID is not banned.
         localStorage.removeItem("JEE_2027_DEVICE_BANNED");
         return false;
       } catch(e) {
         console.error("Ban security check failed:", e);
-        // Fail closed instead of allowing access when the ban status cannot be verified.
         triggerHardLockout("Ban security check verify nahi ho paya. Safety ke liye access blocked hai. Internet/Firebase connection check karke refresh karein.");
         return true;
       }
@@ -2589,13 +2581,11 @@
       }
     };
 
-    // 🔐 AUTH STATE OBSERVER
+    // 🔐 AUTH STATE OBSERVER (FIXED: Preserves custom name instead of blindly overriding)
     onAuthStateChanged(auth, async (user) => {
       const authModal = document.getElementById('googleAuthModal');
       
       if (user) {
-        // ALWAYS verify the Firebase Auth UID against the server-side ban record.
-        // This runs again after logout/login, on a new browser, after storage is cleared, etc.
         const isBanned = await checkIsUserBanned(user.uid);
         if (isBanned) return;
 
@@ -2608,7 +2598,12 @@
 
         userProfile.uid = user.uid;
         userProfile.email = user.email || "";
-        userProfile.name = user.displayName || "Aspirant";
+
+        // ✅ FIX: Agar userProfile me pehle se custom naam (jaise "spiderman") hai, toh usko rakho.
+        if (!userProfile.name || userProfile.name === "Aspirant") {
+          userProfile.name = user.displayName || "Aspirant";
+        }
+
         userProfile.photoUrl = user.photoURL || "";
         userProfile.isSetup = true;
         localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
@@ -2693,7 +2688,7 @@
       }
     };
 
-    // ☁️ FETCH USER DATA FROM FIRESTORE
+    // ☁️ FETCH USER DATA FROM FIRESTORE (FIXED: Cloud document se custom saved name ko restore karo)
     async function fetchUserDataFromCloud(uid) {
       if (!uid) return;
       try {
@@ -2706,6 +2701,12 @@
         const docSnap = await getDoc(doc(db, "squad_progress", uid));
         if (docSnap.exists()) {
           const data = docSnap.data();
+
+          // ✅ FIX: Agar cloud me pehle se custom naam saved hai toh wahi rakhna hai
+          if (data.name) {
+            userProfile.name = data.name;
+          }
+
           if (data.trackerData) window.trackerData = data.trackerData;
           if (data.userExtras) {
             window.userExtras = data.userExtras;
@@ -2718,6 +2719,9 @@
           localStorage.setItem("JEE_2027_SQUAD_TRACKER_V1", JSON.stringify(window.trackerData));
           localStorage.setItem("JEE_2027_EXTRAS_V1", JSON.stringify(window.userExtras));
           localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
+
+          const navDisp = document.getElementById('navUserNameDisplay');
+          if (navDisp) navDisp.innerText = userProfile.name;
 
           if (typeof window.updateGlobalStats === 'function') window.updateGlobalStats();
           if (typeof window.refreshCurrentTab === 'function') window.refreshCurrentTab();
@@ -2732,7 +2736,6 @@
       if (!userProfile.uid || !auth.currentUser || auth.currentUser.uid !== userProfile.uid) return;
       if (localStorage.getItem("JEE_2027_DEVICE_BANNED") === "true") return;
 
-      // Re-check the server ban record before every cloud write.
       const banned = await checkIsUserBanned(userProfile.uid);
       if (banned) return;
       
@@ -2748,7 +2751,7 @@
         docId: userProfile.uid,
         uid: userProfile.uid,
         email: userProfile.email,
-        name: userProfile.name,
+        name: userProfile.name, // ✅ Custom name safely syncs to cloud
         photoUrl: userProfile.photoUrl || "",
         done: done,
         pct: pct,
@@ -3053,7 +3056,7 @@
             }
 
             const adminAvatarHtml = user.photoUrl 
-              ? `<img src="${user.photoUrl}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid var(--lime-neon);" />` 
+              ? `<img src="${user.photoUrl}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1.5px solid var(--lime-neon);" />` 
               : `<div style="width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:0.75rem;"><i class="fa-solid fa-user"></i></div>`;
             
             const ldbBadge = user.participateLdb 
