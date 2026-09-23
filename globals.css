@@ -1,0 +1,115 @@
+:root {
+  --ui-bg: #070a12;
+  --ui-surface: rgba(14, 20, 32, 0.78);
+  --ui-surface-strong: rgba(18, 27, 43, 0.92);
+  --ui-line: rgba(148, 163, 184, 0.16);
+  --ui-line-bright: rgba(103, 232, 249, 0.42);
+  --ui-cyan: #67e8f9;
+  --ui-mint: #86efac;
+  --ui-violet: #a78bfa;
+  --ui-amber: #fbbf24;
+  --ui-muted: #91a0b7;
+}
+
+body {
+  background:
+    radial-gradient(circle at 16% 4%, rgba(103, 232, 249, 0.11), transparent 27rem),
+    radial-gradient(circle at 86% 12%, rgba(167, 139, 250, 0.14), transparent 30rem),
+    linear-gradient(150deg, #070a12 0%, #0a1020 50%, #080b14 100%);
+  letter-spacing: -0.01em;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  background-image: radial-gradient(rgba(255,255,255,0.7) 0.5px, transparent 0.5px);
+  background-size: 5px 5px;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+  z-index: 0;
+}
+
+.top-aurora-arc {
+  background: radial-gradient(ellipse at center, rgba(103, 232, 249, 0.2) 0%, rgba(99, 102, 241, 0.12) 42%, transparent 72%);
+  box-shadow: 0 0 150px rgba(103, 232, 249, 0.22);
+}
+
+.top-aurora-border {
+  border-bottom-color: rgba(103, 232, 249, 0.38);
+  box-shadow: 0 15px 45px rgba(103, 232, 249, 0.28);
+}
+
+.grid-matrix {
+  background-image: linear-gradient(rgba(148, 163, 184, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.navbar {
+  background: rgba(9, 14, 25, 0.74);
+  border-color: var(--ui-line);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.42), 0 0 34px rgba(103, 232, 249, 0.08);
+}
+
+.brand-icon-wrap,
+.dock-tab.active,
+.btn-action-primary,
+.ch-tab-btn.active {
+  background: linear-gradient(135deg, #0891b2, #6366f1 70%, #a78bfa);
+}
+
+.brand-icon-wrap { box-shadow: 0 0 22px rgba(103, 232, 249, 0.32); }
+.brand-text small, .hero-tag, .month-badge-pill, .monthly-progress-pill { color: var(--ui-cyan); }
+
+.hero-panel, .hub-card, .lecture-card, .view-toolbar, .countdown-box, .focus-arena-box, .ldb-row-card {
+  background: linear-gradient(145deg, rgba(17, 27, 44, 0.82), rgba(9, 14, 24, 0.9));
+  border-color: var(--ui-line);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255,255,255,0.045);
+}
+
+.hero-panel { border-radius: 28px; }
+.hero-headline .gradient-accent { background: linear-gradient(135deg, var(--ui-cyan), var(--ui-violet)); }
+
+.stat-card, .month-subj-box, .subj-prog-box, .mock-card, .admin-row {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: var(--ui-line);
+}
+
+.progress-bar-fill { background: linear-gradient(90deg, #06b6d4, #8b5cf6, #86efac); box-shadow: 0 0 20px rgba(103, 232, 249, 0.55); }
+
+.app-dock-bar {
+  background: rgba(9, 14, 25, 0.86);
+  border-color: rgba(103, 232, 249, 0.22);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.62), 0 0 35px rgba(103, 232, 249, 0.12);
+}
+
+.dock-tab.active { box-shadow: 0 0 24px rgba(103, 232, 249, 0.34); }
+
+button, select, input { font-family: inherit; }
+button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid var(--ui-cyan); outline-offset: 3px; }
+
+@media (max-width: 640px) {
+  .container { padding: 16px 14px 100px; }
+  .navbar { border-radius: 20px; padding: 12px 16px; }
+  .hero-panel { padding: 26px 20px; border-radius: 22px; }
+  .hero-headline { font-size: 2rem; }
+  .app-dock-bar { bottom: 12px; padding: 6px; }
+  .dock-tab { padding: 9px 12px; font-size: 0.74rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+:root { color-scheme: dark; }
+::selection { background: rgba(103, 232, 249, 0.28); color: #fff; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #080c15; }
+::-webkit-scrollbar-thumb { background: rgba(103, 232, 249, 0.25); border-radius: 999px; border: 2px solid #080c15; }
+::-webkit-scrollbar-thumb:hover { background: rgba(103, 232, 249, 0.45); }
+
+@media print {
+  .app-dock-bar, .top-aurora-arc, .top-aurora-border, #chemCanvas, .grid-matrix { display: none !important; }
+  body { background: #fff; color: #111827; }
+}
