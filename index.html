@@ -2611,12 +2611,13 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // Wait for Firebase Auth persistence to initialize before handling
-    // auth state or starting Google sign-in.
-    const authPersistenceReady = setPersistence(auth, browserLocalPersistence)
+    // Firebase Auth persistence MUST finish before any auth-state handling.
+    // This prevents a temporary signed-out state from reopening the login modal.
+    const authReady = setPersistence(auth, browserLocalPersistence)
+      .then(() => true)
       .catch((err) => {
         console.error("Firebase Auth persistence error:", err);
-        return null;
+        return false;
       });
 
     const googleProvider = new GoogleAuthProvider();
@@ -2641,14 +2642,6 @@
     }
 
     let banUnsubscribe = null;
-
-    // Auth lifecycle flags.
-    // The first onAuthStateChanged(null) is normal when Firebase is
-    // still restoring a previous session. Never treat that as a
-    // logout while a Google sign-in is in progress.
-    let authStateInitialized = false;
-    let authRunning = false;
-
     function listenToBanStatus(uid) {
       if (!uid) return;
       if (banUnsubscribe) banUnsubscribe();
@@ -2685,125 +2678,139 @@
       }
     }
 
-    authPersistenceReady.then(() => getRedirectResult(auth)).then((result) => {
-      if (result && result.user) {
-        const authModal = document.getElementById('googleAuthModal');
-        if (authModal) {
-          authModal.classList.remove('open');
-          authModal.style.setProperty('display', 'none', 'important');
-        }
-        if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
-      }
-    }).catch((error) => {
-      console.warn("Redirect processing notice:", error);
-    });
+    // ------------------------------------------------------------
+    // FIREBASE AUTH LIFECYCLE
+    // ------------------------------------------------------------
 
-    window.checkOwnerAdminPermission = function() {
-      const currentEmail = (auth.currentUser && auth.currentUser.email) || userProfile.email || "";
-      if (!currentEmail) {
-        alert("🚫 Access Denied: Pehle Google Account se login karein!");
+    let banUnsubscribe = null;
+    let googleLoginInProgress = false;
+    let authStateSeen = false;
+
+    function closeGoogleAuthModal() {
+      const modal = document.getElementById('googleAuthModal');
+      if (!modal) return;
+      modal.classList.remove('open');
+      modal.style.setProperty('display', 'none', 'important');
+    }
+
+    function openGoogleAuthModal() {
+      // Never reopen the login wall while Firebase says a user exists
+      // or while a Google login flow is currently running.
+      if (auth.currentUser || googleLoginInProgress) return;
+
+      const modal = document.getElementById('googleAuthModal');
+      if (!modal) return;
+      modal.style.removeProperty('display');
+      modal.classList.add('open');
+    }
+
+    async function finishSuccessfulGoogleLogin(user) {
+      if (!user) return;
+
+      closeGoogleAuthModal();
+
+      userProfile.uid = user.uid;
+      userProfile.email = user.email || "";
+
+      // Keep custom name/DP if the user already has them.
+      if (!userProfile.name) {
+        userProfile.name = user.displayName || "Aspirant";
+      }
+      if (!userProfile.photoUrl) {
+        userProfile.photoUrl = user.photoURL || "";
+      }
+
+      userProfile.isSetup = true;
+      localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
+
+      const navDisp = document.getElementById('navUserNameDisplay');
+      if (navDisp) navDisp.innerText = userProfile.name || "Aspirant";
+
+      if (typeof updateNavAvatarDisplay === 'function') {
+        updateNavAvatarDisplay();
+      }
+
+      // IMPORTANT:
+      // Do NOT let Firestore failure turn a valid Google login into logout.
+      try {
+        const banned = await checkIsUserBanned(user.uid);
+        if (banned) return;
+      } catch (e) {
+        console.warn("Ban check notice after login:", e);
+      }
+
+      try {
+        listenToBanStatus(user.uid);
+      } catch (e) {
+        console.warn("Ban listener notice:", e);
+      }
+
+      try {
+        await fetchUserDataFromCloud(user.uid);
+      } catch (e) {
+        console.warn("Cloud data fetch notice:", e);
+      }
+
+      // Reassert the authenticated UI after async Firestore work.
+      if (auth.currentUser && auth.currentUser.uid === user.uid) {
+        closeGoogleAuthModal();
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      await authReady;
+      authStateSeen = true;
+
+      // A user exists: this is the ONLY source of truth for signed-in UI.
+      if (user) {
+        await finishSuccessfulGoogleLogin(user);
         return;
       }
 
-      const isAuthorized = ADMIN_EMAILS.some(adminEmail => adminEmail.trim().toLowerCase() === currentEmail.trim().toLowerCase());
+      // Firebase can emit null during initialization / popup transitions.
+      // Never turn that transient state into a second login screen while
+      // Google authentication is in progress.
+      if (googleLoginInProgress) return;
 
-      if (isAuthorized) {
-        openAdminDashboard();
-      } else {
-        alert("🚫 Access Denied: Aapke paas Owner Master Dashboard access karne ki permission nahi hai!");
+      // No authenticated user after initialization: show login.
+      userProfile.isSetup = false;
+
+      if (banUnsubscribe) {
+        banUnsubscribe();
+        banUnsubscribe = null;
       }
-    };
 
-    onAuthStateChanged(auth, async (user) => {
-      // Do not process the auth-state event until persistence is ready.
-      await authPersistenceReady;
+      openGoogleAuthModal();
+    });
 
-      const authModal = document.getElementById('googleAuthModal');
-
-      if (user) {
-        // Mark the auth session as initialized immediately.
-        authStateInitialized = true;
-
-        // IMPORTANT:
-        // Firebase has authenticated the user. Hide the login wall
-        // immediately, before any Firestore request is made.
-        if (authModal) {
-          authModal.classList.remove('open');
-          authModal.style.setProperty('display', 'none', 'important');
+    // Handle redirect login if popup fallback is ever used.
+    authReady.then(async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+          await finishSuccessfulGoogleLogin(result.user);
         }
+      } catch (error) {
+        console.error("Redirect processing error:", error);
 
-        userProfile.uid = user.uid;
-        userProfile.email = user.email || "";
-
-        // Do NOT overwrite custom Firebase/local profile values with
-        // the Google defaults on every auth-state event.
-        if (!userProfile.name) {
-          userProfile.name = user.displayName || "Aspirant";
-        }
-        if (!userProfile.photoUrl) {
-          userProfile.photoUrl = user.photoURL || "";
-        }
-
-        userProfile.isSetup = true;
-        localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
-
-        const navDisp = document.getElementById('navUserNameDisplay');
-        if (navDisp) navDisp.innerText = userProfile.name;
-
-        if (typeof updateNavAvatarDisplay === 'function') {
-          updateNavAvatarDisplay();
-        }
-
-        // Ban check happens AFTER the login wall is closed.
-        // If the account is banned, checkIsUserBanned() handles the lockout.
-        const isBanned = await checkIsUserBanned(user.uid);
-        if (isBanned) return;
-
-        listenToBanStatus(user.uid);
-
-        // Fetch cloud data, but never reopen the login modal because
-        // Firestore/network operations fail.
-        try {
-          await fetchUserDataFromCloud(user.uid);
-        } catch (fetchErr) {
-          console.warn("Cloud data fetch notice:", fetchErr);
-        }
-
-        // Re-assert signed-in UI after cloud sync.
-        if (auth.currentUser && auth.currentUser.uid === user.uid && authModal) {
-          authModal.classList.remove('open');
-          authModal.style.setProperty('display', 'none', 'important');
-        }
-
-      } else {
-        // Ignore transient null auth-state events while Google popup
-        // or redirect authentication is in progress.
-        if (authRunning) {
-          return;
-        }
-
-        // First null after page load means there is no saved session.
-        // Only then should the login wall be displayed.
-        authStateInitialized = true;
-
-        if (banUnsubscribe) {
-          banUnsubscribe();
-          banUnsubscribe = null;
-        }
-
-        userProfile.isSetup = false;
-
-        if (authModal) {
-          authModal.style.removeProperty('display');
-          authModal.classList.add('open');
+        if (error.code === 'auth/unauthorized-domain') {
+          alert(
+            "Firebase me current domain authorized nahi hai.\n\n" +
+            "Firebase Console → Authentication → Settings → Authorized domains " +
+            "me is website ka domain add karo."
+          );
         }
       }
     });
 
-    window.handleGoogleSignIn = async function() {
-      if (authRunning) return;
+    // ------------------------------------------------------------
+    // GOOGLE SIGN IN
+    // ------------------------------------------------------------
 
-      authRunning = true;
+    window.handleGoogleSignIn = async function() {
+      if (googleLoginInProgress) return;
+
+      googleLoginInProgress = true;
 
       const authBtn = document.querySelector('.btn-google-auth');
       const originalBtnHtml = authBtn ? authBtn.innerHTML : '';
@@ -2816,100 +2823,98 @@
       }
 
       try {
-        // Persistence MUST be ready before popup authentication.
-        await authPersistenceReady;
+        const persistenceOK = await authReady;
 
-        const res = await signInWithPopup(auth, googleProvider);
+        if (!persistenceOK) {
+          throw new Error(
+            "Firebase Auth persistence initialize nahi ho payi. Page refresh karke dobara try karo."
+          );
+        }
 
-        if (res && res.user) {
-          // Firebase Auth has already completed successfully.
-          // Hide the login wall immediately.
-          const authModal = document.getElementById('googleAuthModal');
+        // Use popup as the primary login method.
+        const result = await signInWithPopup(auth, googleProvider);
 
-          if (authModal) {
-            authModal.classList.remove('open');
-            authModal.style.setProperty('display', 'none', 'important');
-          }
-
-          // Store the authenticated identity immediately.
-          userProfile.uid = res.user.uid;
-          userProfile.email = res.user.email || "";
-          userProfile.name =
-            userProfile.name || res.user.displayName || "Aspirant";
-          userProfile.photoUrl =
-            userProfile.photoUrl || res.user.photoURL || "";
-          userProfile.isSetup = true;
-
-          localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
-
-          const navDisp = document.getElementById('navUserNameDisplay');
-          if (navDisp) navDisp.innerText = userProfile.name;
-
-          if (typeof updateNavAvatarDisplay === 'function') {
-            updateNavAvatarDisplay();
-          }
+        if (result && result.user) {
+          // Popup login itself succeeded. Do not wait for Firestore.
+          await finishSuccessfulGoogleLogin(result.user);
 
           if (typeof triggerConfetti === 'function') {
             triggerConfetti(null, 80);
           }
 
-          console.log("Google login successful:", res.user.email);
+          return;
         }
 
       } catch (error) {
         console.error("Google Sign-In Error:", error);
 
-        if (
-          error.code === 'auth/popup-blocked' ||
-          error.code === 'auth/cancelled-popup-request'
-        ) {
+        // Popup was blocked: use redirect fallback.
+        if (error.code === 'auth/popup-blocked') {
           try {
-            // Keep authRunning true during redirect.
-            await authPersistenceReady;
             await signInWithRedirect(auth, googleProvider);
             return;
-          } catch (redErr) {
-            console.error("Redirect Login Failed:", redErr);
-            alert("Redirect Login Failed: " + redErr.message);
+          } catch (redirectError) {
+            console.error("Redirect Login Failed:", redirectError);
+            alert("Redirect Login Failed: " + redirectError.message);
           }
+
+        } else if (error.code === 'auth/popup-closed-by-user') {
+          // User closed the Google account window. No alert needed.
 
         } else if (error.code === 'auth/operation-not-allowed') {
           alert(
-            "🚨 Firebase Console me Google Sign-In Provider DISABLED hai!\\n\\n" +
-            "Authentication > Sign-in method me jaakar Google ko Enable karo."
+            "Firebase Console me Google Sign-In enabled nahi hai.\n\n" +
+            "Authentication → Sign-in method → Google → Enable karo."
           );
 
         } else if (error.code === 'auth/unauthorized-domain') {
           alert(
-            "🚨 Firebase me ye domain authorized nahi hai.\\n\\n" +
-            "Firebase Console > Authentication > Settings > Authorized domains " +
+            "🚨 Firebase Authorized Domain problem.\n\n" +
+            "Firebase Console → Authentication → Settings → Authorized domains " +
             "me current website domain add karo."
           );
 
-        } else if (error.code === 'auth/popup-closed-by-user') {
-          // User intentionally closed the Google popup. No error alert needed.
+        } else if (error.code === 'auth/invalid-api-key') {
+          alert(
+            "🚨 Firebase API key/config invalid hai. Firebase project config check karo."
+          );
 
         } else {
-          alert("Sign-In Error: " + (error.message || error.code || error));
+          alert(
+            "Google Sign-In Error:\n\n" +
+            (error.message || error.code || String(error))
+          );
         }
 
       } finally {
-        // For redirect, the page will navigate away, so this is harmless.
-        authRunning = false;
+        // Keep this false only after popup/redirect handling is finished.
+        googleLoginInProgress = false;
 
         if (authBtn) {
           authBtn.innerHTML = originalBtnHtml;
           authBtn.style.opacity = '1';
           authBtn.style.pointerEvents = 'auto';
         }
+
+        // If Firebase did not authenticate us, show login again.
+        // If it did, never reopen the modal.
+        if (!auth.currentUser) {
+          openGoogleAuthModal();
+        } else {
+          closeGoogleAuthModal();
+        }
       }
     };
+
+    // ------------------------------------------------------------
+    // GOOGLE SIGN OUT
+    // ------------------------------------------------------------
 
     window.handleGoogleSignOut = async function() {
       if (!confirm("Kya aap sach me Sign Out karna chahte hain?")) return;
 
       try {
-        await authPersistenceReady;
+        await authReady;
         await signOut(auth);
 
         if (banUnsubscribe) {
@@ -2927,11 +2932,11 @@
         };
 
         localStorage.removeItem(USER_KEY);
-
         location.reload();
-      } catch (err) {
-        console.error("Sign out error:", err);
-        alert("Sign Out failed: " + (err.message || err));
+
+      } catch (error) {
+        console.error("Sign out error:", error);
+        alert("Sign Out failed: " + (error.message || error));
       }
     };
 
@@ -2956,7 +2961,6 @@
           }
           if (data.participateLdb !== undefined) userProfile.participateLdb = data.participateLdb;
 
-          // Restore custom profile data saved in Firebase.
           if (typeof data.name === "string" && data.name.trim()) {
             userProfile.name = data.name.trim();
           }
