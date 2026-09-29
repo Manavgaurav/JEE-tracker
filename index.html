@@ -2706,14 +2706,13 @@
     import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { 
       getAuth, 
-      signInWithPopup, 
-      signInWithRedirect, 
-      getRedirectResult, 
-      GoogleAuthProvider, 
-      onAuthStateChanged, 
-      signOut, 
-      setPersistence, 
-      browserLocalPersistence 
+      signInWithPopup,
+      GoogleAuthProvider,
+      onAuthStateChanged,
+      signOut,
+      setPersistence,
+      browserLocalPersistence,
+      browserSessionPersistence
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const ADMIN_EMAILS = [
@@ -2739,10 +2738,27 @@
     window.doc = doc;
     window.setDoc = setDoc;
 
-    setPersistence(auth, browserLocalPersistence).catch((err) => console.warn("Persistence error:", err));
+    // IMPORTANT: Wait for Firebase persistence to be ready BEFORE registering
+    // the auth-state listener. This prevents the listener from briefly seeing
+    // "null" and reopening the Sign-In modal after Google account selection.
+    try {
+      await setPersistence(auth, browserLocalPersistence);
+    } catch (persistenceError) {
+      console.warn("Local persistence unavailable, using session persistence:", persistenceError);
+      try {
+        await setPersistence(auth, browserSessionPersistence);
+      } catch (sessionError) {
+        console.warn("Session persistence also unavailable:", sessionError);
+      }
+    }
 
     const googleProvider = new GoogleAuthProvider();
+    // Do not force a fresh Google account chooser on every auth attempt.
+    // Firebase will remember the authenticated user when persistence works.
     googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+    let authStateInitialized = false;
+    let signedInThisSession = false;
 
     function triggerHardLockout(message = "Aapka Google account permanently banned hai.") {
       localStorage.setItem("JEE_2027_DEVICE_BANNED", "true");
@@ -2799,19 +2815,6 @@
       }
     }
 
-    getRedirectResult(auth).then((result) => {
-      if (result && result.user) {
-        const authModal = document.getElementById('googleAuthModal');
-        if (authModal) {
-          authModal.classList.remove('open');
-          authModal.style.setProperty('display', 'none', 'important');
-        }
-        if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
-      }
-    }).catch((error) => {
-      console.warn("Redirect processing notice:", error);
-    });
-
     window.checkOwnerAdminPermission = function() {
       const currentEmail = (auth.currentUser && auth.currentUser.email) || userProfile.email || "";
       if (!currentEmail) {
@@ -2828,44 +2831,67 @@
       }
     };
 
+    async function handleAuthenticatedUser(user) {
+      if (!user) return false;
+
+      const isBanned = await checkIsUserBanned(user.uid);
+      if (isBanned) return false;
+
+      listenToBanStatus(user.uid);
+
+      const authModal = document.getElementById('googleAuthModal');
+      if (authModal) {
+        authModal.classList.remove('open');
+        authModal.style.setProperty('display', 'none', 'important');
+      }
+
+      userProfile.uid = user.uid;
+      userProfile.email = user.email || "";
+      if (!userProfile.name || userProfile.name === "Aspirant") {
+        userProfile.name = user.displayName || "Aspirant";
+      }
+      if (!userProfile.photoUrl) {
+        userProfile.photoUrl = user.photoURL || "";
+      }
+      userProfile.isSetup = true;
+      localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
+
+      const navDisp = document.getElementById('navUserNameDisplay');
+      if (navDisp) navDisp.innerText = userProfile.name;
+      if (typeof updateNavAvatarDisplay === 'function') updateNavAvatarDisplay();
+
+      try {
+        await fetchUserDataFromCloud(user.uid);
+      } catch(fetchErr) {
+        console.warn("Cloud data fetch notice:", fetchErr);
+      }
+
+      return true;
+    }
+
     onAuthStateChanged(auth, async (user) => {
       const authModal = document.getElementById('googleAuthModal');
-      
+
       if (user) {
-        const isBanned = await checkIsUserBanned(user.uid);
-        if (isBanned) return;
-
-        listenToBanStatus(user.uid);
-
-        if (authModal) {
-          authModal.classList.remove('open');
-          authModal.style.setProperty('display', 'none', 'important');
-        }
-
-        userProfile.uid = user.uid;
-        userProfile.email = user.email || "";
-        if (!userProfile.name || userProfile.name === "Aspirant") {
-          userProfile.name = user.displayName || "Aspirant";
-        }
-        if (!userProfile.photoUrl) {
-          userProfile.photoUrl = user.photoURL || "";
-        }
-        userProfile.isSetup = true;
-        localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
-
-        const navDisp = document.getElementById('navUserNameDisplay');
-        if (navDisp) navDisp.innerText = userProfile.name;
-        if (typeof updateNavAvatarDisplay === 'function') updateNavAvatarDisplay();
-
-        try {
-          await fetchUserDataFromCloud(user.uid);
-        } catch(fetchErr) {
-          console.warn("Cloud data fetch notice:", fetchErr);
+        authStateInitialized = true;
+        const ok = await handleAuthenticatedUser(user);
+        if (ok && signedInThisSession && typeof triggerConfetti === 'function') {
+          triggerConfetti(null, 80);
+          signedInThisSession = false;
         }
       } else {
+        // Firebase can emit an initial null while restoring persistence.
+        // Never open the login modal until that initial auth check is complete.
+        if (!authStateInitialized) {
+          authStateInitialized = true;
+        }
+
         if (banUnsubscribe) { banUnsubscribe(); banUnsubscribe = null; }
         userProfile.isSetup = false;
-        if (authModal) {
+
+        // If popup sign-in has just succeeded, don't immediately reopen
+        // the modal because of a transient auth-state event.
+        if (!signedInThisSession && authModal) {
           authModal.style.removeProperty('display');
           authModal.classList.add('open');
         }
@@ -2879,45 +2905,53 @@
 
       const authBtn = document.querySelector('.btn-google-auth');
       const originalBtnHtml = authBtn ? authBtn.innerHTML : '';
+
       if (authBtn) {
         authBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Connecting Google...</span>`;
         authBtn.style.opacity = '0.7';
+        authBtn.disabled = true;
       }
 
       try {
+        // Use popup only. The old redirect fallback could return to this page
+        // before Firebase persistence had finished restoring, which caused the
+        // login modal to appear again.
         const res = await signInWithPopup(auth, googleProvider);
+
         if (res && res.user) {
+          signedInThisSession = true;
+
+          // Immediately finalize the signed-in UI from the popup result.
+          await handleAuthenticatedUser(res.user);
+
           const authModal = document.getElementById('googleAuthModal');
           if (authModal) {
             authModal.classList.remove('open');
             authModal.style.setProperty('display', 'none', 'important');
           }
+
           if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
         }
       } catch (error) {
-        console.warn("Popup blocked or failed. Auto-switching to Redirect mode...", error);
-        
-        if (
-          error.code === 'auth/popup-blocked' ||
-          error.code === 'auth/cancelled-popup-request' ||
-          error.code === 'auth/internal-error'
-        ) {
-          try {
-            await signInWithRedirect(auth, googleProvider);
-            return;
-          } catch (redErr) {
-            alert("Redirect Login Failed: " + redErr.message);
-          }
+        console.error("Google Sign-In Error:", error);
+
+        if (error.code === 'auth/popup-blocked') {
+          alert("Google login popup browser ne block kar diya. Browser me popups allow karke dobara try karo.");
+        } else if (error.code === 'auth/popup-closed-by-user') {
+          // User closed the Google window; don't show an unnecessary error.
+        } else if (error.code === 'auth/cancelled-popup-request') {
+          // Ignore duplicate/cancelled popup requests.
         } else if (error.code === 'auth/operation-not-allowed') {
-          alert("🚨 Firebase Console me Google Sign-In Provider DISABLED hai!\n\nAuthentication > Sign-in method me jaakar Google ko Enable karo.");
-        } else if (error.code !== 'auth/popup-closed-by-user') {
-          alert("Sign-In Error: " + error.message);
+          alert("🚨 Firebase Console me Google Sign-In Provider DISABLED hai!\\n\\nAuthentication > Sign-in method me jaakar Google ko Enable karo.");
+        } else {
+          alert("Sign-In Error: " + (error?.message || error));
         }
       } finally {
         authRunning = false;
         if (authBtn) {
           authBtn.innerHTML = originalBtnHtml;
           authBtn.style.opacity = '1';
+          authBtn.disabled = false;
         }
       }
     };
