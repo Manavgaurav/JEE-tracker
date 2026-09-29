@@ -52,6 +52,7 @@
       padding-bottom: 120px;
     }
 
+    /* Top Aurora Arch / Dome (Inspired directly by the reference image) */
     .top-aurora-arc {
       position: fixed;
       top: -240px;
@@ -872,7 +873,7 @@
 </head>
 <body>
 
-  <!-- AURORA DOME -->
+  <!-- AURORA DOME FROM SCREENSHOT -->
   <div class="top-aurora-arc"></div>
   <div class="top-aurora-border"></div>
 
@@ -1236,7 +1237,7 @@
       <div class="focus-arena-box">
         <div class="hero-tag"><span class="tag-dot"></span> Tactical Focus Lounge</div>
         <h2 style="font-size: 1.85rem; font-weight: 800; color: #fff; margin-top: 6px;">Deep-Work Session</h2>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Distraction-free environment with completion alarm.</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Distraction-free environment for 2-hour study sprints.</p>
         
         <div class="timer-dropdown-group" style="margin-top:16px;">
            <select id="timerStudySubj" class="filter-select">
@@ -1278,12 +1279,6 @@
           </button>
           <button class="pill-btn" onclick="resetTimer()" style="padding: 12px 22px;">
             <i class="fa-solid fa-rotate-left"></i> Reset
-          </button>
-        </div>
-
-        <div style="margin-top:14px;">
-          <button class="pill-btn" onclick="testTimerChime()" style="font-size:0.72rem; padding:4px 12px; color:var(--purple-neon); border-color:rgba(168,85,247,0.3);">
-            <i class="fa-solid fa-bell"></i> Test Sound
           </button>
         </div>
       </div>
@@ -1386,6 +1381,19 @@
       <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:16px; margin-bottom:18px; text-align:left;">
         <label style="font-size:0.82rem; font-weight:800; color:#fff; display:block; margin-bottom:4px;">🏆 Leaderboard Participation:</label>
         <div id="profileLdbStatusText" style="font-size:0.8rem; font-weight:700; color:var(--purple-neon);"></div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:16px; margin-bottom:18px; text-align:left;">
+        <label style="font-size:0.82rem; font-weight:800; color:#fff; display:block; margin-bottom:8px;">👤 App Username</label>
+        <div style="display:flex; gap:8px;">
+          <input id="appUsernameInput" type="text" maxlength="24"
+            placeholder="Enter username"
+            style="flex:1; min-width:0; padding:10px 12px; border-radius:10px; border:1px solid rgba(168,85,247,.35); background:rgba(0,0,0,.25); color:#fff; outline:none;">
+          <button class="pill-btn" onclick="saveAppUsername()" style="white-space:nowrap; color:var(--purple-neon);">Save</button>
+        </div>
+        <div style="font-size:0.68rem; color:var(--text-muted); margin-top:7px;">
+          Ye naam Google Account ke naam se independent hai.
+        </div>
       </div>
 
       <div style="display:flex; justify-content:center; margin-bottom: 20px;">
@@ -2063,6 +2071,7 @@
       if (item) {
         item[field] = !item[field];
         
+        // XP Calculation
         if (item[field]) {
           userExtras.totalXp = (userExtras.totalXp || 0) + 15;
           triggerConfetti(event, 30);
@@ -2289,9 +2298,47 @@
       }
     }
 
+    window.saveAppUsername = async function() {
+      const input = document.getElementById('appUsernameInput');
+      if (!input) return;
+
+      const newName = input.value.trim().replace(/\\s+/g, ' ');
+      if (!newName) {
+        alert("Username empty nahi ho sakta.");
+        return;
+      }
+      if (newName.length < 2 || newName.length > 24) {
+        alert("Username 2 se 24 characters ka hona chahiye.");
+        return;
+      }
+      if (!auth.currentUser || !userProfile.uid) {
+        alert("Pehle Google account se login karo.");
+        return;
+      }
+
+      userProfile.name = newName;
+      localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
+
+      const navDisp = document.getElementById('navUserNameDisplay');
+      if (navDisp) navDisp.innerText = userProfile.name;
+
+      const nameDisp = document.getElementById('profileRealNameDisplay');
+      if (nameDisp) nameDisp.innerText = userProfile.name;
+
+      try {
+        await window.syncUserDataToCloud();
+        alert("Username saved: " + userProfile.name);
+      } catch (e) {
+        console.error("Username save error:", e);
+        alert("Username local me save ho gaya, lekin Firebase sync fail hua.");
+      }
+    };
+
     function openProfileModal() {
       const nameDisp = document.getElementById('profileRealNameDisplay');
       if (nameDisp) nameDisp.innerText = userProfile.name || "Aspirant";
+      const usernameInput = document.getElementById('appUsernameInput');
+      if (usernameInput) usernameInput.value = userProfile.name || "";
       const emailDisp = document.getElementById('profileEmailDisplay');
       if (emailDisp) emailDisp.innerText = userProfile.email || "Google Account";
       
@@ -2399,81 +2446,6 @@
     }
     function closeAdminModal() { document.getElementById('ownerAdminModal').classList.remove('open'); }
 
-    // ==========================================
-    // 🔊 AUDIO ENGINE & BACKGROUND TIMER PROTECTION
-    // ==========================================
-    let audioCtx = null;
-    function initAudioContext() {
-      if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) {
-          audioCtx = new AudioContextClass();
-        }
-      }
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-    }
-
-    function playCompletionSound() {
-      try {
-        initAudioContext();
-        if (!audioCtx) return;
-
-        const now = audioCtx.currentTime;
-        
-        // Melodic triple chime alarm
-        const notes = [
-          { freq: 523.25, time: now + 0.05, dur: 0.35 }, // C5
-          { freq: 659.25, time: now + 0.40, dur: 0.35 }, // E5
-          { freq: 783.99, time: now + 0.75, dur: 0.35 }, // G5
-          { freq: 1046.50, time: now + 1.10, dur: 0.85 } // C6 (sustained)
-        ];
-
-        notes.forEach(n => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(n.freq, n.time);
-
-          gain.gain.setValueAtTime(0, n.time);
-          gain.gain.linearRampToValueAtTime(0.4, n.time + 0.04);
-          gain.gain.exponentialRampToValueAtTime(0.0001, n.time + n.dur);
-
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-
-          osc.start(n.time);
-          osc.stop(n.time + n.dur + 0.1);
-        });
-
-        // Extra subtle beep for urgency
-        setTimeout(() => {
-          if (!audioCtx) return;
-          const t = audioCtx.currentTime;
-          const osc2 = audioCtx.createOscillator();
-          const gain2 = audioCtx.createGain();
-          osc2.type = 'triangle';
-          osc2.frequency.setValueAtTime(880, t);
-          gain2.gain.setValueAtTime(0.3, t);
-          gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
-          osc2.connect(gain2);
-          gain2.connect(audioCtx.destination);
-          osc2.start(t);
-          osc2.stop(t + 0.5);
-        }, 1600);
-
-      } catch (err) {
-        console.warn("Audio playback issue:", err);
-      }
-    }
-
-    window.testTimerChime = function() {
-      initAudioContext();
-      playCompletionSound();
-    };
-
     let timerDuration = 120 * 60;
     let timerLeft = 120 * 60;
     let timerActive = false;
@@ -2482,7 +2454,6 @@
     let sessionStartMins = 120; 
 
     function setTimerPreset(mins) {
-      initAudioContext();
       timerDuration = mins * 60;
       timerLeft = timerDuration;
       sessionStartMins = mins;
@@ -2491,7 +2462,6 @@
     }
 
     function applyCustomDuration() {
-      initAudioContext();
       const hrs = parseInt(document.getElementById('customHoursInput').value) || 0;
       const mins = parseInt(document.getElementById('customMinutesInput').value) || 0;
       const totalMins = (hrs * 60) + mins;
@@ -2516,37 +2486,30 @@
     }
 
     function toggleTimer() {
-      initAudioContext();
       if (timerActive) pauseTimer(); else startTimer();
     }
 
-    // TIMESTAMP BASED TIMER CHECK (Inactive background tab throttling safe)
-    function tickTimer() {
-      if (!timerActive || !sessionEndTime) return;
-      const remainingMs = sessionEndTime - Date.now();
-      if (remainingMs <= 0) {
-        timerLeft = 0;
-        clearInterval(timerIntervalId);
-        timerActive = false;
-        const btn = document.getElementById('timerPlayBtn');
-        if (btn) btn.innerHTML = `<i class="fa-solid fa-play"></i> Start Session`;
-        updateTimerDisplay();
-        handleTimerComplete();
-      } else {
-        timerLeft = Math.ceil(remainingMs / 1000);
-        updateTimerDisplay();
-      }
-    }
-
     function startTimer() {
-      initAudioContext();
       timerActive = true;
       sessionEndTime = Date.now() + (timerLeft * 1000);
       const btn = document.getElementById('timerPlayBtn');
       if (btn) btn.innerHTML = `<i class="fa-solid fa-pause"></i> Pause`;
 
       clearInterval(timerIntervalId);
-      timerIntervalId = setInterval(tickTimer, 500);
+      timerIntervalId = setInterval(() => {
+        const remainingMs = sessionEndTime - Date.now();
+        if (remainingMs <= 0) {
+          timerLeft = 0;
+          clearInterval(timerIntervalId);
+          timerActive = false;
+          if (btn) btn.innerHTML = `<i class="fa-solid fa-play"></i> Start Session`;
+          updateTimerDisplay();
+          handleTimerComplete();
+        } else {
+          timerLeft = Math.ceil(remainingMs / 1000);
+          updateTimerDisplay();
+        }
+      }, 500);
       updateTimerDisplay();
     }
 
@@ -2566,16 +2529,9 @@
       updateTimerDisplay();
     }
 
-    // Inactive Tab / Visibility Change Listener (Guarantees alarm fires the exact instant tab wakes up if slept)
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden && timerActive) {
-        tickTimer();
-      }
-    });
-
     function handleTimerComplete() {
-      playCompletionSound();
       triggerConfetti(null, 100);
+      alert("🎉 Focus session completed!");
       
       const subj = document.getElementById('timerStudySubj').value;
       const type = document.getElementById('timerStudyType').value;
@@ -2612,11 +2568,6 @@
       saveToStorage();
       renderStudyLogs();
       checkStreak();
-
-      // Non-blocking alert so audio rings immediately
-      setTimeout(() => {
-        alert("🎉 Focus session completed! Alarm sounded & study hours recorded.");
-      }, 200);
     }
 
     function renderStudyLogs() {
@@ -2692,6 +2643,7 @@
       browserLocalPersistence 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+    // 🔒 OWNER AUTHORIZED GOOGLE ACCOUNTS LIST
     const ADMIN_EMAILS = [
       "triggeredmarshmello@gmail.com",
       "vaironmusic@gmail.com"
@@ -2815,7 +2767,11 @@
 
         userProfile.uid = user.uid;
         userProfile.email = user.email || "";
-        userProfile.name = user.displayName || "Aspirant";
+        // App username is independent from Google account displayName.
+        // Only use Google name when no app username exists yet.
+        if (!userProfile.name || userProfile.name === "Aspirant") {
+          userProfile.name = user.displayName || "Aspirant";
+        }
         userProfile.photoUrl = user.photoURL || "";
         userProfile.isSetup = true;
         localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
@@ -2918,6 +2874,11 @@
             if (window.userExtras.streak === undefined) window.userExtras.streak = data.streak || 0;
           }
           if (data.participateLdb !== undefined) userProfile.participateLdb = data.participateLdb;
+
+          // Firestore stores the app username separately from Google displayName.
+          if (typeof data.name === "string" && data.name.trim()) {
+            userProfile.name = data.name.trim();
+          }
           
           localStorage.setItem("JEE_2027_SQUAD_TRACKER_V1", JSON.stringify(window.trackerData));
           localStorage.setItem("JEE_2027_EXTRAS_V1", JSON.stringify(window.userExtras));
