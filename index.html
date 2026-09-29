@@ -2775,7 +2775,14 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    setPersistence(auth, browserLocalPersistence).catch((err) => console.warn("Persistence error:", err));
+    // IMPORTANT: wait for persistence before starting auth listeners/sign-in.
+    // Without this, a fast Google popup can complete while persistence is still
+    // being initialized, causing the auth state to immediately appear signed out.
+    const authPersistenceReady = setPersistence(auth, browserLocalPersistence)
+      .catch((err) => {
+        console.warn("Persistence error:", err);
+        return null;
+      });
 
     const googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: 'select_account' });
@@ -2835,7 +2842,7 @@
       }
     }
 
-    getRedirectResult(auth).then((result) => {
+    authPersistenceReady.then(() => getRedirectResult(auth)).then((result) => {
       if (result && result.user) {
         const authModal = document.getElementById('googleAuthModal');
         if (authModal) {
@@ -2865,6 +2872,7 @@
     };
 
     onAuthStateChanged(auth, async (user) => {
+      await authPersistenceReady;
       const authModal = document.getElementById('googleAuthModal');
       
       if (user) {
@@ -2898,6 +2906,12 @@
         } catch(fetchErr) {
           console.warn("Cloud data fetch notice:", fetchErr);
         }
+
+        // Re-assert the signed-in UI after cloud sync completes.
+        if (auth.currentUser && auth.currentUser.uid === user.uid && authModal) {
+          authModal.classList.remove('open');
+          authModal.style.setProperty('display', 'none', 'important');
+        }
       } else {
         if (banUnsubscribe) { banUnsubscribe(); banUnsubscribe = null; }
         userProfile.isSetup = false;
@@ -2921,6 +2935,7 @@
       }
 
       try {
+        await authPersistenceReady;
         const res = await signInWithPopup(auth, googleProvider);
         if (res && res.user) {
           const authModal = document.getElementById('googleAuthModal');
