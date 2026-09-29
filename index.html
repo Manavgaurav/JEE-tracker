@@ -1386,10 +1386,9 @@
       <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:16px; margin-bottom:18px; text-align:left;">
         <label style="font-size:0.82rem; font-weight:800; color:#fff; display:block; margin-bottom:8px;">👤 App Username</label>
         <div style="display:flex; gap:8px;">
-          <input id="appUsernameInput" type="text" maxlength="24"
-            placeholder="Enter username"
+          <input id="appUsernameInput" type="text" maxlength="24" placeholder="Enter username"
             style="flex:1; min-width:0; padding:10px 12px; border-radius:10px; border:1px solid rgba(168,85,247,.35); background:rgba(0,0,0,.25); color:#fff; outline:none;">
-          <button class="pill-btn" onclick="saveAppUsername()" style="white-space:nowrap; color:var(--purple-neon);">Save</button>
+          <button type="button" class="pill-btn" onclick="return saveAppUsername(event)" style="white-space:nowrap; color:var(--purple-neon);">Save</button>
         </div>
         <div style="font-size:0.68rem; color:var(--text-muted); margin-top:7px;">
           Ye naam Google Account ke naam se independent hai.
@@ -2298,46 +2297,75 @@
       }
     }
 
-    window.saveAppUsername = async function() {
-      const input = document.getElementById('appUsernameInput');
-      if (!input) return;
+    window.saveAppUsername = async function(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
 
-      const newName = input.value.trim().replace(/\\s+/g, ' ');
+      const input = document.getElementById("appUsernameInput");
+      if (!input) {
+        alert("❌ Username box nahi mila. Page refresh karke dobara try karo.");
+        return false;
+      }
+
+      const newName = input.value.trim().replace(/\s+/g, " ");
+
       if (!newName) {
         alert("Username empty nahi ho sakta.");
-        return;
+        input.focus();
+        return false;
       }
+
       if (newName.length < 2 || newName.length > 24) {
         alert("Username 2 se 24 characters ka hona chahiye.");
-        return;
+        input.focus();
+        return false;
       }
+
       if (!auth.currentUser || !userProfile.uid) {
         alert("Pehle Google account se login karo.");
-        return;
+        return false;
       }
 
       userProfile.name = newName;
+      userProfile.uid = auth.currentUser.uid;
+      userProfile.email = auth.currentUser.email || userProfile.email || "";
+
       localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
 
-      const navDisp = document.getElementById('navUserNameDisplay');
-      if (navDisp) navDisp.innerText = userProfile.name;
+      const navDisp = document.getElementById("navUserNameDisplay");
+      if (navDisp) navDisp.innerText = newName;
 
-      const nameDisp = document.getElementById('profileRealNameDisplay');
-      if (nameDisp) nameDisp.innerText = userProfile.name;
+      const nameDisp = document.getElementById("profileRealNameDisplay");
+      if (nameDisp) nameDisp.innerText = newName;
 
       try {
-        await window.syncUserDataToCloud();
-        alert("Username saved: " + userProfile.name);
-      } catch (e) {
-        console.error("Username save error:", e);
-        alert("Username local me save ho gaya, lekin Firebase sync fail hua.");
+        const ref = doc(db, "squad_progress", userProfile.uid);
+
+        await setDoc(ref, {
+          name: newName,
+          uid: userProfile.uid,
+          docId: userProfile.uid,
+          email: userProfile.email,
+          photoUrl: userProfile.photoUrl || "",
+          participateLdb: userProfile.participateLdb === true,
+          updated: Date.now()
+        }, { merge: true });
+
+        alert("✅ Username saved: " + newName);
+      } catch (error) {
+        console.error("Username Firebase save error:", error);
+        alert("❌ Firebase me save nahi hua:\n\n" + (error?.message || error));
       }
+
+      return false;
     };
 
     function openProfileModal() {
       const nameDisp = document.getElementById('profileRealNameDisplay');
       if (nameDisp) nameDisp.innerText = userProfile.name || "Aspirant";
-      const usernameInput = document.getElementById('appUsernameInput');
+      const usernameInput = document.getElementById("appUsernameInput");
       if (usernameInput) usernameInput.value = userProfile.name || "";
       const emailDisp = document.getElementById('profileEmailDisplay');
       if (emailDisp) emailDisp.innerText = userProfile.email || "Google Account";
@@ -2767,8 +2795,6 @@
 
         userProfile.uid = user.uid;
         userProfile.email = user.email || "";
-        // App username is independent from Google account displayName.
-        // Only use Google name when no app username exists yet.
         if (!userProfile.name || userProfile.name === "Aspirant") {
           userProfile.name = user.displayName || "Aspirant";
         }
@@ -2874,8 +2900,6 @@
             if (window.userExtras.streak === undefined) window.userExtras.streak = data.streak || 0;
           }
           if (data.participateLdb !== undefined) userProfile.participateLdb = data.participateLdb;
-
-          // Firestore stores the app username separately from Google displayName.
           if (typeof data.name === "string" && data.name.trim()) {
             userProfile.name = data.name.trim();
           }
