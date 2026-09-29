@@ -2706,7 +2706,8 @@
     import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { 
       getAuth, 
-      signInWithPopup,
+      signInWithRedirect,
+      getRedirectResult,
       GoogleAuthProvider,
       onAuthStateChanged,
       signOut,
@@ -2869,6 +2870,22 @@
       return true;
     }
 
+    // Explicitly process the result after returning from Google.
+    // onAuthStateChanged will also restore the persisted user.
+    getRedirectResult(auth).then(async (result) => {
+      if (result && result.user) {
+        signedInThisSession = true;
+        await handleAuthenticatedUser(result.user);
+        sessionStorage.removeItem('JEE_GOOGLE_REDIRECT_IN_PROGRESS');
+        if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
+      } else if (!auth.currentUser) {
+        sessionStorage.removeItem('JEE_GOOGLE_REDIRECT_IN_PROGRESS');
+      }
+    }).catch((error) => {
+      console.warn("Google redirect result notice:", error);
+      sessionStorage.removeItem('JEE_GOOGLE_REDIRECT_IN_PROGRESS');
+    });
+
     onAuthStateChanged(auth, async (user) => {
       const authModal = document.getElementById('googleAuthModal');
 
@@ -2891,13 +2908,16 @@
 
         // If popup sign-in has just succeeded, don't immediately reopen
         // the modal because of a transient auth-state event.
-        if (!signedInThisSession && authModal) {
+        const redirectPending = sessionStorage.getItem('JEE_GOOGLE_REDIRECT_IN_PROGRESS') === '1';
+        if (!signedInThisSession && !redirectPending && authModal) {
           authModal.style.removeProperty('display');
           authModal.classList.add('open');
         }
       }
     });
 
+    // Use redirect authentication instead of popup authentication.
+    // This avoids browser popup blockers completely.
     let authRunning = false;
     window.handleGoogleSignIn = async function() {
       if (authRunning) return;
@@ -2907,42 +2927,23 @@
       const originalBtnHtml = authBtn ? authBtn.innerHTML : '';
 
       if (authBtn) {
-        authBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Connecting Google...</span>`;
+        authBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Opening Google...</span>`;
         authBtn.style.opacity = '0.7';
         authBtn.disabled = true;
       }
 
       try {
-        // Use popup only. The old redirect fallback could return to this page
-        // before Firebase persistence had finished restoring, which caused the
-        // login modal to appear again.
-        const res = await signInWithPopup(auth, googleProvider);
-
-        if (res && res.user) {
-          signedInThisSession = true;
-
-          // Immediately finalize the signed-in UI from the popup result.
-          await handleAuthenticatedUser(res.user);
-
-          const authModal = document.getElementById('googleAuthModal');
-          if (authModal) {
-            authModal.classList.remove('open');
-            authModal.style.setProperty('display', 'none', 'important');
-          }
-
-          if (typeof triggerConfetti === 'function') triggerConfetti(null, 80);
-        }
+        // Keep the modal from flashing while Google redirects away and back.
+        sessionStorage.setItem('JEE_GOOGLE_REDIRECT_IN_PROGRESS', '1');
+        await signInWithRedirect(auth, googleProvider);
       } catch (error) {
         console.error("Google Sign-In Error:", error);
+        sessionStorage.removeItem('JEE_GOOGLE_REDIRECT_IN_PROGRESS');
 
-        if (error.code === 'auth/popup-blocked') {
-          alert("Google login popup browser ne block kar diya. Browser me popups allow karke dobara try karo.");
-        } else if (error.code === 'auth/popup-closed-by-user') {
-          // User closed the Google window; don't show an unnecessary error.
-        } else if (error.code === 'auth/cancelled-popup-request') {
-          // Ignore duplicate/cancelled popup requests.
-        } else if (error.code === 'auth/operation-not-allowed') {
-          alert("🚨 Firebase Console me Google Sign-In Provider DISABLED hai!\\n\\nAuthentication > Sign-in method me jaakar Google ko Enable karo.");
+        if (error.code === 'auth/operation-not-allowed') {
+          alert("🚨 Firebase Console me Google Sign-In Provider DISABLED hai!\n\nAuthentication > Sign-in method me jaakar Google ko Enable karo.");
+        } else if (error.code === 'auth/unauthorized-domain') {
+          alert("🚨 Ye website Firebase Authentication ke Authorized Domains me add nahi hai. Firebase Console > Authentication > Settings > Authorized domains me domain add karo.");
         } else {
           alert("Sign-In Error: " + (error?.message || error));
         }
