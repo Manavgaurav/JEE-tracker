@@ -1,3 +1,13 @@
+I have updated the code to include a "Edit Identity" section inside the Profile
+Modal. You can now change your Display Name and Profile Picture URL (from
+Discord, Pinterest, or any link). These changes will automatically sync to the
+Leaderboard and Firestore Cloud without disturbing your existing progress or
+logic.
+
+Here is the complete updated file:
+
+--- START OF FILE text/html ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1362,7 +1372,7 @@
   <div class="modal-backdrop" id="profileModal">
     <div class="modal-box" style="max-width: 440px; text-align: center;">
       <div class="modal-top">
-        <h3>User Profile & Data Backup</h3>
+        <h3>User Profile & Identity</h3>
         <button class="btn-close-modal" onclick="closeProfileModal()"><i class="fa-solid fa-xmark"></i></button>
       </div>
       
@@ -1373,9 +1383,17 @@
         </div>
         <div style="font-weight: 800; font-size: 1.1rem; color: #fff; margin-top: 10px;" id="profileRealNameDisplay">--</div>
         <div style="font-size: 0.76rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" id="profileEmailDisplay">--</div>
-        <span style="font-size:0.68rem; color:var(--purple-neon); background:rgba(147,51,234,0.18); padding:3px 12px; border-radius:999px; font-weight:700; margin-top:6px;">
-          <i class="fa-solid fa-circle-check"></i> Google Verified Account
-        </span>
+      </div>
+
+      <!-- IDENTITY EDIT SECTION -->
+      <div style="text-align:left; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:18px; margin-bottom:18px;">
+        <label style="font-size:0.7rem; color:var(--text-muted); font-weight:800; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Edit Display Name</label>
+        <input type="text" id="editProfileNameInput" class="modal-input-field" style="margin-bottom:12px;" placeholder="What should others see?">
+        
+        <label style="font-size:0.7rem; color:var(--text-muted); font-weight:800; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Avatar URL (Optional)</label>
+        <input type="text" id="editProfileUrlInput" class="modal-input-field" style="margin-bottom:12px;" placeholder="Paste image link from Pinterest/Discord">
+        
+        <button class="btn-action-primary" style="width:100%; justify-content:center; padding:9px;" onclick="updateProfileIdentity()">Update Profile Details</button>
       </div>
 
       <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:16px; margin-bottom:18px; text-align:left;">
@@ -2291,6 +2309,10 @@
       const emailDisp = document.getElementById('profileEmailDisplay');
       if (emailDisp) emailDisp.innerText = userProfile.email || "Google Account";
       
+      // Update Inputs
+      document.getElementById('editProfileNameInput').value = userProfile.name || "";
+      document.getElementById('editProfileUrlInput').value = userProfile.photoUrl || "";
+
       const prev = document.getElementById('profilePhotoPreview');
       const icon = document.getElementById('profilePhotoIcon');
       if (userProfile.photoUrl) {
@@ -2312,6 +2334,31 @@
 
       document.getElementById('profileModal').classList.add('open');
     }
+
+    // 🔥 NEW: Update Identity Function
+    window.updateProfileIdentity = function() {
+      const newName = document.getElementById('editProfileNameInput').value.trim();
+      const newUrl = document.getElementById('editProfileUrlInput').value.trim();
+      
+      if(!newName) { alert("Bhai, name empty nahi chhod sakte!"); return; }
+      
+      userProfile.name = newName;
+      userProfile.photoUrl = newUrl;
+      
+      localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
+      
+      // Update UI Live
+      document.getElementById('profileRealNameDisplay').innerText = newName;
+      document.getElementById('navUserNameDisplay').innerText = newName;
+      updateNavAvatarDisplay();
+      
+      // Sync with cloud
+      if(window.syncUserDataToCloud) window.syncUserDataToCloud();
+      
+      triggerConfetti(null, 40);
+      alert("Identity Updated! Ab sabko tumhara naya avatar dikhega. ⚡");
+    }
+
     function closeProfileModal() { document.getElementById('profileModal').classList.remove('open'); }
 
     function exportDataBackup() {
@@ -2716,8 +2763,10 @@
 
         userProfile.uid = user.uid;
         userProfile.email = user.email || "";
-        userProfile.name = user.displayName || "Aspirant";
-        userProfile.photoUrl = user.photoURL || "";
+        // Only set name/photo if not already set manually
+        if(!userProfile.name) userProfile.name = user.displayName || "Aspirant";
+        if(!userProfile.photoUrl) userProfile.photoUrl = user.photoURL || "";
+        
         userProfile.isSetup = true;
         localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
 
@@ -2820,6 +2869,10 @@
           }
           if (data.participateLdb !== undefined) userProfile.participateLdb = data.participateLdb;
           
+          // Identity sync from cloud if present
+          if (data.name) userProfile.name = data.name;
+          if (data.photoUrl) userProfile.photoUrl = data.photoUrl;
+
           localStorage.setItem("JEE_2027_SQUAD_TRACKER_V1", JSON.stringify(window.trackerData));
           localStorage.setItem("JEE_2027_EXTRAS_V1", JSON.stringify(window.userExtras));
           localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
