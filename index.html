@@ -52,7 +52,7 @@
       padding-bottom: 120px;
     }
 
-    /* Top Aurora Arch / Dome (Inspired directly by the reference image) */
+    /* Top Aurora Arch / Dome */
     .top-aurora-arc {
       position: fixed;
       top: -240px;
@@ -873,7 +873,7 @@
 </head>
 <body>
 
-  <!-- AURORA DOME FROM SCREENSHOT -->
+  <!-- AURORA DOME -->
   <div class="top-aurora-arc"></div>
   <div class="top-aurora-border"></div>
 
@@ -899,7 +899,7 @@
           <span id="navUserNameDisplay">Profile & Data</span>
         </button>
         
-        <!-- 🔥 TOP NAVBAR FIRE STREAK PILL -->
+        <!-- TOP NAVBAR FIRE STREAK PILL -->
         <span class="pill-btn" style="color:#fb923c; border-color:rgba(249,115,22,0.4); background:rgba(249,115,22,0.1);">
           <i class="fa-solid fa-fire" style="color:#fb923c;"></i> <span id="navStreakDisplay">0d</span>
         </span>
@@ -907,7 +907,7 @@
         <button class="pill-btn timer-nav-btn" onclick="switchMainTab('timer')">
           <i class="fa-solid fa-stopwatch"></i> <span id="navTimerStatus">Focus Lounge</span>
         </button>
-        <!-- 🔥 LIVE XP PILL -->
+        <!-- LIVE XP PILL -->
         <span class="pill-btn" style="color:var(--purple-neon); border-color:rgba(168,85,247,0.35); background:rgba(147,51,234,0.12);">
           <i class="fa-solid fa-bolt" style="color:var(--purple-bright);"></i> <span id="navXpDisplay">0 XP</span>
         </span>
@@ -1335,7 +1335,7 @@
   </div>
   <style> @media(max-width:768px){ .hide-mobile{display:none;} } </style>
 
-  <!-- 🔒 MANDATORY GOOGLE SIGN-IN MODAL WALL -->
+  <!-- MANDATORY GOOGLE SIGN-IN MODAL WALL -->
   <div class="modal-backdrop" id="googleAuthModal" style="z-index: 99999; backdrop-filter: blur(28px);">
     <div class="modal-box" style="max-width: 440px; text-align: center; border: 1.5px solid var(--purple-bright);">
       <div class="brand-icon-wrap" style="width: 54px; height: 54px; margin: 0 auto 16px; font-size: 1.5rem;">
@@ -1358,32 +1358,49 @@
     </div>
   </div>
 
-  <!-- User Profile & Backup Modal -->
+  <!-- User Profile & Backup Modal (UPDATED: DP & NAME CHANGE INTEGRATED) -->
   <div class="modal-backdrop" id="profileModal">
     <div class="modal-box" style="max-width: 440px; text-align: center;">
       <div class="modal-top">
-        <h3>User Profile & Identity</h3>
+        <h3>User Profile & Settings</h3>
         <button class="btn-close-modal" onclick="closeProfileModal()"><i class="fa-solid fa-xmark"></i></button>
       </div>
       
       <div class="avatar-upload-wrap" style="display:flex; flex-direction:column; align-items:center; margin-bottom:18px;">
-        <div class="avatar-circle-preview" style="cursor:default; width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.05); border:2px solid var(--purple-bright); display:flex; align-items:center; justify-content:center; overflow:hidden;">
+        <!-- DP Preview & Click to Change -->
+        <div class="avatar-circle-preview" style="cursor:pointer; width:72px; height:72px; border-radius:50%; background:rgba(255,255,255,0.05); border:2px solid var(--purple-bright); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;" onclick="document.getElementById('profilePhotoInput').click()" title="Click to upload profile photo">
           <img id="profilePhotoPreview" src="" style="display:none; width:100%; height:100%; object-fit:cover;" />
           <i id="profilePhotoIcon" class="fa-solid fa-user" style="font-size: 1.8rem; color: var(--purple-neon);"></i>
+          <div style="position:absolute; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+            <i class="fa-solid fa-camera" style="color:#fff; font-size:1.1rem;"></i>
+          </div>
         </div>
-        <div style="font-weight: 800; font-size: 1.1rem; color: #fff; margin-top: 10px;" id="profileRealNameDisplay">--</div>
-        <div style="font-size: 0.76rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" id="profileEmailDisplay">--</div>
-      </div>
+        <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;" onchange="handleProfilePhotoChange(event)" />
 
-      <!-- IDENTITY EDIT SECTION -->
-      <div style="text-align:left; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:18px; margin-bottom:18px;">
-        <label style="font-size:0.7rem; color:var(--text-muted); font-weight:800; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Edit Display Name</label>
-        <input type="text" id="editProfileNameInput" class="modal-input-field" style="margin-bottom:12px;" placeholder="What should others see?">
-        
-        <label style="font-size:0.7rem; color:var(--text-muted); font-weight:800; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Avatar URL (Optional)</label>
-        <input type="text" id="editProfileUrlInput" class="modal-input-field" style="margin-bottom:12px;" placeholder="Paste image link from Pinterest/Discord">
-        
-        <button class="btn-action-primary" style="width:100%; justify-content:center; padding:9px;" onclick="updateProfileIdentity()">Update Profile Details</button>
+        <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; justify-content:center;">
+          <button class="pill-btn" style="font-size:0.75rem; padding:5px 12px;" onclick="document.getElementById('profilePhotoInput').click()">
+            <i class="fa-solid fa-camera"></i> Change DP
+          </button>
+          <button class="pill-btn" style="font-size:0.75rem; padding:5px 12px;" onclick="changePhotoUrlPrompt()">
+            <i class="fa-solid fa-link"></i> Photo Link
+          </button>
+        </div>
+
+        <!-- Name Change Section -->
+        <div style="margin-top:14px; width:100%; max-width:300px;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:5px; text-align:left;">Display Name:</label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="text" id="profileNameInput" class="modal-input-field" style="margin-bottom:0; font-weight:700; font-size:0.95rem; padding:8px 12px;" placeholder="Enter your name" />
+            <button class="pill-btn" onclick="saveProfileName()" style="background:rgba(147,51,234,0.2); border-color:var(--purple-bright); color:var(--purple-neon); padding:8px 14px; font-size:0.8rem; white-space:nowrap;" title="Save Name">
+              <i class="fa-solid fa-floppy-disk"></i> Save
+            </button>
+          </div>
+        </div>
+
+        <div style="font-size: 0.76rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-top:10px;" id="profileEmailDisplay">--</div>
+        <span style="font-size:0.68rem; color:var(--purple-neon); background:rgba(147,51,234,0.18); padding:3px 12px; border-radius:999px; font-weight:700; margin-top:6px;">
+          <i class="fa-solid fa-circle-check"></i> Google Verified Account
+        </span>
       </div>
 
       <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:14px; border-radius:16px; margin-bottom:18px; text-align:left;">
@@ -1425,7 +1442,7 @@
         <button class="btn-close-modal" onclick="closeAdminModal()"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <!-- 🚨 REPORTED USERS ALERT SECTION FOR ADMIN -->
+      <!-- REPORTED USERS ALERT SECTION FOR ADMIN -->
       <div style="background:rgba(248,113,113,0.08); border:1.5px solid rgba(248,113,113,0.3); border-radius:18px; padding:16px; margin-bottom:18px;">
         <h4 style="color:#f87171; font-size:0.95rem; font-weight:800; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
           <i class="fa-solid fa-triangle-exclamation"></i> 🚨 Flagged / Reported Aspirants
@@ -1438,7 +1455,7 @@
         </div>
       </div>
 
-      <!-- 🚫 BANNED USERS LIST & UNBAN SECTION -->
+      <!-- BANNED USERS LIST & UNBAN SECTION -->
       <div style="background:rgba(255,255,255,0.03); border:1.5px solid rgba(255,255,255,0.1); border-radius:18px; padding:16px; margin-bottom:18px;">
         <h4 style="color:#fff; font-size:0.95rem; font-weight:800; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
           <i class="fa-solid fa-ban" style="color:#f87171;"></i> 🚫 Banned Users Management
@@ -1760,7 +1777,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // 🏆 LEADERBOARD TAB STATE CONTROLLER
     function renderLeaderboardTabState() {
       const promptBox = document.getElementById('ldbPromptBox');
       const activeContent = document.getElementById('ldbActiveContent');
@@ -1861,7 +1877,111 @@
       } else {
         span.innerHTML = `<i class="fa-solid fa-user"></i>`;
       }
+      const navDisp = document.getElementById('navUserNameDisplay');
+      if (navDisp && userProfile.name) {
+        navDisp.innerText = userProfile.name;
+      }
     }
+
+    /* 🔥 DP & NAME CHANGE LOGIC */
+    window.handleProfilePhotoChange = function(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert("Bhai, sirf valid image file select karo!");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxDim = 180;
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+          userProfile.photoUrl = dataUrl;
+          localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
+
+          const prev = document.getElementById('profilePhotoPreview');
+          const icon = document.getElementById('profilePhotoIcon');
+          if (prev) { prev.src = dataUrl; prev.style.display = 'block'; }
+          if (icon) icon.style.display = 'none';
+
+          updateNavAvatarDisplay();
+          if (window.syncUserDataToCloud) window.syncUserDataToCloud();
+          if (window.refreshCurrentTab) window.refreshCurrentTab();
+          triggerConfetti(null, 50);
+          alert("✅ DP successfully update ho gayi!");
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.changePhotoUrlPrompt = function() {
+      const current = (userProfile.photoUrl && !userProfile.photoUrl.startsWith('data:')) ? userProfile.photoUrl : '';
+      const url = prompt("Apna photo URL paste karein:", current);
+      if (url !== null) {
+        const trimmed = url.trim();
+        userProfile.photoUrl = trimmed;
+        localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
+
+        const prev = document.getElementById('profilePhotoPreview');
+        const icon = document.getElementById('profilePhotoIcon');
+        if (trimmed) {
+          if (prev) { prev.src = trimmed; prev.style.display = 'block'; }
+          if (icon) icon.style.display = 'none';
+        } else {
+          if (prev) prev.style.display = 'none';
+          if (icon) icon.style.display = 'block';
+        }
+
+        updateNavAvatarDisplay();
+        if (window.syncUserDataToCloud) window.syncUserDataToCloud();
+        if (window.refreshCurrentTab) window.refreshCurrentTab();
+        if (trimmed) triggerConfetti(null, 50);
+        alert("✅ DP URL update ho gayi!");
+      }
+    };
+
+    window.saveProfileName = function() {
+      const input = document.getElementById('profileNameInput');
+      if (!input) return;
+      const newName = input.value.trim();
+      if (!newName) {
+        alert("Bhai, name blank nahi ho sakta!");
+        return;
+      }
+      userProfile.name = newName;
+      localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
+
+      const navDisp = document.getElementById('navUserNameDisplay');
+      if (navDisp) navDisp.innerText = newName;
+
+      if (window.syncUserDataToCloud) window.syncUserDataToCloud();
+      if (window.refreshCurrentTab) window.refreshCurrentTab();
+      triggerConfetti(null, 40);
+      alert("✅ Naam successfully update ho gaya: " + newName);
+    };
 
     function handleSubjectSearch(subj, val) {
       subjectFilters[subj].search = val.trim().toLowerCase();
@@ -2060,13 +2180,11 @@
       return card;
     }
 
-    // 🔥 TASK CHECKPOINT XP ENGINE (+15 XP PER TASK, +50 BONUS FOR FINISHING FULL CHAPTER)
     function toggleCheckpoint(id, field, event) {
       const item = trackerData.find(d => d.id === id);
       if (item) {
         item[field] = !item[field];
         
-        // XP Calculation
         if (item[field]) {
           userExtras.totalXp = (userExtras.totalXp || 0) + 15;
           triggerConfetti(event, 30);
@@ -2294,15 +2412,11 @@
     }
 
     function openProfileModal() {
-      const nameDisp = document.getElementById('profileRealNameDisplay');
-      if (nameDisp) nameDisp.innerText = userProfile.name || "Aspirant";
+      const nameInput = document.getElementById('profileNameInput');
+      if (nameInput) nameInput.value = userProfile.name || "";
       const emailDisp = document.getElementById('profileEmailDisplay');
       if (emailDisp) emailDisp.innerText = userProfile.email || "Google Account";
       
-      // Update Inputs
-      document.getElementById('editProfileNameInput').value = userProfile.name || "";
-      document.getElementById('editProfileUrlInput').value = userProfile.photoUrl || "";
-
       const prev = document.getElementById('profilePhotoPreview');
       const icon = document.getElementById('profilePhotoIcon');
       if (userProfile.photoUrl) {
@@ -2324,31 +2438,6 @@
 
       document.getElementById('profileModal').classList.add('open');
     }
-
-    // 🔥 NEW: Update Identity Function
-    window.updateProfileIdentity = function() {
-      const newName = document.getElementById('editProfileNameInput').value.trim();
-      const newUrl = document.getElementById('editProfileUrlInput').value.trim();
-      
-      if(!newName) { alert("Bhai, name empty nahi chhod sakte!"); return; }
-      
-      userProfile.name = newName;
-      userProfile.photoUrl = newUrl;
-      
-      localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
-      
-      // Update UI Live
-      document.getElementById('profileRealNameDisplay').innerText = newName;
-      document.getElementById('navUserNameDisplay').innerText = newName;
-      updateNavAvatarDisplay();
-      
-      // Sync with cloud
-      if(window.syncUserDataToCloud) window.syncUserDataToCloud();
-      
-      triggerConfetti(null, 40);
-      alert("Identity Updated! Ab sabko tumhara naya avatar dikhega. ⚡");
-    }
-
     function closeProfileModal() { document.getElementById('profileModal').classList.remove('open'); }
 
     function exportDataBackup() {
@@ -2606,6 +2695,8 @@
     })();
 
     window.addEventListener('DOMContentLoaded', () => {
+      const navDisp = document.getElementById('navUserNameDisplay');
+      if (navDisp && userProfile.name) navDisp.innerText = userProfile.name;
       renderAutonomousDashboardMonthMission();
       updateGlobalStats();
       updateCountdown();
@@ -2629,7 +2720,7 @@
       browserLocalPersistence 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    // 🔒 OWNER AUTHORIZED GOOGLE ACCOUNTS LIST
+    // OWNER AUTHORIZED GOOGLE ACCOUNTS LIST
     const ADMIN_EMAILS = [
       "triggeredmarshmello@gmail.com",
       "vaironmusic@gmail.com"
@@ -2751,12 +2842,11 @@
           authModal.style.setProperty('display', 'none', 'important');
         }
 
+        const savedProfile = JSON.parse(localStorage.getItem("JEE_2027_USER_PROFILE")) || {};
         userProfile.uid = user.uid;
         userProfile.email = user.email || "";
-        // Only set name/photo if not already set manually
-        if(!userProfile.name) userProfile.name = user.displayName || "Aspirant";
-        if(!userProfile.photoUrl) userProfile.photoUrl = user.photoURL || "";
-        
+        userProfile.name = savedProfile.name || user.displayName || "Aspirant";
+        userProfile.photoUrl = savedProfile.photoUrl || user.photoURL || "";
         userProfile.isSetup = true;
         localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
 
@@ -2850,6 +2940,9 @@
         const docSnap = await getDoc(doc(db, "squad_progress", uid));
         if (docSnap.exists()) {
           const data = docSnap.data();
+          const localProf = JSON.parse(localStorage.getItem("JEE_2027_USER_PROFILE")) || {};
+          if (data.name && !localProf.name) userProfile.name = data.name;
+          if (data.photoUrl && !localProf.photoUrl) userProfile.photoUrl = data.photoUrl;
           if (data.trackerData) window.trackerData = data.trackerData;
           if (data.userExtras) {
             window.userExtras = data.userExtras;
@@ -2859,10 +2952,6 @@
           }
           if (data.participateLdb !== undefined) userProfile.participateLdb = data.participateLdb;
           
-          // Identity sync from cloud if present
-          if (data.name) userProfile.name = data.name;
-          if (data.photoUrl) userProfile.photoUrl = data.photoUrl;
-
           localStorage.setItem("JEE_2027_SQUAD_TRACKER_V1", JSON.stringify(window.trackerData));
           localStorage.setItem("JEE_2027_EXTRAS_V1", JSON.stringify(window.userExtras));
           localStorage.setItem("JEE_2027_USER_PROFILE", JSON.stringify(userProfile));
