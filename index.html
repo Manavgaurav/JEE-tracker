@@ -869,6 +869,214 @@
       .top-aurora-arc { width: 90vw; height: 380px; top: -180px; }
       .top-aurora-border { width: 85vw; height: 350px; top: -160px; }
     }
+
+    /* ============================================================
+       GLASSMORPHISM UPGRADE LAYER
+       Frosted surfaces, aurora blobs, unified micro-interactions
+       ============================================================ */
+    :root {
+      --glass-fill: rgba(255, 255, 255, 0.045);
+      --glass-fill-strong: rgba(255, 255, 255, 0.075);
+      --glass-line: rgba(255, 255, 255, 0.12);
+      --glass-line-soft: rgba(255, 255, 255, 0.08);
+      --glass-top-light: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+      --glass-shadow: 0 8px 32px rgba(2, 0, 8, 0.45);
+      --glass-shadow-lift: 0 18px 45px rgba(2, 0, 8, 0.6), 0 0 0 1px rgba(192, 132, 252, 0.28), 0 0 28px rgba(124, 58, 237, 0.18);
+      --ease-glass: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* --- Aurora blob field (behind everything) --- */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: -14%;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(38vw 38vw at 16% 10%, rgba(124, 58, 237, 0.30), transparent 62%),
+        radial-gradient(34vw 34vw at 84% 6%, rgba(99, 102, 241, 0.24), transparent 60%),
+        radial-gradient(44vw 44vw at 72% 90%, rgba(217, 70, 239, 0.16), transparent 62%),
+        radial-gradient(30vw 30vw at 10% 80%, rgba(56, 189, 248, 0.12), transparent 60%);
+      filter: blur(28px);
+      animation: auroraDrift 28s ease-in-out infinite alternate;
+    }
+    @keyframes auroraDrift {
+      0%   { transform: translate3d(0, 0, 0) scale(1); }
+      50%  { transform: translate3d(2.5%, -2%, 0) scale(1.06); }
+      100% { transform: translate3d(-2%, 2.5%, 0) scale(1.02); }
+    }
+    .grid-matrix { opacity: 0.5; }
+
+    /* --- Global micro-polish --- */
+    ::selection { background: rgba(168, 85, 247, 0.45); color: #fff; }
+    * { -webkit-tap-highlight-color: transparent; }
+    :focus-visible { outline: 2px solid rgba(192, 132, 252, 0.75); outline-offset: 2px; }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(168, 85, 247, 0.35);
+      border-radius: 999px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(192, 132, 252, 0.65); background-clip: padding-box; }
+
+    /* --- Frosted navbar --- */
+    .navbar {
+      background-color: rgba(255, 255, 255, 0.055);
+      border-color: rgba(255, 255, 255, 0.13);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    }
+    .brand-icon-wrap {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.95), rgba(192, 132, 252, 0.9));
+      box-shadow: 0 0 20px var(--purple-glow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    /* --- Frosted dock --- */
+    .app-dock-bar {
+      background-color: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(40px) saturate(200%);
+      -webkit-backdrop-filter: blur(40px) saturate(200%);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+    .dock-tab { transition: all 0.3s var(--ease-glass); }
+    .dock-tab:hover { background: rgba(255, 255, 255, 0.09); transform: translateY(-2px); }
+    .dock-tab:active { transform: translateY(0) scale(0.96); }
+    .dock-tab.active {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.9), rgba(168, 85, 247, 0.8));
+      box-shadow: 0 8px 22px rgba(124, 58, 237, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+
+    /* --- Glass surfaces: standard cards --- */
+    .hub-card, .lecture-card, .view-toolbar, .ldb-row-card, .stat-card,
+    .month-subj-box, .subj-prog-box, .mock-card, .admin-row,
+    .countdown-box, .cat-header, .error-card {
+      background-color: var(--glass-fill);
+      border-color: var(--glass-line-soft);
+      backdrop-filter: blur(26px) saturate(170%);
+      -webkit-backdrop-filter: blur(26px) saturate(170%);
+      box-shadow: var(--glass-shadow), var(--glass-top-light);
+    }
+    .hub-card, .lecture-card { position: relative; overflow: hidden; }
+    .hub-card:hover, .lecture-card:hover {
+      box-shadow: var(--glass-shadow-lift);
+      background-color: var(--glass-fill-strong);
+    }
+    /* sheen sweep on hover */
+    .hub-card::after, .lecture-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -60%;
+      width: 45%;
+      height: 100%;
+      background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.07), transparent);
+      transform: skewX(-18deg);
+      opacity: 0;
+      transition: left 0.65s var(--ease-glass), opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .hub-card:hover::after, .lecture-card:hover::after { left: 130%; opacity: 1; }
+    .stat-card:hover { background-color: var(--glass-fill-strong); box-shadow: var(--glass-shadow-lift); }
+
+    /* --- Glass surfaces: hero / large panels --- */
+    .hero-panel, .bold-monthly-card, .focus-arena-box, .ldb-hero-card, .monthly-mission-hero {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.025));
+      border-color: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(34px) saturate(180%);
+      -webkit-backdrop-filter: blur(34px) saturate(180%);
+      box-shadow: 0 24px 60px rgba(2, 0, 8, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    }
+    .countdown-box { background-color: rgba(255, 255, 255, 0.05); }
+
+    /* --- Buttons & pills --- */
+    .pill-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: all 0.25s var(--ease-glass);
+    }
+    .pill-btn:hover {
+      background: rgba(168, 85, 247, 0.18);
+      border-color: rgba(192, 132, 252, 0.5);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+      transform: translateY(-2px);
+    }
+    .pill-btn:active { transform: translateY(0) scale(0.96); }
+    .btn-action-primary {
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      transition: all 0.25s var(--ease-glass);
+    }
+    .btn-action-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(124, 58, 237, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+    .btn-action-primary:active { transform: scale(0.97); }
+    .ch-tab-btn, .check-btn { transition: all 0.25s var(--ease-glass); }
+    .ch-tab-btn:active, .check-btn:active { transform: scale(0.96); }
+    .ch-tab-btn.active {
+      box-shadow: 0 8px 22px rgba(124, 58, 237, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    /* --- Inputs --- */
+    .search-input, .modal-input-field {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .search-input:focus, .modal-input-field:focus {
+      border-color: rgba(192, 132, 252, 0.7);
+      box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25);
+      background: rgba(255, 255, 255, 0.085);
+    }
+    .filter-select {
+      background: rgba(255, 255, 255, 0.07) !important;
+      border-color: rgba(255, 255, 255, 0.14) !important;
+      backdrop-filter: blur(14px);
+      transition: all 0.2s ease;
+    }
+    .filter-select:hover { border-color: rgba(192, 132, 252, 0.5) !important; }
+    .status-dropdown, .conf-dropdown {
+      background: rgba(255, 255, 255, 0.07) !important;
+      border-color: rgba(255, 255, 255, 0.16) !important;
+      transition: all 0.2s ease;
+    }
+
+    /* --- Progress bars: recessed glass troughs --- */
+    .progress-bar-container, .subj-prog-bar-wrap {
+      backdrop-filter: blur(8px);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.55);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* --- Badges: translucent chips --- */
+    .badge-subj, .hero-tag, .streak-badge, .month-badge-pill,
+    .monthly-progress-pill, .glowing-watermark {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .stat-icon-wrap { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14); backdrop-filter: blur(10px); }
+
+    /* --- Modals: frosted panels --- */
+    .modal-box {
+      background: rgba(14, 7, 28, 0.72);
+      border-color: rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    }
+    .modal-backdrop { background: rgba(4, 1, 10, 0.7); backdrop-filter: blur(24px) saturate(150%); }
+
+    /* --- Typography polish --- */
+    .hero-headline { letter-spacing: -1.6px; }
+    .hero-headline .gradient-accent {
+      background: linear-gradient(120deg, #e9d5ff 0%, #c084fc 40%, #818cf8 72%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    h1, h2, h3 { text-wrap: balance; }
   </style>
 </head>
 <body>
@@ -1355,6 +1563,14 @@
         </svg>
         <span>Continue with Google</span>
       </button>
+
+      <!-- LOCAL-ONLY: Preview Mode (shown only on localhost/file:// via JS) -->
+      <button class="pill-btn" id="previewModeBtn" onclick="handlePreviewModeSkip()" style="display:none; width:100%; justify-content:center; margin-top:12px; padding:11px; color:var(--purple-neon); border-color:rgba(192,132,252,0.4); background:rgba(168,85,247,0.12); font-size:0.82rem;">
+        <i class="fa-solid fa-eye"></i> Preview Mode (skip login — local only)
+      </button>
+      <p style="font-size:0.66rem; color:var(--text-dim); margin-top:10px; line-height:1.5;">
+        Local preview pe Google login kaam nahi karta — Preview Mode se saara UI bina login ke dekh sakte ho.
+      </p>
     </div>
   </div>
 
@@ -2828,6 +3044,24 @@
       }
     };
 
+    /* --- LOCAL PREVIEW MODE: bypass login wall only on localhost/file:// --- */
+    const IS_LOCAL_HOST = ['localhost', '127.0.0.1', '[::1]', '0.0.0.0'].includes(location.hostname) || location.protocol === 'file:';
+    const PREVIEW_MODE_ACTIVE = IS_LOCAL_HOST && localStorage.getItem('JEE_2027_PREVIEW_MODE') === '1';
+
+    if (IS_LOCAL_HOST) {
+      const previewBtn = document.getElementById('previewModeBtn');
+      if (previewBtn) previewBtn.style.display = 'inline-flex';
+    }
+
+    window.handlePreviewModeSkip = function() {
+      localStorage.setItem('JEE_2027_PREVIEW_MODE', '1');
+      const authModal = document.getElementById('googleAuthModal');
+      if (authModal) {
+        authModal.classList.remove('open');
+        authModal.style.setProperty('display', 'none', 'important');
+      }
+    };
+
     onAuthStateChanged(auth, async (user) => {
       const authModal = document.getElementById('googleAuthModal');
       
@@ -2862,9 +3096,12 @@
       } else {
         if (banUnsubscribe) { banUnsubscribe(); banUnsubscribe = null; }
         userProfile.isSetup = false;
-        if (authModal) {
+        if (authModal && !PREVIEW_MODE_ACTIVE) {
           authModal.style.removeProperty('display');
           authModal.classList.add('open');
+        } else if (authModal && PREVIEW_MODE_ACTIVE) {
+          authModal.classList.remove('open');
+          authModal.style.setProperty('display', 'none', 'important');
         }
       }
     });
